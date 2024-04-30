@@ -1,0 +1,444 @@
+#/usr/bin/env perl
+
+use warnings;
+use strict;
+
+use POSIX;
+use Test::More qw(no_plan);
+use Test::Exception;
+use Data::Dumper;
+use feature qw(say);
+
+# Verify module can be included via "use" pragma
+BEGIN { use_ok('HomeBrew::IO') };
+
+# Verify module can be included via "require" pragma
+require_ok('HomeBrew::IO');
+
+my($retVal, $tmpFile);
+
+# test constants
+is($HomeBrew::IO::pathNotFound, -3, "does pathNotFound equal -3 ?");
+is($HomeBrew::IO::emptyFile, -4, "does emptyFile equal -4 ?");
+
+# test checkExist
+lives_ok {HomeBrew::IO::checkExist('f', $0) } "can checkExist find file $0 ?";
+lives_ok {HomeBrew::IO::checkExist('d', $ENV{PWD}) }
+    "can checkExist find directory $ENV{PWD} ?";
+
+do {
+    $tmpFile = tmpnam();
+} while (-f $tmpFile);
+
+throws_ok { HomeBrew::IO::checkExist('f', $tmpFile) }
+    qr/$HomeBrew::IO::pathNotFound/,
+    "did checkExist('f') die correctly when it couldn't find $tmpFile ?";
+throws_ok { HomeBrew::IO::checkExist('d', $tmpFile) }
+    qr/$HomeBrew::IO::pathNotFound/,
+    "did checkExist('d') die correctly when it couldn't find $tmpFile ?";
+open(TMP,">$tmpFile") or die "couldn't write to $tmpFile\n";
+throws_ok { HomeBrew::IO::checkExist('f', $tmpFile) } 
+    qr/$HomeBrew::IO::emptyFile/,
+    "did checkExist('f') die correctly when it found that $tmpFile was empty ?";
+close TMP;
+
+print "\n\n";
+
+# test checkExist2
+$retVal = HomeBrew::IO::checkExist2('f', $0);
+is($retVal, undef, "can checkExist2 find file $0 ?");
+$retVal = HomeBrew::IO::checkExist2('d', $ENV{PWD});
+is($retVal, undef,"can checkExist2 find directory $ENV{PWD} ?");
+
+do {
+    $tmpFile = tmpnam();
+} while (-f $tmpFile);
+$retVal = HomeBrew::IO::checkExist2('f', $tmpFile);
+is($retVal, $HomeBrew::IO::pathNotFound, 
+   "did checkExist2('f') warn you that it couldn't find $tmpFile ?");
+$retVal = HomeBrew::IO::checkExist2('d', $tmpFile);
+is($retVal, $HomeBrew::IO::pathNotFound, 
+   "did checkExist2('d') warn you that it couldn't find $tmpFile ?");
+open(TMP,">$tmpFile") or die "couldn't write to $tmpFile\n";
+$retVal = HomeBrew::IO::checkExist2('f', $tmpFile);
+is($retVal, $HomeBrew::IO::emptyFile, 
+   "did checkExist2('f') warn you that $tmpFile was empty ?");
+close TMP;
+system("rm $tmpFile");
+
+print "\n\n";
+
+# test readList and readList_2
+# start by making your test list
+my @leading = qw(item1 item2 item3);
+my @trailing = qw(a b c);
+my @quoted = ('one', '"two... still two"', '"three is the best"');
+
+# write these values to a list file
+die "test fail: failed to match leading and trailing list items\n" 
+    unless @leading == @trailing;
+my @writeThisList;
+push @writeThisList, join(" ", $leading[$_], $trailing[$_])
+    for (0..$#leading);
+# insert some comments
+unshift @writeThisList, "# comment";
+push @writeThisList, "# comment";
+
+my @listWithQuotes = 
+    map { join "\t", $leading[$_], $quoted[$_], $trailing[$_] } 0..$#leading;
+
+
+do {
+    $tmpFile = tmpnam();
+} while (-f $tmpFile);
+
+open(TMP,">$tmpFile") or die "couldn't write to $tmpFile\n";
+print TMP join("\n", @writeThisList);
+close TMP;
+
+my @list1 = HomeBrew::IO::readList($tmpFile);
+is_deeply(\@list1, \@leading, "can readList read a list?");
+
+my @list2 = HomeBrew::IO::readList2($tmpFile);
+my @matchList2; # each row is an array ref
+push(@matchList2, [$leading[$_], $trailing[$_]])for (0..$#leading);
+is_deeply(\@list2, \@matchList2, "can readList2 read a multi-list?");
+
+my @list3 = HomeBrew::IO::readList3($tmpFile);
+is_deeply(\@list3, [\@leading, \@trailing], 
+    "can readList3 read a multi-list?");
+
+system("rm $tmpFile");
+print "\n\n";
+
+# test readColX functions
+{
+    my @cols = qw(col1 col2);
+    my $fakeColumn = "this_is_not_a_true_column";
+    # write out a test file for readColX
+    do {
+	$tmpFile = tmpnam();
+    } while (-f $tmpFile);
+    open(TMP,">$tmpFile") or die "couldn't write to $tmpFile\n";
+    print TMP join(" ",@cols), "\n";
+    print TMP join("\n", @writeThisList);
+    close TMP;    
+
+    my $gotHeader;
+    my @gotCols = HomeBrew::IO::readHeader($tmpFile, \$gotHeader);
+    is_deeply(\@gotCols, \@cols, "can I readHeader?");
+    is($gotHeader, join(" ", @cols), "can I read the raw header?");
+    
+
+    my @rCol = HomeBrew::IO::readCol($tmpFile, $cols[0]);
+    is_deeply(\@rCol, \@leading, "can readCol read a column?");
+    dies_ok { HomeBrew::IO::readCol($tmpFile, $fakeColumn) } 
+    "does readCol die when you ask it to read a column that isn't there?";
+
+    my @rCols = HomeBrew::IO::readCols($tmpFile, \@cols);
+    my @matchRCols;
+    for my $i (0..$#list2) { # list2 should be isomorphic to @rCols
+	my $ent = {};
+	for my $j (0..$#cols) {
+	    $ent->{$cols[$j]} = $list2[$i][$j]
+	}
+	push(@matchRCols, $ent);
+    }
+    is_deeply(\@rCols, \@matchRCols, "can readCols read two cols?");
+    dies_ok { HomeBrew::IO::readCols($tmpFile, [$fakeColumn]) }
+    "does readCols die when you ask it to read a column that isn't there?";
+
+    my %rCols2 = HomeBrew::IO::readCols2($tmpFile, \@cols);
+    my %matchRCols2;
+    for my $i (0..$#list3) { # list2 should be isomorphic to @rCols2
+	$matchRCols2{ $cols[$i] } = $list3[$i];
+    }
+    is_deeply(\%rCols2, \%matchRCols2, "can readCols2 read two cols?");
+    dies_ok { HomeBrew::IO::readCols2($tmpFile, [$fakeColumn]) }
+    "does readCols2 die when you ask it to read a column that isn't there?";    
+
+    system("rm $tmpFile");
+    print "\n\n";
+}
+
+# test readColX reading with quotes
+{
+    my @cols = qw(col1 col2 col3);
+    do {
+	$tmpFile = tmpnam();
+    } while (-f $tmpFile);
+    open(TMP,">$tmpFile") or die "couldn't write to $tmpFile\n";
+    print TMP join(" ",@cols), "\n";
+    print TMP join("\n", @listWithQuotes);
+    close TMP;    
+
+    my @rCol = HomeBrew::IO::readCol($tmpFile, $cols[1], "check quotes");
+    is_deeply(\@rCol, \@quoted, "can readCol understand quoted columns?");
+
+    @rCol = HomeBrew::IO::readCol($tmpFile, $cols[0], "check quotes");
+    is_deeply(\@rCol, \@leading, "can readCol understand non-quoted columns?");
+
+    my @rCols = HomeBrew::IO::readCols($tmpFile, \@cols, undef, "check quotes");
+    my @matchRCols;
+    for my $i (0..$#leading) {
+	push @matchRCols, { $cols[0] => $leading[$i], $cols[1] => $quoted[$i],
+			    $cols[2] => $trailing[$i] };
+    }
+    is_deeply(\@rCols, \@matchRCols, "can readCols understand quoted columns?");
+    
+    my %rCols2 = HomeBrew::IO::readCols2($tmpFile, \@cols, undef, 
+					 "check quotes");
+    my %matchRCols2 = ( $cols[0] => \@leading, $cols[1] => \@quoted,
+			$cols[2] => \@trailing );
+    is_deeply(\%rCols2, \%matchRCols2, 
+	      "can readCols2 understand quoted columns?");
+
+}
+
+warn "\n********** skipping readFasta tests **********";
+my $disableReadFasta = undef;
+if ($disableReadFasta) { ## readFasta presently disabled
+    my @seq = qw(ACGTACGT TGCATGCA aaaa);
+    my @seqName = qw(seq1 seq2 seq3);
+    die "seq and seqNames mismatch\n" unless @seq==@seqName;
+    do {
+	$tmpFile = tmpnam();
+    } while (-f $tmpFile);
+    open(TMP,">$tmpFile") or die "couldn't write to $tmpFile. $!\n";
+    for (0..$#seq) {
+	print TMP ">", $seqName[$_], "\n";
+	print TMP $seq[$_], "\n";
+    }
+    close TMP;
+    
+    my @seqUc = map(uc, @seq);
+
+    my @seqName1;
+    my @seq1 = HomeBrew::IO::readFasta($tmpFile,\@seqName1);
+    is_deeply([\@seq1, \@seqName1], [\@seqUc, \@seqName], 
+	      "can readFasta read a fasta file?");
+    dies_ok { HomeBrew::IO::readFasta($tmpFile,\@seqName1,1,"checkWidth") }
+    "can readFasta tell when its input contains sequences of different lengths?";
+
+    push(@seq,"ACGT^");
+    push(@seqName,"badSeq");
+    die "seq and seqName mismatch\n" unless @seq==@seqName;
+    open(TMP,">$tmpFile") or die "coudln't write to $tmpFile. $!\n";
+    for (0..$#seq) {
+	print TMP ">", $seqName[$_], "\n";
+	print TMP $seq[$_], "\n";
+    }
+    close TMP;
+    dies_ok {HomeBrew::IO::readFasta($tmpFile) } 
+    "does readFasta know if it reads a bad nucleotide?\n";
+    lives_ok {HomeBrew::IO::readFasta($tmpFile,[],1) } 
+    "will readFasta ignore a bad nucleotide if you tell it to?\n";
+
+    system("rm $tmpFile");
+}
+
+# test readSAGE
+{
+    do {
+	$tmpFile = tmpnam();
+    } while (-f $tmpFile);
+    
+    my $testText = '
+
+   *** NOTE: tag counts are normalized to tags/100000 ***
+
+Tag             MIXED   source  pos.    strand  gene    locus   desc.
+Lib. size       100000
+ggcttcggtc      672     coding_RNA      1       +       C37A2.7 .       "ribosomal protein"
+ggcttcggtc      672     coding_RNA      1       +       Y37E3.7 rla-1   "C. elegans RLA-1 protein, contains similarity to Pfam domain PF00428 60s Acidic ribosomal protein contains similarity to Interpro domains IPR001813 (Ribosomal protein 60S), IPR000104 (Antifreeze protein, type I), IPR001859 (Ribosomal protein P2)"
+atcttgttcg      500     coding_RNA      1       +       Y82E9BR.3       .       "contains similarity to Pfam domain PF00137 ATP synthase subunit C contains similarity to Interpro domains IPR002379 (ATPase, F0/V0 complex, subunit C), IPR000454 (ATPase, F0 complex, subunit C)"
+aataacatca      473
+';
+    open(my $TMP, ">", $tmpFile);
+    print $TMP $testText;
+    close $TMP;
+    say "readSAGE test wrote to $tmpFile";
+
+    my @tarSage;
+    {
+	my @data = ([qw(ggcttcggtc      672     coding_RNA      1       +       C37A2.7 .), '"ribosomal protein"'], 
+		    [qw(ggcttcggtc      672     coding_RNA      1       +       Y37E3.7 rla-1   ), '"C. elegans RLA-1 protein, contains similarity to Pfam domain PF00428 60s Acidic ribosomal protein contains similarity to Interpro domains IPR001813 (Ribosomal protein 60S), IPR000104 (Antifreeze protein, type I), IPR001859 (Ribosomal protein P2)"'],
+		    [qw(atcttgttcg      500     coding_RNA      1       +       Y82E9BR.3       .), '"contains similarity to Pfam domain PF00137 ATP synthase subunit C contains similarity to Interpro domains IPR002379 (ATPase, F0/V0 complex, subunit C), IPR000454 (ATPase, F0 complex, subunit C)"'],
+		    [qw(aataacatca      473)]
+	    );
+	
+	my @cols = qw(Tag counts  source  pos. strand  gene    locus   desc. );
+	
+	for my $row (@data) {
+	    my $ent = {};
+	    for my $i (0..$#cols) {
+		$ent->{$cols[$i]} = $row->[$i];
+	    }
+	    push(@tarSage, $ent);
+	}
+    }
+    my $tarLibSize = 100000;
+    
+    {
+	my $gotLibSize;
+	my @gotSage = HomeBrew::IO::readSAGE($tmpFile,'MIXED', \$gotLibSize);
+	is($gotLibSize, $tarLibSize, 
+	   'does readSAGE get the correct library size with normalization?');
+	is_deeply(\@gotSage, \@tarSage, 
+		  'does readSAGE get the correct data with normalization?');
+    }
+
+
+    $testText = '
+
+Tag             MIXED   source  pos.    strand  gene    locus   desc.
+Lib. size       100000
+ggcttcggtc      672     coding_RNA      1       +       C37A2.7 .       "ribosomal protein"
+ggcttcggtc      672     coding_RNA      1       +       Y37E3.7 rla-1   "C. elegans RLA-1 protein, contains similarity to Pfam domain PF00428 60s Acidic ribosomal protein contains similarity to Interpro domains IPR001813 (Ribosomal protein 60S), IPR000104 (Antifreeze protein, type I), IPR001859 (Ribosomal protein P2)"
+atcttgttcg      500     coding_RNA      1       +       Y82E9BR.3       .       "contains similarity to Pfam domain PF00137 ATP synthase subunit C contains similarity to Interpro domains IPR002379 (ATPase, F0/V0 complex, subunit C), IPR000454 (ATPase, F0 complex, subunit C)"
+aataacatca      473
+';
+    open($TMP, ">", $tmpFile);
+    print $TMP $testText;
+    close $TMP;
+    say "readSAGE test wrote to $tmpFile";
+    
+    {
+	my $gotLibSize;
+	my @gotSage = HomeBrew::IO::readSAGE($tmpFile, '', \$gotLibSize);
+	is($gotLibSize, $tarLibSize, 
+	   'does readSAGE get the correct library size without normalization?');
+	is_deeply(\@gotSage, \@tarSage, 
+		  'does readSAGE get the correct data without normalization?');
+    }
+    
+}
+
+{
+#test writeCols;
+    do {
+	$tmpFile = tmpnam();
+    } while (-f $tmpFile);
+
+    my @d1 = qw(0 -1 -2 -3);
+    my @d2 = qw(5.6 6.7 7.8 8.9);
+    my @d3 = qw(+ - + -);
+    my @fields = qw(seqN zorbos zorbina strand);
+    my $header = sprintf("%12s%12s%12s%7s", @fields);
+    my $format = "%12d%12.1f%12.1e%7s";
+    my $preComments = "these were\nsupposed to be\n comments";
+    my @cols = (\@d1, \@d2, \@d3);
+    lives_ok {HomeBrew::IO::writeCols($tmpFile, \@cols, $header, $format, 
+				      $preComments, 1) }
+    "does writeCols live?";
+    my @seqN = (1..4);
+    my @targetFile = ();
+    my @spl = split(/\n/,$preComments);
+    for (@spl) {
+	push(@targetFile, "# $_") # omit \n for chomp
+    }
+    push(@targetFile, $header);
+    for my $i (0..$#d1) {
+	my $s = sprintf($format, $i+1, $d1[$i], $d2[$i], $d3[$i]);
+	push(@targetFile, $s);
+    }
+    {
+	print "looking at $tmpFile\n";
+	open(my $IN, "<", $tmpFile);
+	my @readCols = <$IN>;
+	close $IN;
+	chomp @readCols;
+	is_deeply(\@readCols, \@targetFile, "does writeCols write correctly?");
+    }
+}
+
+{
+# test writeFasta
+    my $seq = "ACGTACGTACGTGGG";
+    my $seqName = "Gssmo_Franco";
+    my $lineLength = 4;
+
+    do {
+	$tmpFile = tmpnam();
+    } while (-f $tmpFile);
+    lives_ok {HomeBrew::IO::writeFasta($tmpFile, $seq, $seqName, $lineLength)} 
+    "can write fasta?";    
+    
+    open(my $IN, "<", $tmpFile) or die "couldn't read from $tmpFile. $!\n";
+    my @readFa = <$IN>;
+    close $IN;
+    chomp @readFa;
+    
+    my $format = "(A$lineLength)*";
+    my @tarFa = (">$seqName", unpack($format, $seq));
+    is_deeply(\@readFa, \@tarFa, "can write fasta properly")
+}
+
+if ($disableReadFasta) { # test multiFasta
+    my $nSeq = 5;
+    my $seqLen = 100;
+    my $lineLength = 40;
+    my @seqs;
+    my @names;
+    my @nucs = qw(A C G T);
+    my $i = 0;
+    while (@seqs < $nSeq) {
+	my $seq = "";
+	$seq.= $nucs[rand @nucs] while length($seq) < $seqLen;
+	push @seqs, $seq;
+	push @names, "seq$i";
+	$i++;
+    }
+
+    HomeBrew::IO::writeFasta($tmpFile, \@seqs, \@names, $lineLength);
+    
+    my @seqIn = HomeBrew::IO::readFasta($tmpFile);
+    is_deeply(\@seqIn, \@seqs, "did I write all the sequences correctly?");
+
+    my @namesIn;
+    {
+	open my $IN, "<", $tmpFile 
+	    or die "can't read multi-fasta file $tmpFile. $!\n";
+	while (my $line = <$IN>) {
+	    chomp $line;
+	    if ($line =~ /^>(.+)/) {
+		push @namesIn, $1;
+	    }
+	}
+    }
+
+    is_deeply(\@namesIn, \@names, "did I write the names correctly?");
+    
+}
+# test read/write2DArray
+{
+    my @letters = ('a'..'z');
+    my ($length, $width) = (5,4);
+    my $n=0;
+    my @out;
+    for my $i (0..$length-1) {
+	for my $j (0..$width-1) {
+	    $out[$i]{$j} = $letters[$n];
+	    $n++;
+	}
+    }
+    my $format = "%3s";
+    do {
+	$tmpFile = tmpnam();
+    } while (-f $tmpFile);
+    print "writing to $tmpFile\n";
+    HomeBrew::IO::write2DArray($tmpFile, \@out, $format, $format);
+    my $target = "     0  1  2  3  4
+  0  a  e  i  m  q
+  1  b  f  j  n  r
+  2  c  g  k  o  s
+  3  d  h  l  p  t\n";
+    open(my $TMPIN, "<", $tmpFile);
+    my @read = <$TMPIN>;
+    my $got2DString = join("", @read);
+    is($got2DString, $target, "does write2DArray work?\n");
+    
+    my @got2DArray;
+    HomeBrew::IO::read2DArray(\@got2DArray, $tmpFile);
+    is_deeply(\@got2DArray, \@out, "does read2D array work?\n");
+}

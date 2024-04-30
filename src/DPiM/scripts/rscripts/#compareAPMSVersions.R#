@@ -1,0 +1,94 @@
+expts <- read.table("/home/glocke/DPiM/newDpim2/compareVersions.apms.tsv.sym", header = T)
+
+ids <- unique(expts$ms_inst_run_id )
+
+noBait <- subset(expts, as.character(bait)!= as.character(prey))
+{
+    {
+        cors <- sapply(ids, function(id) {
+                           exp <- subset(noBait, ms_inst_run_id == id);
+                           return(cor(exp$dp1TSC, exp$dp1aTSC))
+                       })
+        
+        df <- data.frame(ms_inst_run_id = ids, cor=cors)
+        df <- df[order(df$cor),]
+        write.table(df, file="/home/glocke/DPiM/newDpim2/compareVersions.apms.cor_noBait.tab", quote=F, sep="\t", row.names=F)
+    }
+
+    {
+        cors <- sapply(ids, function(id) {
+                           exp <- subset(expts, ms_inst_run_id == id);
+                           return(cor(exp$dp1TSC, exp$dp1aTSC))
+                       })
+        
+        df <- data.frame(ms_inst_run_id = ids, cor=cors)
+        df <- df[order(df$cor),]
+        write.table(df, file="/home/glocke/DPiM/newDpim2/compareVersions.apms.cor.tab", quote=F, sep="\t", row.names=F)
+    }
+}
+
+{
+    corTab <- read.table("/home/glocke/DPiM/newDpim2/compareVersions.apms.cor.tab", header = T)
+    ex2 <- merge(expts, corTab, by.x="ms_inst_run_id", by.y="ms_inst_run_id")
+    ex2 <- ex2[order(ex2$cor),]
+    ex2$cor <- round(ex2$cor, digits=4)
+
+    ##corWithBait <- read.table("/home/glocke/DPiM/newDpim2/compareVersions.apms.cor_withBait.tab", header = T)
+    ##c2 <- data.frame(ms_inst_run_id = corWithBait$ms_inst_run_id,
+    ##corWithBait = corWithBait$cor)
+    ##ex2 <- merge(ex2, c2, by.x="ms_inst_run_id", by.y="ms_inst_run_id")
+    ##ex2$corWithBait <- round(ex2$corWithBait, digits=4)
+
+    write.table(ex2, file="/home/glocke/DPiM/newDpim2/compareVersions.apms.txt", quote=F, sep="\t", row.names=F)
+    
+}
+
+{
+    sum(corTab$cor > 0.95)/nrow(corTab)
+    sum(corTab$cor > 0.90)/nrow(corTab)
+    sum(corTab$cor < 0.5)
+    sum(corTab$cor < 0.5)/nrow(corTab)
+    sum(corTab$cor > 0.5 & corTab$cor < 0.9)
+    sum(corTab$cor > 0.5 & corTab$cor < 0.9)/nrow(corTab)
+}
+
+
+{
+    prey <- unique(expts$geneSymbol2)
+    tsc1 <- aggregate(expts$dp1TSC, by=list(expts$prey), FUN=sum)
+    tsc1a <- aggregate(expts$dp1aTSC, by=list(expts$prey), FUN=sum)
+    tsc4 <- aggregate(expts$dp4TSC, by=list(expts$prey), FUN=sum)
+    row.names(tsc1) <- tsc1$Group.1
+    row.names(tsc1a) <- tsc1a$Group.1
+    row.names(tsc4) <- tsc4$Group.1
+
+    edgesLost <- read.table("/home/glocke/DPiM/newDpim2/newNrBait/notCarriedFromDPIM1.net.degDist", header = T)
+    row.names(edgesLost) <- edgesLost$protein
+    rwz <- row.names(edgesLost)[1:30]
+    
+    
+    degDist1 <- read.table("/home/glocke/DPiM/prevDPIM/DPIM1_scores.updateFBgn.degreeDist", header = T)
+    degDist1a <- read.table( "/home/glocke/DPiM/newDpim2/newNrBait/newNrBait.net.degDist", header = T)
+    notIn1a <- setdiff(degDist1$protein, degDist1a$protein)
+    notIn1 <- setdiff(degDist1a$protein, degDist1$protein)
+    degDist1 <- rbind(degDist1,
+                      data.frame(rank= tail(degDist1$rank, n=1) +
+                                     c(1:length(notIn1)),
+                                 protein=notIn1, degree=0))
+    degDist1a <- rbind(degDist1a,
+                      data.frame(rank= tail(degDist1a$rank, n=1) +
+                                     c(1:length(notIn1a)),
+                                 protein=notIn1a, degree=0))
+    row.names(degDist1) <- degDist1$protein
+    row.names(degDist1a) <- degDist1a$protein
+
+    nmz <- row.names(degDist1)
+    cmpDF <- data.frame(protein=nmz, degree1=degDist1[nmz, "degree"],
+                        degree1a=degDist1a[nmz, "degree"],
+                        tsc1=tsc1[nmz, "x"], tsc1a=tsc1a[nmz, "x"])
+
+    plot(cmpDF$degree1 - cmpDF$degree1a,
+         cmpDF$tsc1 - cmpDF$tsc1a,
+         xlab="Degree difference", ylab="TSC difference",
+         ylim=c(-200, 200))
+}

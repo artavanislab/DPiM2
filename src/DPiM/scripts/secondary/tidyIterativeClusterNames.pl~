@@ -1,0 +1,99 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+use HomeBrew::IO qw(checkExist readList2);
+#use DpimLib qw(getLineDP4APMS);
+
+# cluster names like "0001.01.01.01.01.01.01.01.01.01.01.01.01.01.01.01.01.01.01.01.01.01.02" are for the birds
+# instead, just group all the clusters under their top level group (e.g. 0001) 
+# and then number them according to size
+
+my %opts = getCommandLineOptions();
+
+{
+    my $in = $opts{in};
+    my $out = $opts{out};
+
+    my %clusters;
+    readClusters(\%clusters, $in);
+    
+    my %newNames;
+    newNames(\%newNames, \%clusters);
+    my @order = sort {$newNames{$a} cmp $newNames{$b}} keys %newNames;
+    
+    open my $OUT, ">", $out or die "can't write to $out. $!";
+    say $OUT "# $0 changed names of $in";
+    for my $n (@order) {
+	say $OUT join "\t", $newNames{$n}, @{$clusters{$n}{members}};
+    }
+    close $OUT; 
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+
+    my %defaults = (
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my $usage = "usage: $0 -in input -out output\n";
+
+    my %opts = ();
+    GetOptions(\%opts, "in=s", "out=s");
+    die $usage unless exists $opts{in} && exists $opts{out};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+
+    checkExist('f', $opts{in});
+
+    return %opts;
+}
+
+sub readClusters {
+    my ($ret, $in) = @_;
+
+    my @read = readList2($in);
+    for my $row (@read) {
+	my $id = shift @$row;
+	$ret->{$id} = { members => $row, size => 0+ @$row };
+    }
+    return;
+}
+
+# $ret{$oldName} = $newName
+sub newNames {
+    my ($ret, $clusters) = @_;
+    
+    my %byClass; # byClass{class}{id} = $cluster
+    for my $n (keys %$clusters) {
+	if ($n !~ /\./) {
+	    $ret->{$n} = $n;
+	} else {
+	    $n =~ /^(\d+)\./ or die "can't parse $n";
+	    $byClass{$1}{$n} = $clusters->{$n};
+	}
+    }
+
+    for my $class (keys %byClass) {
+	my $inClass = $byClass{$class};
+	my @oldNames = keys %$inClass;
+	@oldNames = sort { $inClass->{$b}{size} <=> $inClass->{$a}{size} } @oldNames;
+	for my $i (0..$#oldNames) {
+	    $ret->{$oldNames[$i]} = sprintf("$class.%04d", $i+1);
+	}
+    }
+
+    return;
+}

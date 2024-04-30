@@ -1,0 +1,73 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+use HomeBrew::IO qw(checkExist);
+#use DpimLib qw(getLineDP4APMS);
+
+# find the experiment in one storable that corresponds most closely to 
+#   experiments in the dpim1
+
+
+my %opts = getCommandLineOptions();
+
+{
+    my $in = $opts{in};
+    my $out = $opts{out};
+
+    
+    my %sort;
+    # sort{bait}{search_id} = [ {prey_ref=>'fbgn', 'total_peptides'=>n},...]
+    readDP1 (\%sort, $in);
+
+
+    open my $OUT, ">", $out or die "can't write to $out. $!";
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+
+    my %defaults = (
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my $usage = "usage: $0 -in input -out output\n";
+
+    my %opts = ();
+    GetOptions(\%opts, "in=s", "out=s");
+    die $usage unless exists $opts{in} && exists $opts{out};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+
+    checkExist('f', $opts{in});
+
+    return %opts;
+}
+
+sub readDP1 {
+    my ($sort, $in) = @_;
+        
+    my @cols = qw(prey_ref total_peptides);
+    open my $IN, "<", $in or die "Can't read from $in. $!";
+    my %row;
+    say "parse";
+    while (getLineDP4APMS(\%row, $IN)) {
+	my $bait = $row{bait_ref};
+	my $id = $row{search_id};
+	$sort->{$bait}{$id} //= [];
+
+	my $elem = {map { $_ => $row{$_} } @cols};
+	push @{ $sort->{$bait}{$id} }, $elem;
+    }
+}

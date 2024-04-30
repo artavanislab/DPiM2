@@ -1,0 +1,64 @@
+/* 
+ * File:   Network.hpp
+ * Author: glocke
+ * Description: read in the json
+ * 
+ * Created on July 20, 2010, 5:50 PM01-12-2016
+ * Last Modified July 20, 2010, 5:50 PM
+ */
+
+#ifndef _NETWORK_HPP
+#define	_NETWORK_HPP 1
+
+#include <vector>
+#include <string>
+#include <boost/bimap.hpp>
+
+#ifndef STRING_I_BIMAP
+#define STRING_I_BIMAP 1
+typedef boost::bimap< std::string, size_t > stringIBimap;
+#endif
+#ifndef DOUBLE_VECTOR
+#define DOUBLE_VECTOR 1
+typedef std::vector< double > doubleVector;
+#endif
+#ifndef DOUBLE_VECTORP_VECTOR
+#define DOUBLE_VECTORP_VECTOR 1
+typedef std::vector< doubleVector* > doubleVectorPVector; 
+#endif
+#ifndef DOUBLE_VECTOR_VECTOR_VECTOR
+#define DOUBLE_VECTOR_VECTOR_VECTOR 1
+typedef std::vector<doubleVectorPVector> doubleVectorPVectorVector;
+#endif
+#ifndef STRING_VECTOR
+#define STRING_VECTOR 1
+typedef std::vector<std::string> stringVector;
+#endif
+
+class Network {
+public:
+  Network();
+  Network(const std::string jsonFileList);
+  
+
+  // return all scores for this pair of proteins
+  doubleVector* pairScores(const std::string prot1, const std::string prot2);
+  
+private:
+  stringIBimap * fbgnMap;
+  
+  doubleVectorPVectorVector * scoreHist;
+  // scoreHist->at(prot1).at(prot2)->at(run) = score of this interaction
+  // put pointers at the end so that scoreHist[i][j] equals [j][i] without
+  // storing the same data twice.
+
+  doubleVector blankVector; // for constructing scoreHist
+  
+  void firstJson(const std::string jsonFile);
+  void addJson(const std::string jsonFile);
+
+  stringVector * readList(const std::string file);
+  
+};
+
+#endif	/* _JSONNET_HPP */

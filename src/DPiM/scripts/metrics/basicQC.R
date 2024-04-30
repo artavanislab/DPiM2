@@ -1,0 +1,117 @@
+##############################################################################80
+
+library(igraph)
+##library(data.table)
+source("~/DPiM/scripts/rscripts/homebrew.R")
+
+
+# input must have a (ternary) "baitSupport" column
+qcRow <- function(netTab, statTab, dpim1, flybase, other) {
+    net <- graph_from_data_frame(netTab, directed=F)
+    nodess <- length(V(net))
+    edgess <- nrow(netTab)
+    preyPreyy <- 1 - sum(netTab$baitSupport>0) / edgess
+    recip <- sum(netTab$baitSupport==2) / edgess
+    intraClust <- sum(! is.na(netTab$clusterI)) / edgess
+    
+    
+    ## LCC fraction
+    cl <- clusters(net)
+
+    LCCFrac <- cl$csize[1]/nodess
+
+    dpimStats <- netAgree2(net, dpim1)
+    flyStats <- netAgree2(net, flybase)
+    otherStats <- netAgree2(net, other)
+    
+    return(data.frame(
+        experiments = nrow(statTab),
+        baits = length(unique(statTab$bait_ref)),
+        nodes=nodess,
+        edge=edgess,
+        aveDeg = (edgess*2/nodess),
+        dens=(edgess*2/(nodess*(nodess-1))),
+        preyPrey=preyPreyy,
+        reciprocal=recip,
+        lcc=LCCFrac,
+        dpR = dpimStats$recall,
+        dpF = dpimStats$F1,
+        flyR = flyStats$recall,
+        flyF = flyStats$F1,
+        otherR = otherStats$recall,
+        otherF = otherStats$F1,
+        intra=intraClust
+        ))
+}
+
+netAgree <- function(testNet, trueNet) {
+    
+    interNet <- intersection(testNet, trueNet)
+    r <- length(E(interNet)) / length(E(trueNet))
+    p <- length(E(interNet)) / length(E(testNet))
+    f <- 2 * r*p / (r + p)
+    return(list(recall=r, precision=p, F1=f))
+}
+
+## only compare on shared nodes
+netAgree2 <- function(testNet, trueNet) {
+    commonNodes <- intersect(names(V(testNet)), names(V(trueNet)))
+
+    testV <- V(testNet)[commonNodes]
+    trueV <- V(trueNet)[commonNodes]
+    testSub <- induced_subgraph(testNet, testV)
+    trueSub <- induced_subgraph(trueNet, trueV)
+    
+    interNet <- intersection(testSub, trueSub)
+    r <- length(E(interNet)) / length(E(trueSub))
+    p <- length(E(interNet)) / length(E(testSub))
+    f <- 2 * r*p / (r + p)
+    return(list(recall=r, precision=p, F1=f))
+}
+
+
+
+
+
+{
+    
+    dp1Supp <- read.table("/home/glocke/DPiM/prevDPIM/dpim1Net/DPIM1_scores.r6.07.updateFBgn.iter.i2.annotated.preyPrey", header = T, sep="\t", quote="")
+    dp1Stats <- read.table("/home/glocke/DPiM/dpim1/dpim_all_lnSP_nrtap.101223.plusUniqMsInst.dp4.updateFBgn.sumIso.statsBySID", header = T)
+    dp1.2Supp <- read.table("/home/glocke/DPiM/newDpim1_2/newNrBait/newNrBait.net.i4.annotated.preyPrey", header = T, sep="\t", quote="")
+    dp1.2Stats <- read.table("/home/glocke/DPiM/newDpim1_2/DPiM1_05-05-2016Map.dp4.newBait.logPCut.sumIso.trans.statsBySID", header = T)
+    dropSupp <- read.table("/home/glocke/DPiM/augRemap/nrBait_yRej_nBrand_11-16-2016/nrBait.net.i1.9.iter.annotated.preyPrey", header = T, sep="\t", quote="")
+    dropStats <- read.table("/home/glocke/DPiM/augRemap/apmsData/augRemap.dp4.newBait.rmDupes.pepFDR.sumIso.applyLC.untrans.statsBySID", header = T)
+
+    dp1Net <- graph_from_data_frame(dp1Supp, directed=F)
+    flybaseTab <- read.delim("~/DPiM/droid/flybase_noDPIM1_ppi.txt.d2u", header = T, sep="\t")
+    flybaseNet <- graph_from_data_frame(flybaseTab, directed=F)
+    droidOtherTab <- read.delim("~/DPiM/droid/fly_other_physical.txt.d2u", header = T, sep="\t")
+    droidOtherNet <- graph_from_data_frame(droidOtherTab, directed=F)
+    
+    qcTab <- mapply(qcRow, list(dp1Supp, dp1.2Supp, dropSupp),
+                    list(dp1Stats, dp1.2Stats, dropStats),
+                    MoreArgs = list(dpim1 = dp1Net, flybase=flybaseNet,
+                        other=droidOtherNet))
+    colnames(qcTab) <- qw("dpim1 dpim1.2 DropNet")
+    
+    ##qcRow(dropRejSupp, dropRejStats, dpim1 = dp1Net, flybase=flybaseNet, other=droidOtherNet)
+    ##qcRow(dp1.2Supp)
+    ##qcRow(dropSupp)
+    ##qcRow(dropRejSupp)
+    print(qcTab)
+}
+
+
+
+
+if (0) {
+    ## test code
+    commonNodes <- intersect(names(V(flybaseNet)), names(V(droidOtherNet)))
+    
+    flyX <- V(flybaseNet)[commonNodes]
+    otherX <- V(droidOtherNet)[commonNodes]
+    flybaseSub <- induced_subgraph(flybaseNet, flyX)
+    otherSub <-  induced_subgraph(droidOtherNet, otherX)
+    length(E(intersection(flybaseSub, otherSub)))
+    length(E(intersection(flybaseNet, droidOtherNet)))
+}

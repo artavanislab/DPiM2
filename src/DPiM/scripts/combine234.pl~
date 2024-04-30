@@ -1,0 +1,187 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+use List::Util qw(max);
+use HomeBrew::IO qw(checkExist readColsRef);
+#use DpimLib qw(getLineAPMS);
+
+# compile the APMS runs from DPIM2, and 3
+# reduce these files to the following tab-delimited columns
+# search_id bait_ref prey_ref total_peptides
+# 012345678 FBgn0123 FBgn0123 123
+
+my %opts = getCommandLineOptions();
+
+{
+    my $out = $opts{out};
+    my $dp2 = $opts{dp2};
+    my $dp3 = $opts{dp3};
+    my $dp4 = $opts{dp4};
+    my $lookupFile = $opts{dp4date};
+
+    open my $OUT, ">", $out or die "Can't write to $out. $!";
+
+    my @cols = qw(search_id bait_ref prey_ref total_peptides sample_date ms_inst_run_id );
+    say $OUT "# joined $dp2, $dp3, and $dp4";
+    say $OUT join "\t", @cols;
+
+    parseDP2($dp2, $OUT);
+    parseDP3($dp3, $OUT);
+    parseDP4($dp4, $OUT, $lookupFile);
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+
+    my %defaults = (
+	dp2 => '/home/glocke/DPiM/dpim4/dpim2_all.120123.plusUniqMsInst.cp',
+	dp3 => '/home/glocke/DPiM/dpim4/DPiM_Data_Summary_2014_edited.reformatted.out',
+	dp4 => '/home/glocke/DPiM/dpim4/DPiM3_Raw_data_2015_text.colFix',
+	dp4date => '/home/glocke/DPiM/dpim4/excelCsv/sid2DateInstrID.tsv',
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my $usage = "usage: $0 -out output < $defaultString > \n";
+
+    my %opts = ();
+    GetOptions(\%opts, "in=s", "out=s", "dp2=s", "dp3=s", "dp4=s", "dp4date=s");
+    die $usage unless exists $opts{out};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+
+    checkExist('f', $opts{dp2});
+    checkExist('f', $opts{dp3});
+    checkExist('f', $opts{dp4});
+
+    return %opts;
+}
+
+
+# return a closure that returns (search_id bait_ref prey_ref)
+sub makeParser {
+    my ($sid, $bait, $prey, $tsc, $date, $instID) = @_;
+
+    my $maxI = max($sid, $bait, $prey, $tsc, $date, $instID);
+
+    return sub {
+	my $line = shift;
+	chomp;
+	my @spl = split;
+	die "too few tokens in '$line'" unless $maxI < @spl;
+	return ($spl[$sid], $spl[$bait], $spl[$prey], $spl[$tsc], $spl[$date],
+		$spl[$instID]);
+    }
+}
+
+
+# remove FBgn0000000 
+sub parseDP2 {
+    my ($in, $OUT) = @_;
+    
+    my @cols = qw(tap_id  ms_inst_run_id  user    search_id       sample_date     total_peptides unique_peptides  bait_ref        prey_ref);
+    my ($sid) =  grep { $cols[$_] =~ /search_id/ } 0..$#cols;
+    my ($bait) = grep { $cols[$_] =~ /bait_ref/ } 0..$#cols;
+    my ($prey) = grep { $cols[$_] =~ /prey_ref/ } 0..$#cols;
+    my ($tsc) =  grep { $cols[$_] =~ /total_peptides/ } 0..$#cols;
+    my ($date) =  grep { $cols[$_] =~ /sample_date/ } 0..$#cols;
+    my ($instID) = grep { $cols[$_] =~ /ms_inst_run_id/ } 0..$#cols;
+    my $parseLine = makeParser($sid, $bait, $prey, $tsc, $date, $instID);
+
+    open my $IN, "<", $in or die "Can't read from $in. $!";
+    
+    # skip header
+    while (<$IN>) {
+	last if /tap_id/;
+    }
+
+    while (<$IN>) {
+	next if /FBgn0000000/;
+	say $OUT join "\t", $parseLine->($_);
+    }
+}
+
+# remove GFP
+sub parseDP3 {
+    my ($in, $OUT) = @_;
+
+    my @cols = qw(tap_id  ms_inst_run_id  user    search_id       sample_date     total_peptides unique_peptides  bait_ref        pref_ref);
+    my ($sid) =  grep { $cols[$_] =~ /search_id/ } 0..$#cols;
+    my ($bait) = grep { $cols[$_] =~ /bait_ref/ } 0..$#cols;
+    my ($prey) = grep { $cols[$_] =~ /pref_ref/ } 0..$#cols;
+    my ($tsc) =  grep { $cols[$_] =~ /total_peptides/ } 0..$#cols;
+    my ($date) =  grep { $cols[$_] =~ /sample_date/ } 0..$#cols;
+    my ($instID) = grep { $cols[$_] =~ /ms_inst_run_id/ } 0..$#cols;
+    my $parseLine = makeParser($sid, $bait, $prey, $tsc, $date, $instID);
+
+    open my $IN, "<", $in or die "Can't read from $in. $!";
+    # skip header
+    while (<$IN>) {
+	last if /tap_id/;
+    }
+
+    while (<$IN>) {
+	next if /GFP/;
+	say $OUT join "\t", $parseLine->($_);
+    }
+}
+
+# removes reverse hits marked by "##"
+# currently adding _TAG peptides to bait peptides
+# eventually, we want to 
+# but this is only done for dpim3_2015 data, so is it correct?
+# also, add date
+sub parseDP4 {
+    my ($in, $OUT, $lookupFile) = @_;
+
+    my %lookup = readLookup($lookupFile);
+
+    my @cols = qw(name    bait    search_id       reference       abundance       gene);
+    my ($sid) =  grep { $cols[$_] =~ /search_id/ } 0..$#cols;
+    my ($bait) = grep { $cols[$_] =~ /bait/ } 0..$#cols;
+    my ($prey) = grep { $cols[$_] =~ /reference/ } 0..$#cols;
+    my ($tsc) =  grep { $cols[$_] =~ /abundance/ } 0..$#cols;
+    my $parseLine = makeParser($sid, $bait, $prey, $tsc, $tsc, $tsc);
+    
+    open my $IN, "<", $in or die "Can't read from $in. $!";
+    # skip header
+    while (<$IN>) {
+	last if /name/;
+    }
+
+    while (<$IN>) {
+	next if /##/;
+	my ($s, $b, $p, $tsc) = $parseLine->($_);
+	#next if $p =~ /TAG/; # add them, right?
+	$b =~ m/(FBgn\d+)/;
+	$b = $1;
+	$p =~ m/(FBgn\d+)/;
+	$p = $1;
+	my $date = $lookup{$s}{date};
+	my $inst = $lookup{$s}{ms_inst_run_id};
+	say $OUT join "\t", $s, $b, $p, $tsc, $date, $inst;
+    }
+}
+
+sub readLookup {
+    my ($in) = @_;
+
+    my @cols = qw(search_id date ms_inst_run_id);
+    my @read;
+    readColsRef(\@read, $in, \@cols);
+    
+    return map { $_->{search_id} => { date => $_->{date},
+				      ms_inst_run_id => $_->{ms_inst_run_id} }
+    } @read;
+}

@@ -1,0 +1,112 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+use HomeBrew::IO qw(checkExist readColsRef);
+use DpimLib qw(getLineDP4APMS getLineBiopAPMS);
+
+# remove/select out the runs with no bait peptides
+
+my %opts = getCommandLineOptions();
+
+{
+    my $apmsFile = $opts{apms};
+    my $statsFile = $opts{stats};
+    my $cleanOut = $opts{clean};
+    my $noBaitOut = $opts{nobait};
+    my $statsOut = $opts{statsout};
+
+    say "find no-bait runs";
+    my %removeSID;
+    {
+	my @stats;
+	readColsRef(\@stats, $statsFile, [qw(search_id bait_peptides)], 'line');
+	
+	my @noBait = grep {$_->{bait_peptides} == 0} @stats;
+	%removeSID = map { $_->{search_id} => 1 } @noBait;
+	if (defined $statsOut) {
+	    open my $OUT, ">", $statsOut or die "can't write to $statsOut. $!";
+	    say $OUT join "\t", qw"search_id       bait_ref        bait_peptides   tsc     prey_count      date";
+	    print $OUT $_->{line} for @noBait;
+	}
+    }
+
+    
+
+    my $header = join "\t", qw"search_id bait_ref  prey_ref  total_peptides 
+                               sample_date  ms_inst_run_id";
+    $header.= join "\t", '', qw(rep plate) if $opts{mode} eq 'human';
+    
+    open my $CLEAN, ">", $cleanOut or die "Can't write to $cleanOut. $!";
+    say $CLEAN "# removed experiments with no bait peptides from $apmsFile";
+    say $CLEAN $header;
+
+    my $NOBAIT;
+    if (defined $noBaitOut) {
+	open $NOBAIT, ">", $noBaitOut or die "Can't write to $noBaitOut. $!";
+	say $NOBAIT "# selected experiments with no bait peptides from $apmsFile";
+	say $NOBAIT $header;
+    }
+
+    
+    say "read and print";
+    open my $IN, "<", $apmsFile or die "Can't read from $apmsFile. $!";
+    my $reader = \&getLineDP4APMS;
+    $reader = \&getLineBiopAPMS if $opts{mode} eq 'human';
+    my %row;
+    while ($reader->(\%row, $IN, 'line')) {
+	if (exists $removeSID{$row{search_id}}) {
+	    print $NOBAIT $row{line} if defined $NOBAIT;
+	} else {
+	    print $CLEAN $row{line};
+	}
+    }
+
+    close $CLEAN;
+    close $NOBAIT if $NOBAIT;
+    close $IN;
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+    my @modes = qw(fly human);
+    my %modes = map {$_ => 1} @modes;
+    my @arr = @modes;
+    $arr[0] = "*".$arr[0]."*";
+    my $modeString = "-mode ".join("/", @arr);
+
+    my %defaults = (
+	apms => '/home/glocke/DPiM/dpim4/all.combined.10-21-2015.rmDupes.sumIso.0_05.tscFilter',
+	stats => '/home/glocke/DPiM/dpim4/all.combined.10-21-2015.rmDupes.sumIso.0_05.tscFilter.statsBySID',
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my $usage = "usage: $0 -clean output < $modeString $defaultString ".
+	"-nobait output -statsout output >\n";
+
+    my %opts = ();
+    GetOptions(\%opts, "clean=s", "mode=s", "nobait=s", "apms=s", "stats=s", 
+	       "statsout=s");
+    die $usage unless exists $opts{clean};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+    $opts{mode} //= $modes[0];
+    die "you must select one of the following modes: "
+	, join(", ",keys(%modes)), "\n" if ! exists $modes{$opts{mode}};
+
+    checkExist('f', $opts{apms});
+    checkExist('f', $opts{stats});
+
+    return %opts;
+}

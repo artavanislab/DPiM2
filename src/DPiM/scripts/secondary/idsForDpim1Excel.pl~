@@ -1,0 +1,64 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+use HomeBrew::IO qw(checkExist);
+#use DpimLib qw(getLineDP4APMS);
+
+# describe the purpose for this script
+
+#my %opts = getCommandLineOptions();
+
+{
+    my $in = '/home/glocke/DPiM/prevDPIM/dpim1apms/cell_5871_mmc1.txt';
+    my $out = '/home/glocke/DPiM/prevDPIM/dpim1apms/dpim1_excel2tab.tsv';
+    
+    open my $IN, "<", $in or die "can't read $in. $!";
+    open my $OUT, ">", $out or die "can't write to $out. $!";
+
+    <$IN>; # skip header
+    
+    say $OUT join "\t", qw(id bait prey total_peptides);
+    my $id = 1;
+    $prevBait;
+    while (<$IN>) {
+	my @spl = split;
+	if ($prevBait && $prevBait ne $spl[0]) {
+	    $id++;
+	}
+	say $OUT join "\t", $id, @spl;
+    }
+    close $IN;
+    close $OUT;
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+
+    my %defaults = (
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my $usage = "usage: $0 -in input -out output\n";
+
+    my %opts = ();
+    GetOptions(\%opts, "in=s", "out=s");
+    die $usage unless exists $opts{in} && exists $opts{out};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+
+    checkExist('f', $opts{in});
+
+    return %opts;
+}

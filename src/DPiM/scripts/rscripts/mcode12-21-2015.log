@@ -1,0 +1,81 @@
+
+R version 3.1.2 (2014-10-31) -- "Pumpkin Helmet"
+Copyright (C) 2014 The R Foundation for Statistical Computing
+Platform: x86_64-unknown-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+[Previously saved workspace restored]
+
+> 
+> library(CBDD)
+Loading required package: Runiversal
+Loading required package: igraph
+
+Attaching package: ‘igraph’
+
+The following objects are masked from ‘package:stats’:
+
+    decompose, spectrum
+
+The following object is masked from ‘package:base’:
+
+    union
+
+Loading required package: rJava
+Loading required package: Matrix
+
+Attaching package: ‘Matrix’
+
+The following objects are masked from ‘package:base’:
+
+    crossprod, tcrossprod
+
+> 
+> 
+> net <- read.table("/home/glocke/DPiM/oldDpim/dpim3.1/dpim3.09-25-2015.nrBait.77.44.network", header = T)
+> 
+> params <- c(0.05, 0.01, 0.25, 0.05, 0.75, 0.9, 0.95)
+> 
+> outDir <- "/home/glocke/DPiM/oldDpim/dpim3.1/mcode1_12-21-2015"
+> for (p in params) {
++     print(p)
++     clus <- MCODE(net, d=p, haircut=FALSE)
++     print(length(clus))
++     i <- 1;
++     for (c in clus) {
++         f <- sprintf("%s/d%s_%03d.network", outDir, p, i);
++         write.table(c$subnetwork, file=f, sep="\t", quote=F, row.names=F)
++         i <- i+1;
++     }
++ }
+[1] 0.05
+[1] 81
+[1] 0.01
+[1] 75
+[1] 0.25
+[1] 88
+[1] 0.05
+[1] 81
+[1] 0.75
+[1] 52
+[1] 0.9
+[1] 36
+[1] 0.95
+[1] 34
+> 
+> proc.time()
+   user  system elapsed 
+108.369   0.506 113.425 

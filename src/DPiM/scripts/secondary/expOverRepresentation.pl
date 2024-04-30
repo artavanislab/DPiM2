@@ -1,0 +1,134 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+use HomeBrew::IO qw(checkExist readColsRef);
+use DpimLib qw(getLineHyperspecAPMS networkHashFromEdgeList);
+
+# for each experiment, find the number of edges emerging from it
+
+my %opts = getCommandLineOptions();
+
+{
+    my $nrbFile = $opts{nrb};
+    my $netFile = $opts{net};
+    my $out = $opts{out};
+    my $statFile = $opts{stats};
+
+    say "read net";
+    my %net;
+    networkHashFromEdgeList(\%net, $netFile, 'symm');
+
+    say "read APMS";
+    my (%prey, %bait);
+    readAPMS(\%prey, \%bait, $nrbFile);
+    ##die Dumper(\%prey, \%bait);
+
+    say "find stats";
+    my %edgeStats; # $edgeStats{$search_id} = { edgeCnt, frac, protCnt };
+    ## my $checkSid = 249624; # DEBUG
+    for my $sid (keys %prey) {
+	my @prey = keys %{$prey{$sid}};
+	my $bait = $bait{$sid};
+	my $edgeCnt = 0;
+	for my $i (0..($#prey-1)) {
+	    my $p1 = $prey[$i];
+	    #$edgeCnt++ if exists $net{$bait}{$p1};
+	    for my $j (($i+1)..$#prey) {
+		my $p2 = $prey[$j];
+		$edgeCnt++ if exists $net{$p1}{$p2};
+		#say "found $p1->$p2" if $sid == $checkSid && exists $net{$p1}{$p2};
+	    }
+	}
+	my $protCnt = 0+ @prey;
+	my $frac = $edgeCnt *2 / ($protCnt * ($protCnt-1));
+	##die "protCnt, frac = $protCnt, $frac\n".Dumper($prey{$sid}) if $sid == $checkSid;
+	$edgeStats{$sid} = {edgeCnt=>$edgeCnt, frac=>$frac, protCnt=>$protCnt};
+    }
+
+    say "report";
+    
+    open my $OUT, ">", $out or die "can't write to $out. $!";
+    say $OUT "# $0 counted edges in $netFile emerging from experiments in $nrbFile";
+    if (defined $statFile) {
+	my %stats = readStats($statFile);
+	my @cols = qw(search_id bait_ref bait_peptides tsc prey_count date ms_inst_run_id edgeCnt frac);
+	say $OUT "# adding statistics to $statFile";
+	say $OUT join "\t", @cols;
+	for my $sid (sort {$edgeStats{$b}{edgeCnt} <=> $edgeStats{$a}{edgeCnt}} keys %prey) {
+	    say $OUT join "\t", $stats{$sid}, $edgeStats{$sid}{edgeCnt},
+	        $edgeStats{$sid}{frac};
+	}
+    } else {
+	die "working without -stats not implemented\n";
+    }
+    
+    close $OUT; 
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+
+    my %defaults = (
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my $usage = "usage: $0 -nrb in.nrBait -net final.net -out stats < ".
+	"-stats statsBySID >\n";
+
+    my %opts = ();
+    GetOptions(\%opts, "nrb=s", "net=s", "out=s", "stats=s");
+    die $usage unless exists $opts{nrb} && exists $opts{net} && 
+	exists $opts{out};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+
+    checkExist('f', $opts{nrb});
+    checkExist('f', $opts{net});
+    checkExist('f', $opts{stats}) if exists $opts{stats};
+
+    return %opts;
+}
+
+sub readAPMS {
+    my ($prey, $bait, $inFile) = @_;
+
+    #my @cols = qw(bait_ref prey_ref)
+    my %row;
+    open my $IN, "<", $inFile or die "can't read $inFile. $!";
+    while (getLineHyperspecAPMS(\%row, $IN)) {
+	my $sid = $row{search_id};
+	$prey->{$sid}{$row{prey_ref}} = 1;
+	$bait->{$sid} = $row{bait_ref};
+    }	
+    close $IN;
+    
+    return;
+}
+
+sub readStats {
+    my ($inFile) = @_;
+
+    my @read;
+    readColsRef(\@read, $inFile, ['search_id'], 'line');
+    my %ret;
+    for my $row (@read) {
+	my $line = $row->{line};
+	chomp $line;
+	$ret{$row->{search_id}} = $line;
+    }
+
+    return %ret;
+}
+    

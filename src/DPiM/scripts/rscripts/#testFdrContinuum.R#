@@ -1,0 +1,31 @@
+dataz <- list()
+
+for (i in 1:101) {
+    inFile <- sprintf("/home/glocke/DPiM/dpim4/withInstr/meanBait/qdir/testFdr/testFdr.%03d.txt", i);
+    a <- read.table(inFile, header = T);
+    dataz[[i]] <- a;
+}
+
+minFirstScore <- min(sapply(dataz, function(df) { df$score[1] }))
+maxLastScore <- max(sapply(dataz, function(df) { tail(df$score, n=1) }))
+
+x <- seq(to=floor(minFirstScore), from=ceiling(maxLastScore), by=0.01)
+
+
+interps <- lapply(dataz, function(df) { approxfun(df$score, df$fdr) })
+medz <- sapply(x, function(i) {
+                   median(sapply(interps, function (fn) { fn(i) } ))
+               })
+meanz <- sapply(x, function(i) {
+                    mean(sapply(interps, function (fn) { fn(i) } ))
+                })
+sdz <- sapply(x, function(i) {
+                  sd(sapply(interps, function (fn) { fn(i) } ))
+              })
+covz <- sapply(x, function(i) {
+                   vals <- sapply(interps, function (fn) { fn(i) } )
+                   return(sd(vals)/mean(vals))
+               })
+
+plot(x, medz, type="l", col="red")
+points(x, meanz, type="l", col="blue")

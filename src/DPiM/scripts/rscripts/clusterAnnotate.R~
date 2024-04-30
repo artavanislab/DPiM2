@@ -1,0 +1,8 @@
+argv <- commandArgs(TRUE)
+if (length(argv) != 1) {
+    stop("usage: clusterAnnotate.R <clusterPerLine.tsv>");
+}
+inFile <- argv[1]
+
+clusters <- read.list(inFile)
+print(clusters[[1]])

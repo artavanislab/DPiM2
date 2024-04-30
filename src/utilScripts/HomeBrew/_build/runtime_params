@@ -1,0 +1,5 @@
+do{ my $x = {
+       'verbose' => '1',
+       'install_base' => '/home/glocke'
+     };
+$x; }

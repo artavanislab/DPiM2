@@ -1,0 +1,54 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use File::Path;
+use Data::Dumper;
+use HomeBrew::IO qw(checkExist readList);
+#use DpimLib qw(getLineDP4APMS);
+
+# describe the purpose for this script
+
+my %opts = getCommandLineOptions();
+
+{
+    my $realList = $opts{real};
+    my $simList = $opts{sim};
+
+    my @reals = readList($realList);
+    my @sims = readList($simList);
+
+    for 
+    
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+
+    my %defaults = (
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my $usage = "usage: $0 -real real.list -sim sim.list";
+
+    my %opts = ();
+    GetOptions(\%opts, "real=s", "sim=s");
+    die $usage unless exists $opts{real} && exists $opts{sim};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+
+    checkExist('f', $opts{real});
+    checkExist('f', $opts{sim});
+
+    return %opts;
+}

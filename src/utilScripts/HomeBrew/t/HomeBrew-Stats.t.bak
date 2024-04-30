@@ -1,0 +1,397 @@
+#/usr/bin/perl
+
+use warnings;
+use strict;
+
+use Test::More qw(no_plan);
+use Data::Dumper;
+use List::Util qw(sum);
+
+# Verify module can be included via "use" pragma
+BEGIN { use_ok('HomeBrew::Stats') };
+
+# Verify module can be included via "require" pragma
+require_ok('HomeBrew::Stats');
+
+my @data = qw(1 2 3 4);
+my $tarMean = sum(@data)/@data;
+
+{
+    is(HomeBrew::Stats::mean(@data), $tarMean, "can I take the mean?");
+    is(HomeBrew::Stats::mean(\@data), $tarMean, "ref: can I take the mean?");
+}
+
+{
+    my @square;
+    push(@square, ($_*$_)) for @data;
+    my $tarSquare = sum(@square);
+    is(HomeBrew::Stats::sumSquare(@data), $tarSquare, "can I sum the squares?");
+    is(HomeBrew::Stats::sumSquare(\@data), $tarSquare, 
+       "ref: can I sum the squares?");
+
+    is(HomeBrew::Stats::sd(@data), sqrt($tarSquare/@data - $tarMean**2), 
+       "can I take the standard deviation?");
+    is(HomeBrew::Stats::sd(\@data), sqrt($tarSquare/@data - $tarMean**2), 
+       "ref: can I take the standard deviation?");
+
+    is(HomeBrew::Stats::ssd(@data), 
+       sqrt(($tarSquare - @data*$tarMean**2)/(@data-1)),
+       "can I take the sample standard deviation?");
+
+    is(HomeBrew::Stats::ssd(\@data), 
+       sqrt(($tarSquare - @data*$tarMean**2)/(@data-1)),
+       "ref: can I take the sample standard deviation?");
+
+}
+
+# test histogram 
+{
+    my @hist = ();
+    my %args = ( data => \@data, hist => \@hist, mode=> "int");
+    
+    HomeBrew::Stats::histogram(%args);
+    my @tarHist = qw(1 1 1 1);
+    is_deeply(\@hist, \@tarHist, "does histogram int mode work?");
+    @hist = ();
+    
+    $args{nBins} = 2;
+    @tarHist = qw(2 2);
+    HomeBrew::Stats::histogram(%args);
+    
+    is_deeply(\@hist, \@tarHist, "does histogram nBins work?");
+    @hist = ();
+    delete $args{nBins};
+    
+    my @binMin;
+    $args{min} = 2;
+    $args{binMin} = \@binMin;
+    @tarHist = qw(1 1 1);
+    my @tarBinMin = qw(1.5 2.5 3.5);
+    HomeBrew::Stats::histogram(%args);
+    
+    is(scalar(@hist), scalar(@binMin), 
+       "are the histogram and binMin the same size?");
+    is_deeply(\@hist,\@tarHist,"does histogram min arg work?");
+    is_deeply(\@binMin,\@tarBinMin,"does histogram binMin work?");
+}
+
+# test histogram-associated subroutines 
+{
+    my @hist = ();
+    my %args = ( data => \@data, hist => \@hist, mode=> "int");    
+    HomeBrew::Stats::histogram(%args);
+
+    my $gotMean1 = HomeBrew::Stats::histMean(\@hist);
+    is($gotMean1, $tarMean-1, 
+       "can I take the mean of a histogram without binMid?");
+    my $gotMean2 = HomeBrew::Stats::histMean(\@hist, \@data);
+    is($gotMean2, $tarMean, "can I take the mean of a histogram with binMid?");
+
+    my $tarSd = HomeBrew::Stats::sd(@data);
+    my $gotSd1 = HomeBrew::Stats::histSD(\@hist);
+    is($gotSd1, $tarSd, 
+       "can I get the standard deviation of a histogram without binMid?");
+    
+    my $gotSd2 = HomeBrew::Stats::histSD(\@hist, \@data);
+    is($gotSd2, $tarSd, 
+       "can I get the standard deviation of a histogram with binMid?");
+
+    {
+	my ($tarBottom, $tarTop) = (1,2);
+	my $frac = 0.3;
+	my ($gotBottom, $gotTop) = 
+	    HomeBrew::Stats::getHistTails(\@hist, $frac);
+	is_deeply([$gotBottom, $gotTop], [$tarBottom, $tarTop], 
+		  "can I get the tails at ".($frac*100)." % ?");
+    }
+    {
+	my ($tarBottom, $tarTop) = (0,3);
+	my $frac = 0.1;
+	my ($gotBottom, $gotTop) = 
+	    HomeBrew::Stats::getHistTails(\@hist, $frac);
+	is_deeply([$gotBottom, $gotTop], [$tarBottom, $tarTop], 
+		  "can I get the tails at ".($frac*100)." % ?");
+    }
+	      
+}
+
+# test hist2D_array 
+{
+
+    my $nRepeat = 12;
+    my $minData = 1;
+    my $maxData = 6;
+    my @data = ($minData..$maxData) x $nRepeat;
+    
+     { # simplest case: nBinsX evenly divides size of X, intY = true
+	my @hist;
+	my @binMinX;
+	my @binMinY;
+	my %args  = (data => \@data, hist => \@hist, nBinsX => $nRepeat, 
+		     intY => 1, binMinX => \@binMinX, binMinY => \@binMinY);
+
+	HomeBrew::Stats::hist2D_array(%args);
+
+	my @tarHist;
+	for my $x (0..$nRepeat-1) {
+	    for my $y (0..($maxData-$minData)) {
+		$tarHist[$x][$y] = 1;
+	    }
+	}
+	my (@tarBinMinX, @tarBinMinY);
+	for my $x (0..$nRepeat-1) {
+	    push @tarBinMinX, $x * ($maxData - $minData + 1);
+	}
+	for my $y ($minData..$maxData) {
+	    push @tarBinMinY, $y - 0.5;
+	}
+
+	is_deeply(\@hist, \@tarHist, "hist2D_array: check simple intY hist");
+	is_deeply(\@binMinX, \@tarBinMinX, 
+		  "hist2D_array: check simple intY binMinX");
+	is_deeply(\@binMinY, \@tarBinMinY, 
+		  "hist2D_array: check simple intY binMinY");
+    }
+
+    {
+	my @hist;
+	my @binMinX;
+	my @binMinY;
+	my $nBinsY = 2;
+	my %args  = (data => \@data, hist => \@hist, nBinsX => $nRepeat, 
+		     nBinsY => $nBinsY, binMinX => \@binMinX, 
+		     binMinY => \@binMinY);
+
+	HomeBrew::Stats::hist2D_array(%args);
+
+	my @tarHist;
+	for my $x (0..$nRepeat-1) {
+	    for my $y (0..$nBinsY-1) {
+		$tarHist[$x][$y] = 3;
+	    }
+	}
+
+	my (@tarBinMinX, @tarBinMinY);
+	for my $x (0..$nRepeat-1) {
+	    push @tarBinMinX, $x * ($maxData - $minData + 1);
+	}
+	@tarBinMinY = (1, 3.5);
+
+	is_deeply(\@hist, \@tarHist, 
+		  "hist2D_array: check nBinsY = $nBinsY hist");
+	is_deeply(\@binMinX, \@tarBinMinX, 
+		  "hist2D_array: check  nBinsY = $nBinsY binMinX");
+	is_deeply(\@binMinY, \@tarBinMinY, 
+		  "hist2D_array: check  nBinsY = $nBinsY binMinY");
+    }
+
+    { # test min, max, binSize, overflow
+	my @hist;
+	my $size = ($maxData - $minData + 1);
+	my ($minX, $maxX) = ($size, $#data-2*$size);
+	my ($minY, $maxY) = ($minData+1, $maxData-2);
+	my $binSizeX = $size;
+
+	my ($bottomOverflowX, $topOverflowX, $bottomOverflowY, $topOverflowY);
+	my %args  = ( data => \@data, hist => \@hist, binSizeX => $binSizeX, 
+		      intY => 1, minX => $minX, minY => $minY, maxX => $maxX, 
+		      maxY => $maxY, bottomOverflowX => \$bottomOverflowX, 
+		      topOverflowX => \$topOverflowX, 
+		      bottomOverflowY => \$bottomOverflowY, 
+		      topOverflowY => \$topOverflowY );
+
+	HomeBrew::Stats::hist2D_array(%args);
+
+	#die Dumper(\@hist);
+
+	my @tarHist;
+	for my $x (0..$nRepeat-4) {
+	    for my $y (0..($maxData-$minData-3)) {
+		$tarHist[$x][$y] = 1;
+	    }
+	}
+	
+	my $tarBotFlowX = $size;
+	my $tarTopFlowX = 2*$size;
+	my $tarBotFlowY = ($nRepeat-3);
+	my $tarTopFlowY = ($nRepeat-3) * 2;
+	is_deeply(\@hist, \@tarHist, 
+		  "hist2D_array: test hist while using min/max");
+	is($bottomOverflowX, $tarBotFlowX, 
+	   "hist2D_array: test bottomOverflowX");
+	is($topOverflowX, $tarTopFlowX, 
+	   "hist2D_array: test topOverflowX");
+	is($bottomOverflowY, $tarBotFlowY, 
+	   "hist2D_array: test bottomOverflowY");
+	is($topOverflowY, $tarTopFlowY, 
+	   "hist2D_array: test topOverflowY");
+    }
+
+    { # test filter
+
+	my @filt;
+	my $skip = 3;
+	{
+	    my @fUnit = map { ($_==$skip)?0:1 } ($minData..$maxData);
+	    @filt = (@fUnit) x $nRepeat;
+	}
+	
+	my @hist;
+	my %args  = ( data => \@data, hist => \@hist, filter=>\@filt,
+		      nBinsX => $nRepeat, intY => 1 );
+
+	HomeBrew::Stats::hist2D_array(%args);
+
+	my @tarHist;
+	for my $x (0..$nRepeat-1) {
+	    for my $y (0..($maxData-$minData)) {
+		$tarHist[$x][$y] = 1;
+	    }
+	    $tarHist[$x][$skip-1] = 0;
+	}
+	my (@tarBinMinX, @tarBinMinY);
+	for my $x (0..$nRepeat-1) {
+	    push @tarBinMinX, $x * ($maxData - $minData + 1);
+	}
+	for my $y ($minData..$maxData) {
+	    push @tarBinMinY, $y - 0.5;
+	}
+
+	is_deeply(\@hist, \@tarHist, "hist2D_array: check hist with filter");
+    }
+
+# make a 2D histogram from an array, array[X] = Y
+# hist2D_array( data => \@data, hist => \@ret 
+#  (optional: intY => 1 // 0, minX => $, maxX => $, minY => $, maxY $, 
+#   binMinX => \@, binMinY => \@, (binSizeX => $ or nBinsX => $), 
+#   (binSizeY => $ or nBinsY => $), bottomOverflowX => \$, topOverflowX => \$, 
+#   bottomOverflowY => \$, topOverflowY => \$, 
+#  ) 
+# )
+}
+
+
+# make a 2D histogram from a hash of array refs
+# hist2D_hash( data => {x => [], 'y' => []}, hist => \@ret
+#  (optional: , x=>'x', y=>'y', filter=> \@, intX => 1 // 0, intY => 1 // 0, 
+#   minX => $, maxX => $, minY => $, maxY $, binMinX => \@, binMinY => \@, 
+#   (binSizeX => $ or nBinsX => $), (binSizeY => $ or nBinsY => $), 
+#   bottomOverflowX => \$, topOverflowX => \$, 
+#   bottomOverflowY => \$, topOverflowY => \$, 
+#  ) 
+# )
+
+# test hist2D_hash
+{
+
+    my $nRepeat = 12;
+    my $minData = 1;
+    my $maxData = 6;
+    my @y = ($minData..$maxData) x $nRepeat;
+    my @x;
+    for my $i (1..$nRepeat) {
+	push @x, $i for ($minData..$maxData);
+    }
+    my %data = (x => \@x, 'y' =>  \@y); 
+    
+    { # simplest case: nBinsX evenly divides size of X, intY = true
+	my @hist;
+	my @binMinX;
+	my @binMinY;
+	my %args  = (data => \%data, hist => \@hist, intX => 1, intY => 1, 
+		     binMinX => \@binMinX, binMinY => \@binMinY);
+
+	HomeBrew::Stats::hist2D_hash(%args);
+
+	my @tarHist;
+	for my $x (0..$nRepeat-1) {
+	    for my $y (0..($maxData-$minData)) {
+		$tarHist[$x][$y] = 1;
+	    }
+	}
+	my (@tarBinMinX, @tarBinMinY);
+	for my $x (1..$nRepeat) {
+	    push @tarBinMinX, $x - 0.5;
+	}
+	for my $y ($minData..$maxData) {
+	    push @tarBinMinY, $y - 0.5;
+	}
+
+	is_deeply(\@hist, \@tarHist, "hist2D_hash: check simple intY hist");
+	is_deeply(\@binMinX, \@tarBinMinX, 
+		  "hist2D_hash: check simple intY binMinX");
+	is_deeply(\@binMinY, \@tarBinMinY, 
+		  "hist2D_hash: check simple intY binMinY");
+    }
+
+    {
+	my @hist;
+	my @binMinX;
+	my @binMinY;
+	my $nBinsY = 2;
+	my %args  = (data => \%data, hist => \@hist, nBinsY => $nBinsY, intX=>1,
+		     binMinX => \@binMinX, binMinY => \@binMinY);
+
+	HomeBrew::Stats::hist2D_hash(%args);
+	
+	#die Dumper(\@hist);
+	
+	my @tarHist;
+	for my $x (0..$nRepeat-1) {
+	    for my $y (0..$nBinsY-1) {
+		$tarHist[$x][$y] = 3;
+	    }
+	}
+
+	my @tarBinMinY = (1, 3.5);
+
+	is_deeply(\@hist, \@tarHist, 
+		  "hist2D_hash: check nBinsY = $nBinsY hist");
+	is_deeply(\@binMinY, \@tarBinMinY, 
+		  "hist2D_hash: check nBinsY = $nBinsY binMinY");
+    }
+
+    { # test min, max, binSize, overflow
+	my @hist;
+	my $size = ($maxData - $minData + 1);
+	my ($minX, $maxX) = (2, $nRepeat-3);
+	my ($minY, $maxY) = ($minData+1, $maxData-2);
+	my $binSizeX = 2;
+
+	my ($bottomOverflowX, $topOverflowX, $bottomOverflowY, $topOverflowY);
+	my %args  = ( data => \%data, hist => \@hist, binSizeX => $binSizeX, 
+		      intX => 1, intY => 1, minX => $minX, minY => $minY, 
+		      maxX => $maxX, maxY => $maxY, 
+		      bottomOverflowX => \$bottomOverflowX, 
+		      topOverflowX => \$topOverflowX, 
+		      bottomOverflowY => \$bottomOverflowY, 
+		      topOverflowY => \$topOverflowY );
+
+	HomeBrew::Stats::hist2D_hash(%args);
+
+	#die Dumper(\@hist);
+
+	my @tarHist;
+	for my $x (0..($nRepeat-4)/2 - 1) {
+	    for my $y (0..($maxData-$minData-3)) {
+		$tarHist[$x][$y] = 2;
+	    }
+	}
+	
+	my $tarBotFlowX = $size;
+	my $tarTopFlowX = 3*$size;
+	my $tarBotFlowY = ($nRepeat-4);
+	my $tarTopFlowY = ($nRepeat-4) * 2;
+	is_deeply(\@hist, \@tarHist, 
+		  "hist2D_hash: test hist while using min/max");
+	is($bottomOverflowX, $tarBotFlowX, 
+	   "hist2D_hash: test bottomOverflowX");
+	is($topOverflowX, $tarTopFlowX, 
+	   "hist2D_hash: test topOverflowX");
+	is($bottomOverflowY, $tarBotFlowY, 
+	   "hist2D_hash: test bottomOverflowY");
+	is($topOverflowY, $tarTopFlowY, 
+	   "hist2D_hash: test topOverflowY");
+    }
+
+}

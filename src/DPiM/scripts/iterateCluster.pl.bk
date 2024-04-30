@@ -1,0 +1,226 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use File::Path qw(make_path);
+use File::Temp qw(tempfile);
+use Data::Dumper;
+use HomeBrew::IO qw(checkExist readList2);
+#use DpimLib qw(getLineDP4APMS);
+
+# apply clustering to this network
+# sub-divide all clusters large than N nodes
+
+my %opts = getCommandLineOptions();
+
+{
+    my $in = $opts{in};
+    my $dir = $opts{dir};
+    my $baseOut = $opts{out};
+    my $maxClust = $opts{maxclust};
+    my $grepEdge = $opts{grepedge};
+    my $mcl = $opts{mcl};
+    my @i = split ',', $opts{i};
+    my $iStep = $opts{istep};
+    my $iMax = $opts{imax};
+    
+    $grepEdge.= " -abcformat -strict";
+    
+    if (! -d $dir) {
+	make_path($dir);
+    }
+
+    my ($first, $last);
+    {
+	my @spl = split /\./, $baseOut;
+	$last = pop @spl;
+	$first = join ".", @spl;
+    }
+    
+
+    my $mclNetFile = makeMCLReadable($in, $dir);
+
+    my @increasingI = (3..10);
+    my $seek = 'FBgn0032492';
+    #my @i = (2);
+    for my $baseI (@i) {
+	my $i = $baseI;
+	my ($FH1, $tmpOut1) = tempfile();
+	close $FH1;
+	mcl($mclNetFile, $tmpOut1, $i, $mcl);
+	my %clusters;
+	say "about to read";
+	readClusters(\%clusters, $tmpOut1, "%04d");
+
+	#my %nodes = invertClusters(\%clusters);
+	#die "can't find $seek at beginning" if ! exists $nodes{$seek};
+	#say "$seek -> $nodes{$seek}";
+
+	my @tooBig = grep { $maxClust < @{ $clusters{$_} } } keys %clusters;
+	my $cnt = 0;
+	##my %noChange;
+	for ($i = $baseI; $i <= $iMax; $i+=$iStep) {
+	#for $i (@increasingI) {
+	    for my $clID (@tooBig) {
+		my $nodes = $clusters{$clID};
+		delete $clusters{$clID};
+		my ($FH2, $tmpNet) = tempfile();
+		close $FH2;
+		{ 
+		    my $cmd = "$grepEdge -in $mclNetFile -out $tmpNet -fbgn ".
+			join(",", @$nodes);
+		    ##say $cmd;
+		    system($cmd);
+		}
+		my ($FH3, $tmpMcl) = tempfile();
+		close $FH3;
+		mcl($tmpNet, $tmpMcl, $i, $mcl, $clID);
+		my @ids = readClusters(\%clusters, $tmpMcl, "$clID.%02d");
+		if (1 == @ids) {
+		    #$clusters{$clID} = $clusters{$ids[0]};
+		    $clusters{$clID} = $nodes;
+		    delete $clusters{$ids[0]};
+		    ##$noChange{$clID} = 1;
+		} else {
+		    ## sometimes, there are nodes in a cluster not connected to
+		    ## any other nodes in that cluster.  Such nodes will be left
+		    ## out after $grepEdge, so we have to add them back
+		    my %subset = %clusters{@ids};
+		    my %theseNodes = invertClusters(\%subset);
+		    my $singletons = 1;
+		    for my $n (@$nodes) {
+			next if exists $theseNodes{$n};
+			my $thisID = sprintf("$clID.00.%02d", $singletons++);
+			$clusters{$thisID} = [$n];
+		    }
+		}
+	    }
+	    ##my %newNodes = invertClusters(\%clusters);
+	    #die "can't find $seek at i=$i" if ! exists $newNodes{$seek};
+	    #say "$seek -> $newNodes{$seek}";
+	    @tooBig = grep { $maxClust < @{ $clusters{$_} } } keys %clusters;
+	    #@tooBig = grep { !exists $noChange{$_} } @tooBig;
+	    ##warn Dumper("hehe", \%clusters, \@tooBig);
+	    last if 0 == @tooBig;
+	}
+	my $thisOut = "$dir/$first.i$baseI.$last";
+	#warn Dumper("hoho", \%clusters);
+	printClust(\%clusters, $thisOut, 
+		   "# $0 clustered $in with i=$baseI and maxclust = $maxClust");
+    }
+    
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+    # mode:
+    my @modes = qw(mcl louvain);
+    my %modes = map {$_ => 1} @modes;
+    my @arr = @modes;
+    $arr[0] = "*".$arr[0]."*";
+    my $modeString = "-mode ".join("/", @arr);
+
+    my %defaults = (
+	out => 'mcl.clusters.txt',
+	i => '1.2,1.4,1.6,1.8,2',
+	istep => 1,
+	imax => 15,
+	maxclust => 30,
+	mcl => '/home/glocke/DPiM/MCL_network-enrichment-PPI/mcl',
+	grepedge => $ENV{DPSCR}."/secondary/findEdgesWithNodes.pl",
+	);
+    my $defaultString = join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+    my $usage = "usage: $0 -in input -dir working/ ".
+	"< $modeString $defaultString >\n";
+
+    my %opts = ();
+    GetOptions(\%opts, "in=s", "dir=s", "mode=s", "out=s", "i=s", "istep=f",
+	       "imax=f", "maxclust=i", "mcl=s", "grepedge=s");
+    die $usage unless exists $opts{in} && exists $opts{dir};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+    $opts{mode} //= $modes[0];
+    die "you must select one of the following modes: ", 
+        join(", ",keys(%modes)), "\n" if ! exists $modes{$opts{mode}};
+    die "only mcl mode implemented so far" unless $opts{mode} eq 'mcl';
+    
+    checkExist('f', $opts{in});
+    checkExist('f', $opts{mcl});
+    checkExist('f', $opts{grepedge});
+
+    return %opts;
+}
+
+
+sub makeMCLReadable {
+    my ($in, $dir) = @_;
+
+    my $out = "$dir/sanitized.net";
+    my $cmd = qq[grep -v "^#" $in | grep -v prey  | grep -v node | grep -v Interactor | grep -v protein | awk '{print \$1"\\t"\$2"\\t"1}' > $out];
+    say $cmd;
+    system($cmd);
+    
+    return $out;
+}
+
+sub mcl {
+    my ($netFile, $out, $i, $exe, $comment) = @_;
+
+    my $cmd = "$exe $netFile --abc -I $i -o $out 2> /dev/null";
+    $cmd.= " # $comment" if defined $comment;
+    say $cmd;
+    system($cmd);
+
+    return;
+}
+
+sub readClusters {
+    my ($ret, $clFile, $prPatr) = @_;
+
+    my @clusters = readList2($clFile);
+    #my @x = map { sprintf($prPatr, $_+1) } 0..$#clusters;
+    my @newIDs;
+    for my $i (0..$#clusters) {
+	my $k = sprintf($prPatr, $i+1);
+	push @newIDs, $k;
+	$ret->{$k} = $clusters[$i];
+    }
+
+    return @newIDs;
+}
+
+# ret{node} = clustID
+sub invertClusters {
+    my ($clusters) = @_;
+
+    my %ret;
+    for my $clustID (keys %$clusters) {
+	for my $node (@{ $clusters->{$clustID} }) {
+	    $ret{$node} = $clustID;
+	}
+    }
+
+    return %ret;
+}
+
+sub printClust {
+    my ($clusters, $out, $preComments) = @_;
+
+    open my $OUT, ">", $out or die "can't write to $out. $!";
+    say $OUT $preComments if defined $preComments;
+
+    for my $k (sort keys %$clusters) {
+	say $OUT join "\t", $k, @{ $clusters->{$k} };
+    }
+
+    close $OUT;     
+}

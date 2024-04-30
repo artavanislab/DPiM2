@@ -1,0 +1,355 @@
+
+----------------------- /var/modules/modulefiles/PKTools -----------------------
+ifort/2011.6.233      pirana/2.9.2          pylm/1.0
+nonmem/7.1.2(default) psn/3.4.2             pylm/1.1
+nonmem/7.2.0          psn/3.5.3             S+/8.2.0
+nonmem/7.3.0          psn/3.7.6
+nonmem/7.3.0_gnu      psn/4.2.0
+python(5):PROB:153: Duplicate version symbol '2.4' found
+python(6):PROB:153: Duplicate version symbol '2.5' found
+python(7):PROB:153: Duplicate version symbol '2.6' found
+python(8):PROB:153: Duplicate version symbol '2.7' found
+sge(4):PROB:153: Duplicate version symbol 'test' found
+
+---------------------- /var/modules/modulefiles/Utilities ----------------------
+acpica/20120320              mono/2.10.9
+activetcl/8.4.17             mpi/mpich2/0.1.4.1p1-dbg
+admin/1.0                    mpi/mpich2/1.4.1p1(default)
+ant/1.8.0                    mpi/mpich3/3.1.4
+asciidoc/8.5.2               mpi/openmpi/1.5
+aspera/connect/2.7.9.58060   mpi/openmpi/1.8
+atlas/3.8.4                  mplayer/1.0rc4
+autoconf/2.69                mysql/5.5.25
+aws/cli/1.3.1                nedit/5.5
+aws/cli/1.8.6                networkx/1.9.1
+aws/cloudformation/1.0.12    numpy/1.3.0
+babel/1.6                    numpy/1.4.0rc2
+beautifulsoup/4.3.2          numpy/1.4.1
+binutils/2.24                numpy/1.6.2
+blitz/0.9                    numpy/1.7.2
+bonnie++/1.03e               numpy/1.8.1
+boost/1.39.0                 numpy/1.9.0
+boost/1.41.0                 numpy/1.9.1
+boost/1.42.0                 ocaml/4.02.1
+boost/1.43.0                 opam/1.2.1
+boost/1.53.0                 openbabel/2.2.3
+boost/1.55.0                 openldap/2.4.40
+boost/1.59.0                 oracleinstantclient/10.2.0.4
+boto/2.38.0                  p7zip/9.20.1
+chef/11.8.2                  pandas/0.13.1
+cherrypy/3.1.2               pandoc/2014.06
+cherrypy/3.2.0               password-store/1.6.5
+cmake/2.8.8                  pbzip2/1.0.5
+cmake/3.4.0                  perl/5.22.0
+configparser/3.5.0b2         perlbrew/0.72
+CPAN/bioperl/1.6.924         pil/1.1.7
+CPAN/data-stag/0.14          pp/1.6.4
+CPAN/dbi/1.621               protobuf/2.4.1
+CPAN/dbi/1.622               pycluster/1.52
+CPAN/inline/0.50             pygtk/2.12.1
+CPAN/module-build/0.4210     pymongo/3.0.2
+CPAN/parent/0.234            pyparsing/1.5.2
+CPAN/pdf-api2/2.023          python/2.4.5
+CPAN/psn-modules/4.2.0       python/2.4.6(2.4)
+CPAN/spreadsheet/0.46        python/2.5.5(2.5)
+cuda-toolkit/3.1             python/2.6.4
+cuda-toolkit/3.2.12          python/2.6.5
+cx_Oracle/5.0.2              python/2.6.6(default:2.6)
+cython/0.21                  python/2.7.1
+cython/0.21.1                python/2.7.5
+dmtcp/2.1                    python/2.7.6(2.7)
+drmaa-python/0.5             python/2.7.9
+eclipse/3.5.1                python/3.1.2
+eclipse/3.7.2                python/3.3.2
+eclipse/3.7.2-1              python/3.5.0
+em2em/2013.09                pyweblib/1.0
+emacs/24.5                   pyyaml/3.11
+fftw/2.1.5                   qstat-pretty/0.1.0
+fftw/3.2.2                   requests/2.4.1
+flex/2.5.35                  roybench/2012.11
+gcc/4.6.2                    ruby/1.9.3
+gcc/4.8.3                    ruby/2.1.2
+gimmemotifs/0.8.4            scimath/4.1.2
+gimmemotifs/0.8.6            scipy/0.11.0
+git/1.8.2.2                  scipy/0.13.2
+git/2.4.4                    scipy/0.14.0
+gkrellm/2.3.4                scipy/0.16.0
+gnuplot/4.2.6                setuptools/0.6c11
+gnuplot-py/1.8               sge/8.0.1
+graphviz/2.20.2              sge/8.1.4-TEST
+gsl/1.16                     sge/8.1.7(default)
+haskell/2011.4.0.0           source-highlight/3.1.2
+haskell/2013.2.0.0           starteam/11.0.0
+hpl/2.0                      suds/0.3.8
+hscp/0.9.21                  suds/0.4
+html5lib/0.999               swig/2.0.10
+hwloc/1.0.3                  tabix/0.2.6
+ipython/0.10                 tcltk/8.4.19
+ipython/2.3.1                tcltk/8.4.19-shared
+java/jdk/1.6.0_17            tcltk/8.5.13(default)
+java/jdk/1.7.0_45            tcltk/8.5.9
+java/jdk/1.8.0_60            tcltk++/8.4.18
+java/jre/1.6.0_17            tcpflow/0.21
+java/jre/1.7.0_45            texlive/2015
+java/jre/1.8.0_60            torque/2.5.5
+julia/0.3.10                 traits/4.5.0
+kid/0.9.3                    udt/4.10
+leiningen/2.4.2              unrar/4.2.3
+lftp/4.2.3                   vim/7.4
+lftp/4.6.5                   virtualbox/4.1.12
+libxml2/2.9.1                whoosh/0.3.9
+macs2/2.1.0.20140616         whoosh/2.3.1
+matplotlib/1.0.1             xz/5.0.5
+maven/3.0.4                  zlib/1.2.8
+mc/4.8.12                    zsi/2.0
+mongo/2.6.4
+
+------------------------- /var/modules/modulefiles/CDD -------------------------
+apbs/1.2.1                namd/2.7                  psipred/2.61
+apbs/1.2.1b               namd/2.8                  sam/2.2.1
+apbs/1.3                  namd/2.9                  sam/3.5
+apbs/1.3-large            napmap/2011.09            schrodinger/2009.02
+apbs/1.3-medium           openeye/2009              schrodinger/2010.02
+atlas-csm/03.2012.12      openeye/2009.12           schrodinger/2010.02.2
+atlas-csm/09.2013.02      openeye/2010.06           schrodinger/2010.10
+atlas-csm/12.2013.03      openeye/2010.06.evalBROOD schrodinger/2011.01.beta
+atlas-csm/13.2013.05      openeye/2010.12           schrodinger/2011.04
+atlas-csm/1.5.2           openeye/2011.03           schrodinger/2011.09
+atlass/1.7.3              openeye/2011.08           schrodinger/2012.00.beta
+charmm/c33b1-large        openeye/2011.11.fred3     schrodinger/2012.06
+clogp/5.2                 openeye/2011.12.fred3     schrodinger/2012.10
+clogp/5.4                 openeye/2012.02           schrodinger/2013.03
+deek/1.0-hanfk            openeye/2012.05           schrodinger/2014.01
+discoverystudio/2.5.5     openeye/2012.06           schrodinger/2014.02
+ds-standalone/2.5         openeye/2012.07           schrodinger/2015.01
+eris/1.0                  openeye/2012.10           schrodinger/2015.02
+matlab/r2009bsp1(default) openeye/2013.01           schrodinger/2015.03
+matlab/r2010b             openeye/2013.06(default)  schrodinger/2015.04
+matlab/r2011b             openeye/2015.05           sharpen/1.1
+moe/2008.10               openeye/2015.09           sharpen/1.1-yueli
+moe/2009.10               openeye/2015.11           sharpen/1.2
+moe/2010.10               phylip/3.69               sharpen/1.2.1(default)
+moe/2011.10               piper/1.0.1               sharpen/1.2.1-yueli
+moe/2012.10               piper/1.0.3               sharpen/1.3
+moe/2014.01               piper/1.0.4               sharpen/1.3-flex6
+moe/2014.02               piper/3.2012.12           spider/2013.08
+moe/2014.09               piper/4.2013.01           trigs/1.0
+moe/2014.09.01            piper/6.2013.01           vmd/1.8.7
+moka/2.6                  piper/7.2013.02           vsplus/1.0.7.1
+moka/2.6.1                predict-2nd/20100212      vsplus64/1.1.1
+naccess/2.1.1             prof/1.0                  XEasy/1.0
+
+------------------------- /var/modules/modulefiles/NMR -------------------------
+csi/2.0
+
+------------------------ /var/modules/modulefiles/Xtal -------------------------
+ccp4/6.1.2            imosflm/1.0.3         pymol/1.4
+coot/0.5.2            phenix/1.9            pymol/1.5.0.2
+coot/0.6              pymol/1.0             pymol/1.7.4.0
+hkl2000/0.98.698d     pymol/1.1r2pre        rave/080625-7.8.5
+hmmer/2.3.2           pymol/1.2r2           sbgridconf/2010.02.03
+hmmer/3.1             pymol/1.3             sbgridconf/2011.08.12
+utility.c(2245):ERROR:50: Cannot open file '/var/modules/modulefiles/Bio/star/_STARtmp' for 'reading'
+tandem(5):PROB:153: Duplicate version symbol 'parallel' found
+
+------------------------- /var/modules/modulefiles/Bio -------------------------
+454/2.5.3                            CRAN3/rms/4.2-0
+454/2.7                              CRAN3/rocr/1.0-5
+ANTs/2.1.0                           CRAN3/rodbc/1.3-10
+appistry-vaas/2014.2.0.6             CRAN3/roracle/1.1-11
+bam-readcount/0.7.4                  CRAN3/rplinkseq/0.08
+bamtools/2.4.0                       CRAN3/rsofia/1.1
+bamutil/1.0.12                       CRAN3/rstan/2.4.0
+batk/dev/0.02                        CRAN3/rtf/0.4-11
+batk/prod/0.9                        CRAN3/ruvseq/1.1.1
+batk/QA/0.02                         CRAN3/seqlogo/1.30.0
+bcbio/2014.05                        CRAN3/skat/0.95
+bcbio/2014.05-2                      CRAN3/skat/1.0.1
+bcbio/dev/2014.05                    CRAN3/smat/0.98
+bcbio/dev/2014.08                    CRAN3/snow/0.3-13
+bcbio/dev/2014.12                    CRAN3/somasciencesdata/1.4.0
+bcbio-rnaseq/2014.06.19-77eca931     CRAN3/spp/1.10.1
+bcbio-rnaseq/2014.08.21-13b7191e     CRAN3/spp/1.11
+bcbio-rnaseq/2014.08.22-efd0c426     CRAN3/sva/3.12
+bcbio-rnaseq/2014.10.08-f9a86e42     CRAN3/venn/2014.07
+bcbio-rnaseq/2014.10.24-054d8e04     CRAN3/vgam/0.9-4
+bcbio-rnaseq/2015.04.14-c30482d7     CRAN3/wavcluster/2.0.0
+bcftools/1.2                         CRAN3/xcyt/1.3
+bcftools/2014.01                     CRAN3/xpose/4.5.0
+bcl2fastq/1.8.4                      cufflinks/2.0.2
+bcl2fastq/2.15.0.4                   cufflinks/2.1.1
+bcl2fastq/2.16.0.10                  cufflinks/2.2.1
+bcl2fastq/2.17.1.14                  cutadapt/1.7.1
+bedops/2.4.2                         cutadapt/1.8.3
+bedtools/2.17.0                      cutadapt/1.9
+bedtools/2.25.0                      dindel/1.01
+biopython/1.58                       eigensoft/3.0
+biopython/1.61                       eigensoft/6.0.1
+bio-scripts/0.5(default)             emboss/6.6.0
+bio-scripts/1.0                      epacts/3.2.6
+bolt-lmm/2.1                         erds/1.1
+bowtie/0.12.8                        express/1.5.1
+bowtie/2.1.0                         fastqc/0.10.1
+bowtie/2.2.3                         fastqc/0.11.4
+bwa/0.6.2                            fastx/0.0.14
+bwa/0.7.10                           freesurfer/5.1.0
+bwa/0.7.12                           gatk/1.5-32-g2761da9
+bwa/0.7.5a                           gatk/2012.1
+bx-python/2014.09                    gatk/2013.1
+casava/1.8.2                         gatk/2013.2
+cd-hit/2009-0427                     gatk/2013.4
+Ceiba/production                     gatk/2013.5
+cgat/0.2.1                           gatk/2014.1
+cgatools/1.7.1.5                     gatk/2014.2
+class/2.00                           gatk/2014.3
+clustalw/2.0.9                       gatk/2014.4
+common-bio-user                      gatk/3.4-46
+cpat/1.2.2                           gcg/11.0.1
+CRAN/cbdd/1.0                        gcg/11.0.1-beta
+CRAN/cbdd/1.0-2                      gcg/11.1(default)
+CRAN/cbdd/1.0-4                      gcta/1.23
+CRAN/cbdd/1.0-4.1                    gem/2.5
+CRAN/cbdd/1.0-4.2                    gemini/0.16.3
+CRAN/cbdd/2.1.0                      gengen/2012.06
+CRAN/cbdd/2.2.0                      gffutils/2015.01
+CRAN/cbdd/2.3.0                      gimmemotifs/0.8.4
+CRAN/cbdd/2.3.1                      gmap/2013.05
+CRAN/cbdd/2.4.0                      homer/4.7
+CRAN/cbdd/3.1.0                      htseq/0.5.4p5
+CRAN/cbdd/3.2.0                      htslib/0.2.0-rc5
+CRAN/cbdd/3.3.0                      htslib/1.2.1
+CRAN/cbdd/3.4.0                      htslib/master-2013.05
+CRAN/cbdd/4.2.0                      igblast/1.1.0
+CRAN/cbdd/4.4.0                      isolasso/2.6.1
+CRAN/cbdd/5.1.0                      itksnap/3.4.0-rc1
+CRAN/cbdd/5.3.0                      jags/3.4.0
+CRAN/ccp/1.1                         kentutils/302.1.0
+CRAN/cummerbund/2013.04              laser/1.03
+CRAN/deseq/1.14.0                    laser/2.02
+CRAN/deseq/1.6.3                     locuszoom/1.3
+CRAN/deseq2/1.6.3                    mach/1.0.18
+CRAN/dexseq/1.8.0                    mach/1.0.18-b01
+CRAN/domc/1.3.3                      mach/1.0.18-b02
+CRAN/domc/1.3.4                      memesuite/4.10.2
+CRAN/exomedepth/0.9.7                metal/2011-03-25
+CRAN/ff/2.2-13                       migrate/3.2.16
+CRAN/ggplot2/0.9.3.1                 minimac2/2014.9.15
+CRAN/glmnet/2.0-2                    mira/3.2.1
+CRAN/igraph/0.7.1                    mira/3.2.1-1
+CRAN/iskat/0.6                       mira/4.0rc4
+CRAN/mangrove/1.1                    mirdeep2/0_0_5
+CRAN/metabaser/4.0.0                 mirexpress/2.1.4
+CRAN/mouse4302cdf/2.16.0             misopy/0.4.6
+CRAN/multiphen/1.0.0                 misopy/0.5.2
+CRAN/mvtnorm/1.0-0                   misopy/0.5.3
+CRAN/nmf/0.17                        multigps/0.5
+CRAN/peer/1.3                        ncbi_tools/2.2.18
+CRAN/pkgmaker/0.17.3                 ncbi_tools/2.2.22
+CRAN/plis/1.1                        netoglyc/3.1d
+CRAN/plyr/1.7.1                      olego/1.1.6
+CRAN/png/0.1-7                       openbugs/3.2.3
+CRAN/predictabel/1.2-1               oshell/2014.10
+CRAN/rjava/0.9-4                     pandaseq/2013.04
+CRAN/rjson/0.2.13                    paris/1.1.3
+CRAN/rmeta/2.16                      pbwa/0.5.9-1.21009
+CRAN/rmpi/0.6-1                      pear/0.9.5
+CRAN/rmpi/0.6-3                      peer/1.3
+CRAN/rms/3.6-3                       peer/1.3_R3.2.2
+CRAN/rngtools/1.2.2                  phrap/1.080812
+CRAN/rocr/1.0-5                      phred/0.020425(default)
+CRAN/rodbc/1.3-7                     phred/0.071220
+CRAN/roracle/1.1-10                  phylocsf/2015.05
+CRAN/rplinkseq/0.08                  phyml/20110919
+CRAN/rtf/0.4-6                       picard/1.105
+CRAN/skat/0.81                       picard/1.106
+CRAN/skat/0.82                       picard/1.108
+CRAN/skat/0.91                       picard/1.109
+CRAN/skat/0.95                       picard/1.113
+CRAN/skat/1.0.1                      picard/1.117
+CRAN/smat/0.98                       picard/1.118
+CRAN/snow/0.3-12                     picard/1.120
+CRAN/snow/0.3-13                     picard/1.121
+CRAN/somasciencesdata/1.4.0          picard/1.122
+CRAN/sva/3.4.0                       picard/1.123
+CRAN/venn/2013.01                    picard/1.137
+CRAN/venn/2013.07                    plink/1.07(default)
+CRAN/xcyt/1.3                        plink/1.9
+CRAN/xpose/4.3.5                     plink/1.90b3y
+CRAN3/affymetrix/2015.03             plinkseq/0.08
+CRAN3/affymetrix/2015.04_3.2.0       plinkseq/0.08.9-pre
+CRAN3/bcbio-rnaseq/2014.08           plinkseq/0.10
+CRAN3/bcbio-rnaseq/2014.10           probabel/0.4.3
+CRAN3/bcbio-rnaseq/2015.04           probcons/1.12
+CRAN3/blockmodeling/0.1.8            pybedtools/0.6.9
+CRAN3/brugs/0.8-3                    pysam/0.6
+CRAN3/bsgenome/1.34.1                pysam/0.7.5
+CRAN3/bsgenome.biogen.hg38as/1.0.0   pysam/0.8.4
+CRAN3/catools/1.17.1                 R/2.10.1
+CRAN3/cbdd/1.0-4.2                   R/2.12.2
+CRAN3/cbdd/2.1.0                     R/2.15.0
+CRAN3/cbdd/2.2.0                     R/2.15.1
+CRAN3/cbdd/2.3.0                     R/2.15.2
+CRAN3/cbdd/2.3.1                     R/2.15.3(default)
+CRAN3/cbdd/2.4.0                     R/3.0.1
+CRAN3/cbdd/3.1.0                     R/3.0.2
+CRAN3/cbdd/3.2.0                     R/3.1.0
+CRAN3/cbdd/3.3.0                     R/3.1.2
+CRAN3/cbdd/3.4.0                     R/3.2.0
+CRAN3/cbdd/4.2.0                     R/3.2.2
+CRAN3/cbdd/4.4.0                     R/3.2.3
+CRAN3/cbdd/5.1.0                     repeatmasker/3.3.0
+CRAN3/cbdd/5.3.0                     rmats/3.0.9
+CRAN3/ccp/1.1                        rnaseqlib/2015.01
+CRAN3/coloc/2.3                      rosetta/2015.19.57819
+CRAN3/cummerbund/2014.07             rsem/1.2.18
+CRAN3/dbi/0.3.1                      rsem/1.2.19-patch20141215
+CRAN3/deseq/1.16.0                   rsem/1.2.20
+CRAN3/deseq/1.6.3                    rsem/1.2.21
+CRAN3/deseq2/1.11.1                  rsem/1.2.22
+CRAN3/dexseq/2.14                    rseqc/2.3.7
+CRAN3/domc/1.3.3                     rseqc/2.6.2
+CRAN3/domc/1.3.4                     sage/6.1.1
+CRAN3/dplyr/0.3.0.2                  saint/2.3.4
+CRAN3/ebseq/1.4.0                    saintexpress/3.3
+CRAN3/ebseqhmm/0.0.4                 samtools/0.1.18
+CRAN3/edger/3.6.8                    samtools/0.1.19(default)
+CRAN3/exomedepth/1.0.7               samtools/1.2
+CRAN3/ff/2.2-13                      seqtk/1.0-r82
+CRAN3/fields/8.3-6                   signalp/3.0
+CRAN3/flipflop/1.4.1                 snpeff/2015.08
+CRAN3/gdata/2.13.3                   spm/8.0.r4667
+CRAN3/ggplot2/1.0.0                  sratoolkit/2.3.5-2
+CRAN3/glmnet/2.0-2                   star/2.4.1c
+CRAN3/gplots/2.14.2                  strelka/1.0.14
+CRAN3/idr/2014.09                    stringtie/1.0.3
+CRAN3/igraph/1.0.1                   stringtie/1.1.0
+CRAN3/inline/0.3.13                  stringtie/1.1.2
+CRAN3/mangrove/1.1                   stringtie/1.2.0
+CRAN3/mcpmod/1.0-7                   subread/1.4.6-p2
+CRAN3/metabaser/4.0.0                tandem/12-10-01-1
+CRAN3/mosaic/0.9.1                   tandem/13-06-15-1(default)
+CRAN3/mouse4302cdf/2.16.0            tandem/parallel_10-12-01-1(parallel)
+CRAN3/mpath/0.1-17                   tophat/2.0.8
+CRAN3/multiphen/2.0.0                trigs/1.0
+CRAN3/mvtnorm/1.0-0                  trimgalore/0.4.1
+CRAN3/pd.mogene/3.12.0               trimmomatic/0.30
+CRAN3/peer/1.3                       trinityrnaseq/2.0.6
+CRAN3/plis/1.1                       trinityrnaseq/2.1.1
+CRAN3/png/0.1-7                      vcftools/0.1.13
+CRAN3/predictabel/1.2-1              vcftools/0.1.14
+CRAN3/rcpp/0.11.3                    vcftools/0.1.9
+CRAN3/refgenome/1.5.8                velvet/1.2.08
+CRAN3/rjags/3-13                     velvet/1.2.10
+CRAN3/rjava/0.9-7                    vep/82
+CRAN3/rjson/0.2.14                   wiggler/2.0
+CRAN3/rmeta/2.16                     wordom/0.22-rc2
+CRAN3/rmpi/0.6-5                     xhmm/2013.11
+
+--------------------- /var/modules/modulefiles/In-Progress ---------------------
+arpwarp/6.1.1     gcg/11.1(default) minenv/1.0        test/prod/1.0
+example/1.0       ice/1.0           test/dev/1.4      test/QA/1.3
+
+--------------------- /var/modules/modulefiles/Collections ---------------------
+all-collection         in-progress-collection utilities-collection
+bio-collection         nmr-collection         xtal-collection
+cdd-collection         pktools-collection

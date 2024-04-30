@@ -1,0 +1,107 @@
+/* 
+ * File:   BaitByPrey.hpp
+ * Author: jmintser
+ *
+ * Created on July 20, 2010, 5:50 PM
+ */
+
+#ifndef _BAITBYPREY_HPP
+#define	_BAITBYPREY_HPP 1
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <iostream>
+#include <iomanip>
+#include <sstream>
+#include <fstream>
+#include <vector>
+#include <deque>
+#include <string>
+#include <set>
+#include <map>
+#include <numeric>
+#include <limits>
+#include <algorithm>
+#include <utility>
+#include <math.h>
+#include "Histogram.hpp"
+
+using namespace std;
+
+#ifndef _IDMAPPAIR
+#define _IDMAPPAIR 1
+typedef pair<string, int> idMapPair;
+#endif	/* _IDMAPPAIR */
+
+
+class BaitByPrey {
+public:
+  enum RescaleType {
+    Binary,
+    NSAF,
+    Log,
+    Log10,
+    Sqrt,
+    Round
+  };
+  int shuffled;
+  bool verbose;
+  
+  vector<string> uniqPreyReferenceVec;
+  vector<string> searchIdReferenceVec;
+  map<string, string> searchId2BaitReference;
+  map<string, int> searchId2Idx;
+  map<string,int> preyRef2Idx;
+  set<string> directBait_PreyPair;
+  vector< vector<double> > searchByPrey;
+  map<string,double> preyLengthMap;
+
+  vector<int> specCountPreyIdxVec; // expansion of totalSpecCountPreyIdxVec with each count represented as element
+  //Histogram specCountPreyHist;
+  vector<int> totalSpecCountPreyIdxVec; // sum of columns of searchByPrey matrix
+  multimap<int,int> totalSpecCountPreyMMap; // map from sum TSC to preyIdx for shuffle2
+  vector< vector<int> > shuffleRangeLookup; // for shuffle2
+  multimap<int, pair<int,int> > specCountPreyMMap; // map from TSC to run,prot pair for shuffle3
+  set<int> specCountPreySet; // set of TSCs for shuffle3
+  typedef pair<int,int> sbp_ij; // for shuffle3
+  map<int, vector<sbp_ij> > shuffleRangeLookupIJ; // for shuffle3
+  vector<int> totalSpecCountSearchIdxVec; // sum of rows of searchByPrey matrix
+  vector<int> uniqSpecCountSearchIdxVec; // sum of rows of binary(searchByPrey) matrix
+
+  map<string, double> scoreMap;
+  map<string, double> simulatedScoreMap;
+  double Dt;
+
+  void loadData (string filename, bool countGhostBait = false);
+  void loadPreyLength(string input_file);
+  BaitByPrey (string filename);
+  BaitByPrey (string filename, string len_corr_file_name);
+  void print ();
+
+  void binary ();
+  void nsaf ();
+  void ln ();
+  void logBase10 ();
+  void sqrt ();
+  void round ();
+  void reScale (RescaleType sc);
+
+  void simulateDataset();
+
+  void outputRawScores();
+
+  double rowSum(int search_id);
+  double colSum(int prey_idx);
+  double sumSum();
+  double minMin(bool excludeZero = true);
+  double maxMax();
+  double vectorMean(vector<double> &vec);
+  double vectorStd(vector<double> &vec);
+
+  virtual ~BaitByPrey();
+private:
+
+};
+
+#endif	/* _BAITBYPREY_HPP */
+

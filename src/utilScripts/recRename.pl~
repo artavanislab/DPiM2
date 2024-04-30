@@ -1,0 +1,23 @@
+#!/usr/bin/env perl
+
+use strict;
+use Data::Dumper;
+use File::Find;
+
+die "can't find rename command\n" unless `which rename` !~ /^\/usr\/bin\/which/;
+
+my $dir = $ENV{PWD};
+
+if (@ARGV==0) {
+    my $usage = "applies 'rename' in all directories below $dir.  use normal rename syntax\nWARNING: nameclashes result in lost files.  be careful!\n";
+    print $usage;
+    exit;
+}
+
+sub renamer {
+    my $args = join(" ", @ARGV);
+    $cmd = "rename $args";
+    system($cmd);
+}
+
+finddepth(&renamer, $dir);

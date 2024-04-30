@@ -1,0 +1,18 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+use HomeBrew::IO qw(checkExist);
+#use DpimLib qw(getLineAPMS);
+
+{
+    my $baseDir = '/home/glocke/DPiM/dpim4/witInstr';
+    my $in = '/home/glocke/DPiM/dpim4/witInstr/cons1_01-30-2016.tsv';
+
+
+}
+
+exit;

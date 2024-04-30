@@ -1,0 +1,124 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+use HomeBrew::IO qw(checkExist readColsRef);
+use DpimLib qw(getLineDP4APMS);
+
+my $description = qq[
+ENTROPY LC CARRY OVER CORRECTION
+
+> Input: spectral counts for a given protein in both technical 
+> replicates
+s1 = # of spectral counts for protein A in replicate 1
+s2 = # of spectral counts for protein A in replicate 2
+
+> Calculate proportion of spectral counts in each run Note that an extra 
+> pseudocount is split between the two replicates because zeroes will 
+> cause issues in the entropy formula
+p1 = (s1 + 0.5) / (s1 + s2 + 1.0)
+p2 = (s2 + 0.5) / (s1 + s2 + 1.0)
+
+> Entropy calculation (based on Shannon's entropy)
+E = p1 * log2(p1) + p2 * log2(p2)
+
+> Filter:
+If E < 0.75, REJECT AS ARTIFACT (e.g. LC Carry-over)
+];
+
+my %opts = getCommandLineOptions();
+
+{
+    my $in = $opts{in};
+    my $out = $opts{out};
+    my $minEntropy = $opts{minentropy};
+    $minEntropy * log(2); 
+    
+    my @cols = qw(search_id bait_ref prey_ref total_peptides sample_date ms_inst_run_id);
+    
+    open my $IN, "<", $in or die "can't read $in. $!";
+    open my $OUT, ">", $out or die "can't write to $out. $!";
+    say $OUT "# $0 applied entropy filter to $in";
+    say $OUT join "\t", @cols;
+    
+    my (%rowA, %rowB);
+    while (! eof($IN)) {
+	getLineDP4APMS(\%rowA, $IN, 'line');
+	getLineDP4APMS(\%rowB, $IN, 'line');
+	verifyMatch(\%rowA, \%rowB);
+
+	if (checkEntropy($rowA->{total_peptides}, $rowB->{total_peptides}), 
+	    $minEntropy) 
+	{
+	    print $OUT $rowA->{line};
+	    print $OUT $rowB->{line};
+	}
+    }
+
+    close $IN; 
+    close $OUT; 
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+
+    my %defaults = (
+	##summary => '/home/kli3/Interactome/data/BioPlex_8400_03282016/gpsRes6_runSummary.tsv',
+	minentropy => 0.75,
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my $usage = "usage: $0 -in input -out output < $defaultString > \n";
+
+    my %opts = ();
+    GetOptions(\%opts, "in=s", "out=s", "minentropy=f");
+    die $usage unless exists $opts{in} && exists $opts{out};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+
+    checkExist('f', $opts{in});
+
+    return %opts;
+}
+
+# verify that these two rows refer to the same prey
+sub verifyMatch {
+    my ($rowA, $rowB) = @_;
+
+    # check if search_id's match
+    # this assumes a particular naming convention in search_id
+    my $idA = $rowA->{search_id};
+    $idA =~ s/^10+//;
+    my $idB = $rowB->{search_id};
+    $idB =~ s/^20+//;
+    die "id's don't match", Dumper($rowA, $rowB) unless $idA == $idB;
+
+    die "prey's don't match", Dumper($rowA, $rowB) 
+	unless $rowA->{prey_ref} eq $rowB->{prey_ref};
+
+    return 1;
+}
+
+# note that we're not using log_2 because we assume that $min has already been
+#   scaled 
+sub checkEntropy {
+    my ($tscA, $tscB, $min) = @_;
+
+    $pA = ($tscA + 0.5) / ($tscA + $tscB + 1);
+    $pB = ($tscB + 0.5) / ($tscA + $tscB + 1);
+
+    $E = $pA * log($pA) + $pB * log($pB);
+
+    return ($E<$min)?undef:1;
+}

@@ -1,0 +1,59 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+use HomeBrew::IO qw(checkExist readColsHashRef);
+use DpimLib qw(getLineDP4APMS);
+
+# describe the purpose for this script
+
+my %opts = getCommandLineOptions();
+
+{
+    my $in = $opts{in};
+    my $out = $opts{out};
+    my $aveLenFile = $opts{avelen};
+    my %aveLen;
+    readColsHashRef(\%aveLen, $aveLenFile, [qw(fbgn avg_length)]);
+    
+    open my $IN, "<", $in or die "can't read $in. $!";
+    my %row;
+    while (getLineDP4APMS(\%row, $IN)) {
+	
+    }
+
+
+    open my $OUT, ">", $out or die "can't write to $out. $!";
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+
+    my %defaults = (
+	avelen => '/home/glocke/DPiM/nsaf/dmel-all-translation-r6.09.aveLen.tsv'
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my $usage = "usage: $0 -in in.apms -out missing.txt < $defaultString >\n";
+
+    my %opts = ();
+    GetOptions(\%opts, "in=s", "out=s");
+    die $usage unless exists $opts{in} && exists $opts{out};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+
+    checkExist('f', $opts{in});
+
+    return %opts;
+}

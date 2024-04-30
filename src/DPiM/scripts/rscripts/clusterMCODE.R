@@ -1,0 +1,20 @@
+
+library(CBDD)
+
+
+net <- read.table("/home/glocke/DPiM/oldDpim/dpim3.1/dpim3.09-25-2015.nrBait.77.44.network", header = T)
+
+params <- c(0.05, 0.01, 0.25, 0.05, 0.75, 0.9, 0.95)
+
+outDir <- "/home/glocke/DPiM/oldDpim/dpim3.1/mcode1_12-21-2015"
+for (p in params) {
+    print(p)
+    clus <- MCODE(net, d=p, haircut=FALSE)
+    print(length(clus))
+    i <- 1;
+    for (c in clus) {
+        f <- sprintf("%s/d%s_%03d.network", outDir, p, i);
+        write.table(c$subnetwork, file=f, sep="\t", quote=F, row.names=F)
+        i <- i+1;
+    }
+}

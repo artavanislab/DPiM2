@@ -1,0 +1,1228 @@
+parseNetworks0.cpp: In function ‘matElem findMax(const symMat&)’:
+parseNetworks0.cpp:234:43: error: conversion from ‘boost::numeric::ublas::mapped_matrix<float>::const_iterator1’ to non-scalar type ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ requested
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                           ^
+parseNetworks0.cpp:234:50: error: no match for ‘operator!=’ (operand types are ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ and ‘boost::numeric::ublas::mapped_matrix<float>::const_iterator1’)
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                  ^
+parseNetworks0.cpp:234:50: note: candidates are:
+In file included from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/traits.hpp:21:0,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage.hpp:26,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:23,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/detail/iterator.hpp:183:14: note: bool boost::numeric::ublas::bidirectional_iterator_base<IC, I, T>::operator!=(const derived_iterator_type&) const [with IC = boost::numeric::ublas::sparse_bidirectional_iterator_tag; I = boost::numeric::ublas::mapped_matrix<float>::iterator1; T = float; boost::numeric::ublas::bidirectional_iterator_base<IC, I, T>::derived_iterator_type = boost::numeric::ublas::mapped_matrix<float>::iterator1]
+         bool operator != (const derived_iterator_type &it) const {
+              ^
+/pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/detail/iterator.hpp:183:14: note:   no known conversion for argument 1 from ‘boost::numeric::ublas::mapped_matrix<float>::const_iterator1’ to ‘const derived_iterator_type& {aka const boost::numeric::ublas::mapped_matrix<float>::iterator1&}’
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/set:62:0,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/detail/container_fwd.hpp:95,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/functional/hash/extensions.hpp:22,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/functional/hash/hash.hpp:558,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/bimap/relation/mutant_relation.hpp:29,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/bimap/detail/bimap_core.hpp:38,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/bimap/bimap.hpp:61,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/bimap.hpp:13,
+                 from Network.hpp:16,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_multiset.h:763:5: note: template<class _Key, class _Compare, class _Alloc> bool std::operator!=(const std::multiset<_Key, _Compare, _Alloc>&, const std::multiset<_Key, _Compare, _Alloc>&)
+     operator!=(const multiset<_Key, _Compare, _Alloc>& __x,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_multiset.h:763:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::multiset<_Key, _Compare, _Alloc>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/set:61:0,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/detail/container_fwd.hpp:95,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/functional/hash/extensions.hpp:22,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/functional/hash/hash.hpp:558,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/bimap/relation/mutant_relation.hpp:29,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/bimap/detail/bimap_core.hpp:38,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/bimap/bimap.hpp:61,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/bimap.hpp:13,
+                 from Network.hpp:16,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_set.h:778:5: note: template<class _Key, class _Compare, class _Alloc> bool std::operator!=(const std::set<_Key, _Compare, _Alloc>&, const std::set<_Key, _Compare, _Alloc>&)
+     operator!=(const set<_Key, _Compare, _Alloc>& __x,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_set.h:778:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::set<_Key, _Compare, _Alloc>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/list:63:0,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/detail/container_fwd.hpp:92,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/functional/hash/extensions.hpp:22,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/functional/hash/hash.hpp:558,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/bimap/relation/mutant_relation.hpp:29,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/bimap/detail/bimap_core.hpp:38,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/bimap/bimap.hpp:61,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/bimap.hpp:13,
+                 from Network.hpp:16,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_list.h:1638:5: note: template<class _Tp, class _Alloc> bool std::operator!=(const std::list<_Tp, _Alloc>&, const std::list<_Tp, _Alloc>&)
+     operator!=(const list<_Tp, _Alloc>& __x, const list<_Tp, _Alloc>& __y)
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_list.h:1638:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::list<_Tp, _Alloc>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/list:63:0,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/detail/container_fwd.hpp:92,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/functional/hash/extensions.hpp:22,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/functional/hash/hash.hpp:558,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/bimap/relation/mutant_relation.hpp:29,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/bimap/detail/bimap_core.hpp:38,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/bimap/bimap.hpp:61,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/bimap.hpp:13,
+                 from Network.hpp:16,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_list.h:282:5: note: template<class _Val> bool std::operator!=(const std::_List_iterator<_Tp>&, const std::_List_const_iterator<_Val>&)
+     operator!=(const _List_iterator<_Val>& __x,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_list.h:282:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::_List_iterator<_Tp>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/deque:64:0,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/detail/container_fwd.hpp:91,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/functional/hash/extensions.hpp:22,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/functional/hash/hash.hpp:558,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/bimap/relation/mutant_relation.hpp:29,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/bimap/detail/bimap_core.hpp:38,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/bimap/bimap.hpp:61,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/bimap.hpp:13,
+                 from Network.hpp:16,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_deque.h:1983:5: note: template<class _Tp, class _Alloc> bool std::operator!=(const std::deque<_Tp, _Alloc>&, const std::deque<_Tp, _Alloc>&)
+     operator!=(const deque<_Tp, _Alloc>& __x,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_deque.h:1983:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::deque<_Tp, _Alloc>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/deque:64:0,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/detail/container_fwd.hpp:91,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/functional/hash/extensions.hpp:22,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/functional/hash/hash.hpp:558,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/bimap/relation/mutant_relation.hpp:29,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/bimap/detail/bimap_core.hpp:38,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/bimap/bimap.hpp:61,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/bimap.hpp:13,
+                 from Network.hpp:16,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_deque.h:267:5: note: template<class _Tp, class _RefL, class _PtrL, class _RefR, class _PtrR> bool std::operator!=(const std::_Deque_iterator<_Tp, _Ref, _Ptr>&, const std::_Deque_iterator<_Tp, _RefR, _PtrR>&)
+     operator!=(const _Deque_iterator<_Tp, _RefL, _PtrL>& __x,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_deque.h:267:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::_Deque_iterator<_Tp, _Ref, _Ptr>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/deque:64:0,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/detail/container_fwd.hpp:91,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/functional/hash/extensions.hpp:22,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/functional/hash/hash.hpp:558,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/bimap/relation/mutant_relation.hpp:29,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/bimap/detail/bimap_core.hpp:38,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/bimap/bimap.hpp:61,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/bimap.hpp:13,
+                 from Network.hpp:16,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_deque.h:260:5: note: template<class _Tp, class _Ref, class _Ptr> bool std::operator!=(const std::_Deque_iterator<_Tp, _Ref, _Ptr>&, const std::_Deque_iterator<_Tp, _Ref, _Ptr>&)
+     operator!=(const _Deque_iterator<_Tp, _Ref, _Ptr>& __x,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_deque.h:260:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::_Deque_iterator<_Tp, _Ref, _Ptr>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/traits.hpp:17:0,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage.hpp:26,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:23,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/complex:484:5: note: template<class _Tp> constexpr bool std::operator!=(const _Tp&, const std::complex<_Tp>&)
+     operator!=(const _Tp& __x, const complex<_Tp>& __y)
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/complex:484:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::const_iterator1’ is not derived from ‘const std::complex<_Tp>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/traits.hpp:17:0,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage.hpp:26,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:23,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/complex:479:5: note: template<class _Tp> constexpr bool std::operator!=(const std::complex<_Tp>&, const _Tp&)
+     operator!=(const complex<_Tp>& __x, const _Tp& __y)
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/complex:479:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::complex<_Tp>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/traits.hpp:17:0,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage.hpp:26,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:23,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/complex:474:5: note: template<class _Tp> constexpr bool std::operator!=(const std::complex<_Tp>&, const std::complex<_Tp>&)
+     operator!=(const complex<_Tp>& __x, const complex<_Tp>& __y)
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/complex:474:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::complex<_Tp>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/memory:82:0,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/smart_ptr/scoped_ptr.hpp:21,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/scoped_ptr.hpp:14,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/archive/detail/basic_iarchive.hpp:23,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/serialization/map.hpp:24,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:20,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/shared_ptr.h:354:5: note: template<class _Tp> bool std::operator!=(std::nullptr_t, const std::shared_ptr<_Tp1>&)
+     operator!=(nullptr_t, const shared_ptr<_Tp>& __a) noexcept
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/shared_ptr.h:354:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   cannot convert ‘it1’ (type ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’) to type ‘std::nullptr_t’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/memory:82:0,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/smart_ptr/scoped_ptr.hpp:21,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/scoped_ptr.hpp:14,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/archive/detail/basic_iarchive.hpp:23,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/serialization/map.hpp:24,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:20,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/shared_ptr.h:349:5: note: template<class _Tp> bool std::operator!=(const std::shared_ptr<_Tp1>&, std::nullptr_t)
+     operator!=(const shared_ptr<_Tp>& __a, nullptr_t) noexcept
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/shared_ptr.h:349:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::shared_ptr<_Tp1>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/memory:82:0,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/smart_ptr/scoped_ptr.hpp:21,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/scoped_ptr.hpp:14,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/archive/detail/basic_iarchive.hpp:23,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/serialization/map.hpp:24,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:20,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/shared_ptr.h:343:5: note: template<class _Tp1, class _Tp2> bool std::operator!=(const std::shared_ptr<_Tp1>&, const std::shared_ptr<_Tp2>&)
+     operator!=(const shared_ptr<_Tp1>& __a,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/shared_ptr.h:343:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::shared_ptr<_Tp1>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/shared_ptr.h:52:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/memory:82,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/smart_ptr/scoped_ptr.hpp:21,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/scoped_ptr.hpp:14,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/archive/detail/basic_iarchive.hpp:23,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/serialization/map.hpp:24,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:20,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/shared_ptr_base.h:1056:5: note: template<class _Tp, __gnu_cxx::_Lock_policy _Lp> bool std::operator!=(std::nullptr_t, const std::__shared_ptr<_Tp, _Lp>&)
+     operator!=(nullptr_t, const __shared_ptr<_Tp, _Lp>& __a) noexcept
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/shared_ptr_base.h:1056:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   cannot convert ‘it1’ (type ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’) to type ‘std::nullptr_t’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/shared_ptr.h:52:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/memory:82,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/smart_ptr/scoped_ptr.hpp:21,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/scoped_ptr.hpp:14,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/archive/detail/basic_iarchive.hpp:23,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/serialization/map.hpp:24,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:20,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/shared_ptr_base.h:1051:5: note: template<class _Tp, __gnu_cxx::_Lock_policy _Lp> bool std::operator!=(const std::__shared_ptr<_Tp, _Lp>&, std::nullptr_t)
+     operator!=(const __shared_ptr<_Tp, _Lp>& __a, nullptr_t) noexcept
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/shared_ptr_base.h:1051:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::__shared_ptr<_Tp, _Lp>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/shared_ptr.h:52:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/memory:82,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/smart_ptr/scoped_ptr.hpp:21,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/scoped_ptr.hpp:14,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/archive/detail/basic_iarchive.hpp:23,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/serialization/map.hpp:24,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:20,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/shared_ptr_base.h:1045:5: note: template<class _Tp1, class _Tp2, __gnu_cxx::_Lock_policy _Lp> bool std::operator!=(const std::__shared_ptr<_Tp1, _Lp>&, const std::__shared_ptr<_Tp2, _Lp>&)
+     operator!=(const __shared_ptr<_Tp1, _Lp>& __a,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/shared_ptr_base.h:1045:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::__shared_ptr<_Tp1, _Lp>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/memory:81:0,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/smart_ptr/scoped_ptr.hpp:21,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/scoped_ptr.hpp:14,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/archive/detail/basic_iarchive.hpp:23,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/serialization/map.hpp:24,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:20,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/unique_ptr.h:517:5: note: template<class _Tp, class _Dp> bool std::operator!=(std::nullptr_t, const std::unique_ptr<_Tp, _Dp>&)
+     operator!=(nullptr_t, const unique_ptr<_Tp, _Dp>& __x) noexcept
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/unique_ptr.h:517:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   cannot convert ‘it1’ (type ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’) to type ‘std::nullptr_t’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/memory:81:0,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/smart_ptr/scoped_ptr.hpp:21,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/scoped_ptr.hpp:14,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/archive/detail/basic_iarchive.hpp:23,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/serialization/map.hpp:24,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:20,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/unique_ptr.h:512:5: note: template<class _Tp, class _Dp> bool std::operator!=(const std::unique_ptr<_Tp, _Dp>&, std::nullptr_t)
+     operator!=(const unique_ptr<_Tp, _Dp>& __x, nullptr_t) noexcept
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/unique_ptr.h:512:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::unique_ptr<_Tp, _Dp>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/memory:81:0,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/smart_ptr/scoped_ptr.hpp:21,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/scoped_ptr.hpp:14,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/archive/detail/basic_iarchive.hpp:23,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/serialization/map.hpp:24,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:20,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/unique_ptr.h:506:5: note: template<class _Tp, class _Dp, class _Up, class _Ep> bool std::operator!=(const std::unique_ptr<_Tp, _Dp>&, const std::unique_ptr<_Up, _Ep>&)
+     operator!=(const unique_ptr<_Tp, _Dp>& __x,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/unique_ptr.h:506:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::unique_ptr<_Tp, _Dp>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_algo.h:66:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/algorithm:62,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/core/swap.hpp:25,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/swap.hpp:15,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/array.hpp:45,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/serialization/array.hpp:30,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:19,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/functional:2561:5: note: template<class _Res, class ... _Args> bool std::operator!=(std::nullptr_t, const std::function<_Res(_ArgTypes ...)>&)
+     operator!=(nullptr_t, const function<_Res(_Args...)>& __f) noexcept
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/functional:2561:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   cannot convert ‘it1’ (type ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’) to type ‘std::nullptr_t’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_algo.h:66:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/algorithm:62,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/core/swap.hpp:25,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/swap.hpp:15,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/array.hpp:45,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/serialization/array.hpp:30,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:19,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/functional:2555:5: note: template<class _Res, class ... _Args> bool std::operator!=(const std::function<_Res(_ArgTypes ...)>&, std::nullptr_t)
+     operator!=(const function<_Res(_Args...)>& __f, nullptr_t) noexcept
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/functional:2555:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::function<_Res(_ArgTypes ...)>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/random:50:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_algo.h:65,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/algorithm:62,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/core/swap.hpp:25,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/swap.hpp:15,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/array.hpp:45,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/serialization/array.hpp:30,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:19,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:6006:5: note: template<class _RealType> bool std::operator!=(const std::piecewise_linear_distribution<_RealType>&, const std::piecewise_linear_distribution<_RealType>&)
+     operator!=(const std::piecewise_linear_distribution<_RealType>& __d1,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:6006:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::piecewise_linear_distribution<_RealType>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/random:50:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_algo.h:65,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/algorithm:62,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/core/swap.hpp:25,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/swap.hpp:15,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/array.hpp:45,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/serialization/array.hpp:30,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:19,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:5736:5: note: template<class _RealType> bool std::operator!=(const std::piecewise_constant_distribution<_RealType>&, const std::piecewise_constant_distribution<_RealType>&)
+     operator!=(const std::piecewise_constant_distribution<_RealType>& __d1,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:5736:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::piecewise_constant_distribution<_RealType>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/random:50:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_algo.h:65,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/algorithm:62,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/core/swap.hpp:25,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/swap.hpp:15,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/array.hpp:45,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/serialization/array.hpp:30,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:19,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:5469:5: note: template<class _IntType> bool std::operator!=(const std::discrete_distribution<_IntType>&, const std::discrete_distribution<_IntType>&)
+     operator!=(const std::discrete_distribution<_IntType>& __d1,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:5469:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::discrete_distribution<_IntType>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/random:50:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_algo.h:65,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/algorithm:62,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/core/swap.hpp:25,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/swap.hpp:15,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/array.hpp:45,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/serialization/array.hpp:30,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:19,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:5209:5: note: template<class _RealType> bool std::operator!=(const std::extreme_value_distribution<_RealType>&, const std::extreme_value_distribution<_RealType>&)
+     operator!=(const std::extreme_value_distribution<_RealType>& __d1,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:5209:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::extreme_value_distribution<_RealType>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/random:50:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_algo.h:65,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/algorithm:62,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/core/swap.hpp:25,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/swap.hpp:15,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/array.hpp:45,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/serialization/array.hpp:30,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:19,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:5006:5: note: template<class _RealType> bool std::operator!=(const std::weibull_distribution<_RealType>&, const std::weibull_distribution<_RealType>&)
+     operator!=(const std::weibull_distribution<_RealType>& __d1,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:5006:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::weibull_distribution<_RealType>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/random:50:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_algo.h:65,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/algorithm:62,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/core/swap.hpp:25,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/swap.hpp:15,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/array.hpp:45,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/serialization/array.hpp:30,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:19,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:4803:5: note: template<class _RealType> bool std::operator!=(const std::exponential_distribution<_RealType>&, const std::exponential_distribution<_RealType>&)
+     operator!=(const std::exponential_distribution<_RealType>& __d1,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:4803:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::exponential_distribution<_RealType>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/random:50:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_algo.h:65,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/algorithm:62,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/core/swap.hpp:25,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/swap.hpp:15,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/array.hpp:45,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/serialization/array.hpp:30,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:19,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:4625:5: note: template<class _IntType> bool std::operator!=(const std::poisson_distribution<_IntType>&, const std::poisson_distribution<_IntType>&)
+     operator!=(const std::poisson_distribution<_IntType>& __d1,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:4625:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::poisson_distribution<_IntType>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/random:50:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_algo.h:65,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/algorithm:62,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/core/swap.hpp:25,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/swap.hpp:15,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/array.hpp:45,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/serialization/array.hpp:30,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:19,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:4409:5: note: template<class _IntType> bool std::operator!=(const std::negative_binomial_distribution<_IntType>&, const std::negative_binomial_distribution<_IntType>&)
+     operator!=(const std::negative_binomial_distribution<_IntType>& __d1,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:4409:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::negative_binomial_distribution<_IntType>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/random:50:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_algo.h:65,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/algorithm:62,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/core/swap.hpp:25,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/swap.hpp:15,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/array.hpp:45,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/serialization/array.hpp:30,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:19,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:4164:5: note: template<class _IntType> bool std::operator!=(const std::geometric_distribution<_IntType>&, const std::geometric_distribution<_IntType>&)
+     operator!=(const std::geometric_distribution<_IntType>& __d1,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:4164:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::geometric_distribution<_IntType>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/random:50:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_algo.h:65,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/algorithm:62,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/core/swap.hpp:25,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/swap.hpp:15,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/array.hpp:45,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/serialization/array.hpp:30,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:19,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:3995:5: note: template<class _IntType> bool std::operator!=(const std::binomial_distribution<_IntType>&, const std::binomial_distribution<_IntType>&)
+     operator!=(const std::binomial_distribution<_IntType>& __d1,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:3995:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::binomial_distribution<_IntType>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/random:50:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_algo.h:65,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/algorithm:62,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/core/swap.hpp:25,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/swap.hpp:15,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/array.hpp:45,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/serialization/array.hpp:30,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:19,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:3729:3: note: bool std::operator!=(const std::bernoulli_distribution&, const std::bernoulli_distribution&)
+   operator!=(const std::bernoulli_distribution& __d1,
+   ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:3729:3: note:   no known conversion for argument 1 from ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ to ‘const std::bernoulli_distribution&’
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:3553:5: note: template<class _RealType> bool std::operator!=(const std::student_t_distribution<_RealType>&, const std::student_t_distribution<_RealType>&)
+     operator!=(const std::student_t_distribution<_RealType>& __d1,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:3553:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::student_t_distribution<_RealType>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/random:50:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_algo.h:65,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/algorithm:62,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/core/swap.hpp:25,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/swap.hpp:15,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/array.hpp:45,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/serialization/array.hpp:30,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:19,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:3340:5: note: template<class _RealType> bool std::operator!=(const std::fisher_f_distribution<_RealType>&, const std::fisher_f_distribution<_RealType>&)
+     operator!=(const std::fisher_f_distribution<_RealType>& __d1,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:3340:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::fisher_f_distribution<_RealType>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/random:50:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_algo.h:65,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/algorithm:62,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/core/swap.hpp:25,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/swap.hpp:15,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/array.hpp:45,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/serialization/array.hpp:30,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:19,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:3084:5: note: template<class _RealType> bool std::operator!=(const std::cauchy_distribution<_RealType>&, const std::cauchy_distribution<_RealType>&)
+     operator!=(const std::cauchy_distribution<_RealType>& __d1,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:3084:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::cauchy_distribution<_RealType>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/random:50:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_algo.h:65,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/algorithm:62,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/core/swap.hpp:25,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/swap.hpp:15,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/array.hpp:45,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/serialization/array.hpp:30,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:19,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:2917:5: note: template<class _RealType> bool std::operator!=(const std::chi_squared_distribution<_RealType>&, const std::chi_squared_distribution<_RealType>&)
+     operator!=(const std::chi_squared_distribution<_RealType>& __d1,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:2917:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::chi_squared_distribution<_RealType>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/random:50:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_algo.h:65,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/algorithm:62,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/core/swap.hpp:25,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/swap.hpp:15,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/array.hpp:45,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/serialization/array.hpp:30,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:19,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:2707:6: note: template<class _RealType> bool std::operator!=(const std::gamma_distribution<_RealType>&, const std::gamma_distribution<_RealType>&)
+      operator!=(const std::gamma_distribution<_RealType>& __d1,
+      ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:2707:6: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::gamma_distribution<_RealType>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/random:50:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_algo.h:65,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/algorithm:62,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/core/swap.hpp:25,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/swap.hpp:15,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/array.hpp:45,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/serialization/array.hpp:30,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:19,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:2487:5: note: template<class _RealType> bool std::operator!=(const std::lognormal_distribution<_RealType>&, const std::lognormal_distribution<_RealType>&)
+     operator!=(const std::lognormal_distribution<_RealType>& __d1,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:2487:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::lognormal_distribution<_RealType>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/random:50:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_algo.h:65,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/algorithm:62,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/core/swap.hpp:25,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/swap.hpp:15,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/array.hpp:45,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/serialization/array.hpp:30,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:19,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:2283:5: note: template<class _RealType> bool std::operator!=(const std::normal_distribution<_RealType>&, const std::normal_distribution<_RealType>&)
+     operator!=(const std::normal_distribution<_RealType>& __d1,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:2283:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::normal_distribution<_RealType>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/random:50:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_algo.h:65,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/algorithm:62,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/core/swap.hpp:25,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/swap.hpp:15,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/array.hpp:45,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/serialization/array.hpp:30,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:19,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:2034:5: note: template<class _IntType> bool std::operator!=(const std::uniform_real_distribution<_IntType>&, const std::uniform_real_distribution<_IntType>&)
+     operator!=(const std::uniform_real_distribution<_IntType>& __d1,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:2034:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::uniform_real_distribution<_IntType>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/random:50:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_algo.h:65,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/algorithm:62,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/core/swap.hpp:25,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/swap.hpp:15,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/array.hpp:45,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/serialization/array.hpp:30,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:19,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:1825:5: note: template<class _IntType> bool std::operator!=(const std::uniform_int_distribution<_IntType>&, const std::uniform_int_distribution<_IntType>&)
+     operator!=(const std::uniform_int_distribution<_IntType>& __d1,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:1825:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::uniform_int_distribution<_IntType>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/random:50:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_algo.h:65,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/algorithm:62,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/core/swap.hpp:25,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/swap.hpp:15,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/array.hpp:45,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/serialization/array.hpp:30,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:19,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:1510:5: note: template<class _RandomNumberEngine, long unsigned int __k> bool std::operator!=(const std::shuffle_order_engine<_RandomNumberEngine, __k>&, const std::shuffle_order_engine<_RandomNumberEngine, __k>&)
+     operator!=(const std::shuffle_order_engine<_RandomNumberEngine,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:1510:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::shuffle_order_engine<_RandomNumberEngine, __k>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/random:50:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_algo.h:65,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/algorithm:62,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/core/swap.hpp:25,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/swap.hpp:15,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/array.hpp:45,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/serialization/array.hpp:30,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:19,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:1258:5: note: template<class _RandomNumberEngine, long unsigned int __w, class _UIntType> bool std::operator!=(const std::independent_bits_engine<_RandomNumberEngine, __w, _UIntType>&, const std::independent_bits_engine<_RandomNumberEngine, __w, _UIntType>&)
+     operator!=(const std::independent_bits_engine<_RandomNumberEngine, __w,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:1258:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::independent_bits_engine<_RandomNumberEngine, __w, _UIntType>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/random:50:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_algo.h:65,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/algorithm:62,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/core/swap.hpp:25,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/swap.hpp:15,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/array.hpp:45,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/serialization/array.hpp:30,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:19,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:1062:5: note: template<class _RandomNumberEngine, long unsigned int __p, long unsigned int __r> bool std::operator!=(const std::discard_block_engine<_RandomNumberEngine, __p, __r>&, const std::discard_block_engine<_RandomNumberEngine, __p, __r>&)
+     operator!=(const std::discard_block_engine<_RandomNumberEngine, __p,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:1062:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::discard_block_engine<_RandomNumberEngine, __p, __r>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/random:50:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_algo.h:65,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/algorithm:62,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/core/swap.hpp:25,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/swap.hpp:15,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/array.hpp:45,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/serialization/array.hpp:30,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:19,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:840:5: note: template<class _UIntType, long unsigned int __w, long unsigned int __s, long unsigned int __r> bool std::operator!=(const std::subtract_with_carry_engine<_UIntType, __w, __s, __r>&, const std::subtract_with_carry_engine<_UIntType, __w, __s, __r>&)
+     operator!=(const std::subtract_with_carry_engine<_UIntType, __w,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:840:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::subtract_with_carry_engine<_UIntType, __w, __s, __r>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/random:50:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_algo.h:65,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/algorithm:62,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/core/swap.hpp:25,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/swap.hpp:15,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/array.hpp:45,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/serialization/array.hpp:30,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:19,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:641:5: note: template<class _UIntType, long unsigned int __w, long unsigned int __n, long unsigned int __m, long unsigned int __r, _UIntType __a, long unsigned int __u, _UIntType __d, long unsigned int __s, _UIntType __b, long unsigned int __t, _UIntType __c, long unsigned int __l, _UIntType __f> bool std::operator!=(const std::mersenne_twister_engine<_UIntType, __w, __n, __m, __r, __a, __u, __d, __s, __b, __t, __c, __l, __f>&, const std::mersenne_twister_engine<_UIntType, __w, __n, __m, __r, __a, __u, __d, __s, __b, __t, __c, __l, __f>&)
+     operator!=(const std::mersenne_twister_engine<_UIntType, __w, __n, __m,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:641:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::mersenne_twister_engine<_UIntType, __w, __n, __m, __r, __a, __u, __d, __s, __b, __t, __c, __l, __f>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/random:50:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_algo.h:65,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/algorithm:62,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/core/swap.hpp:25,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/swap.hpp:15,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/array.hpp:45,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/serialization/array.hpp:30,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:19,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:409:5: note: template<class _UIntType, _UIntType __a, _UIntType __c, _UIntType __m> bool std::operator!=(const std::linear_congruential_engine<_UIntType, __a, __c, __m>&, const std::linear_congruential_engine<_UIntType, __a, __c, __m>&)
+     operator!=(const std::linear_congruential_engine<_UIntType, __a,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:409:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::linear_congruential_engine<_UIntType, __a, __c, __m>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/vector:64:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/random.h:34,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/random:50,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_algo.h:65,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/algorithm:62,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/core/swap.hpp:25,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/swap.hpp:15,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/array.hpp:45,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/serialization/array.hpp:30,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:19,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_vector.h:1428:5: note: template<class _Tp, class _Alloc> bool std::operator!=(const std::vector<_Tp, _Alloc>&, const std::vector<_Tp, _Alloc>&)
+     operator!=(const vector<_Tp, _Alloc>& __x, const vector<_Tp, _Alloc>& __y)
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_vector.h:1428:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::vector<_Tp, _Alloc>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/iterator:66:0,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/iterator.hpp:10,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/operators.hpp:86,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/serialization/strong_typedef.hpp:26,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/serialization/collection_size_type.hpp:10,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:17,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stream_iterator.h:137:5: note: template<class _Tp, class _CharT, class _Traits, class _Dist> bool std::operator!=(const std::istream_iterator<_Tp, _CharT, _Traits, _Dist>&, const std::istream_iterator<_Tp, _CharT, _Traits, _Dist>&)
+     operator!=(const istream_iterator<_Tp, _CharT, _Traits, _Dist>& __x,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stream_iterator.h:137:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::istream_iterator<_Tp, _CharT, _Traits, _Dist>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/locale_facets.h:48:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/basic_ios.h:37,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/ios:44,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/ostream:38,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/iterator:64,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/iterator.hpp:10,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/operators.hpp:86,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/serialization/strong_typedef.hpp:26,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/serialization/collection_size_type.hpp:10,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:17,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/streambuf_iterator.h:210:5: note: template<class _CharT, class _Traits> bool std::operator!=(const std::istreambuf_iterator<_CharT, _Traits>&, const std::istreambuf_iterator<_CharT, _Traits>&)
+     operator!=(const istreambuf_iterator<_CharT, _Traits>& __a,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/streambuf_iterator.h:210:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::istreambuf_iterator<_CharT, _Traits>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/map:62:0,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_multimap.h:888:5: note: template<class _Key, class _Tp, class _Compare, class _Alloc> bool std::operator!=(const std::multimap<_Key, _Tp, _Compare, _Alloc>&, const std::multimap<_Key, _Tp, _Compare, _Alloc>&)
+     operator!=(const multimap<_Key, _Tp, _Compare, _Alloc>& __x,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_multimap.h:888:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::multimap<_Key, _Tp, _Compare, _Alloc>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/map:61:0,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_map.h:986:5: note: template<class _Key, class _Tp, class _Compare, class _Alloc> bool std::operator!=(const std::map<_Key, _Tp, _Compare, _Alloc>&, const std::map<_Key, _Tp, _Compare, _Alloc>&)
+     operator!=(const map<_Key, _Tp, _Compare, _Alloc>& __x,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_map.h:986:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::map<_Key, _Tp, _Compare, _Alloc>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_map.h:63:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/map:61,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/tuple:833:5: note: template<class ... _TElements, class ... _UElements> constexpr bool std::operator!=(const std::tuple<_Args1 ...>&, const std::tuple<_Args2 ...>&)
+     operator!=(const tuple<_TElements...>& __t,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/tuple:833:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::tuple<_Args1 ...>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/tuple:39:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_map.h:63,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/map:61,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/array:233:5: note: template<class _Tp, long unsigned int _Nm> bool std::operator!=(const std::array<_Tp, _Nm>&, const std::array<_Tp, _Nm>&)
+     operator!=(const array<_Tp, _Nm>& __one, const array<_Tp, _Nm>& __two)
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/array:233:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::array<_Tp, _Nm>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/string:52:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/stdexcept:39,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/array:38,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/tuple:39,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_map.h:63,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/map:61,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/basic_string.h:2556:5: note: template<class _CharT, class _Traits, class _Alloc> bool std::operator!=(const std::basic_string<_CharT, _Traits, _Alloc>&, const _CharT*)
+     operator!=(const basic_string<_CharT, _Traits, _Alloc>& __lhs,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/basic_string.h:2556:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::basic_string<_CharT, _Traits, _Alloc>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/string:52:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/stdexcept:39,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/array:38,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/tuple:39,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_map.h:63,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/map:61,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/basic_string.h:2544:5: note: template<class _CharT, class _Traits, class _Alloc> bool std::operator!=(const _CharT*, const std::basic_string<_CharT, _Traits, _Alloc>&)
+     operator!=(const _CharT* __lhs,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/basic_string.h:2544:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   mismatched types ‘const _CharT*’ and ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/string:52:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/stdexcept:39,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/array:38,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/tuple:39,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_map.h:63,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/map:61,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/basic_string.h:2532:5: note: template<class _CharT, class _Traits, class _Alloc> bool std::operator!=(const std::basic_string<_CharT, _Traits, _Alloc>&, const std::basic_string<_CharT, _Traits, _Alloc>&)
+     operator!=(const basic_string<_CharT, _Traits, _Alloc>& __lhs,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/basic_string.h:2532:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::basic_string<_CharT, _Traits, _Alloc>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/char_traits.h:40:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/string:40,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/stdexcept:39,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/array:38,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/tuple:39,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_map.h:63,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/map:61,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/postypes.h:221:5: note: template<class _StateT> bool std::operator!=(const std::fpos<_StateT>&, const std::fpos<_StateT>&)
+     operator!=(const fpos<_StateT>& __lhs, const fpos<_StateT>& __rhs)
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/postypes.h:221:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::fpos<_StateT>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/map:60:0,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_tree.h:927:5: note: template<class _Key, class _Val, class _KeyOfValue, class _Compare, class _Alloc> bool std::operator!=(const std::_Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>&, const std::_Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>&)
+     operator!=(const _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>& __x,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_tree.h:927:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::_Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/map:60:0,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_tree.h:316:5: note: template<class _Val> bool std::operator!=(const std::_Rb_tree_iterator<_Tp>&, const std::_Rb_tree_const_iterator<_Val>&)
+     operator!=(const _Rb_tree_iterator<_Val>& __x,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_tree.h:316:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::_Rb_tree_iterator<_Tp>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_tree.h:62:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/map:60,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/allocator.h:143:5: note: template<class _Tp> bool std::operator!=(const std::allocator<_Tp1>&, const std::allocator<_Tp1>&)
+     operator!=(const allocator<_Tp>&, const allocator<_Tp>&)
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/allocator.h:143:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::allocator<_Tp1>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_tree.h:62:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/map:60,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/allocator.h:138:5: note: template<class _T1, class _T2> bool std::operator!=(const std::allocator<_Tp1>&, const std::allocator<_T2>&)
+     operator!=(const allocator<_T1>&, const allocator<_T2>&)
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/allocator.h:138:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::allocator<_Tp1>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_algobase.h:67:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_tree.h:61,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/map:60,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_iterator.h:1049:5: note: template<class _Iterator> bool std::operator!=(const std::move_iterator<_Iterator>&, const std::move_iterator<_Iterator>&)
+     operator!=(const move_iterator<_Iterator>& __x,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_iterator.h:1049:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::move_iterator<_Iterator>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_algobase.h:67:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_tree.h:61,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/map:60,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_iterator.h:1043:5: note: template<class _IteratorL, class _IteratorR> bool std::operator!=(const std::move_iterator<_Iterator>&, const std::move_iterator<_IteratorR>&)
+     operator!=(const move_iterator<_IteratorL>& __x,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_iterator.h:1043:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::move_iterator<_Iterator>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_algobase.h:67:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_tree.h:61,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/map:60,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_iterator.h:353:5: note: template<class _IteratorL, class _IteratorR> bool std::operator!=(const std::reverse_iterator<_Iterator>&, const std::reverse_iterator<_IteratorR>&)
+     operator!=(const reverse_iterator<_IteratorL>& __x,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_iterator.h:353:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::reverse_iterator<_Iterator>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_algobase.h:67:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_tree.h:61,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/map:60,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_iterator.h:303:5: note: template<class _Iterator> bool std::operator!=(const std::reverse_iterator<_Iterator>&, const std::reverse_iterator<_Iterator>&)
+     operator!=(const reverse_iterator<_Iterator>& __x,
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_iterator.h:303:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::reverse_iterator<_Iterator>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+In file included from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_algobase.h:64:0,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_tree.h:61,
+                 from /pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/map:60,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/storage_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/vector_sparse.hpp:16,
+                 from /pkg/boost/1.59.0/Linux/x86_64/include/boost/numeric/ublas/matrix_sparse.hpp:16,
+                 from MatrixRunningStat.hpp:1,
+                 from Network.hpp:12,
+                 from parseNetworks0.cpp:5:
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_pair.h:227:5: note: template<class _T1, class _T2> constexpr bool std::operator!=(const std::pair<_T1, _T2>&, const std::pair<_T1, _T2>&)
+     operator!=(const pair<_T1, _T2>& __x, const pair<_T1, _T2>& __y)
+     ^
+/pkg/gcc/4.8.3/EL6/x86_64/include/c++/4.8.3/bits/stl_pair.h:227:5: note:   template argument deduction/substitution failed:
+parseNetworks0.cpp:234:61: note:   ‘boost::numeric::ublas::mapped_matrix<float>::iterator1’ is not derived from ‘const std::pair<_T1, _T2>’
+   for (symMat::iterator1 it1 = mat.begin1(); it1 !=mat.end1(); ++it1) {
+                                                             ^
+make: *** [parseNetworks0] Error 1

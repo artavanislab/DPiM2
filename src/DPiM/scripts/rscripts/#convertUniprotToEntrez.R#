@@ -1,0 +1,15 @@
+{
+    ## translate ensembl ids to gene name
+    library(biomaRt)
+    ##mouse = useMart("ensembl", dataset="mmusculus_gene_ensembl")
+    ## biomart web host currently in flux
+    mouse = useMart(biomart = "ENSEMBL_MART_ENSEMBL",
+        dataset="mmusculus_gene_ensembl", host = "jul2015.archive.ensembl.org")
+    geneIDs <- sub('\\.\\d+', "", rawDEG$Variable, perl=TRUE)
+
+    geneNames <- getBM(attributes = c("ensembl_gene_id", "external_gene_name"),
+                   filters = "ensembl_gene_id", values = geneIDs, mart = mouse)
+    ##geneNames$geneID <- rawDEG$Variable
+    ## note that this does not work, probably because of duplicates
+    row.names(geneNames) <- geneNames$ensembl_gene_id
+}

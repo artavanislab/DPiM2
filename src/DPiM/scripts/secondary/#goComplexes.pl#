@@ -1,0 +1,69 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+use HomeBrew::IO qw(checkExist);
+#use DpimLib qw(getLineAPMS);
+
+# list proteins associated with GO-complex related
+
+my %opts = getCommandLineOptions();
+
+{
+    my $in = $opts{in};
+    my $out = $opts{out};
+    my $goDBFile = $opts{godb};
+    my $goNameFile = $opts{goname};
+
+
+    say "retrieving goNameMap";
+    my $goNameMap = retrieve($goNameFile);
+    {
+	# standardize go terms
+	my %oldNew;
+	for my $go (keys %goHist) {
+	    if (exists $goNameMap->{$go}{standard_id}) {
+		$oldNew{$go} = $goNameMap->{$go}{standard_id};
+	    }
+	}
+	for my $oldGo (keys %oldNew) {
+	    my $newGo = $oldNew{$oldGo};
+	    $goHist{$newGo} += $goHist{$oldGo};
+	    delete $goHist{$oldGo};
+	}
+    }
+    
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+
+    my %defaults = (
+	godb => '/home/glocke/DPiM/flybase/gene_association.fb',
+	goname => '/home/glocke/DPiM/flybase/goMap.storable',
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my $usage = "usage: $0 -in input -out output\n";
+
+    my %opts = ();
+    GetOptions(\%opts, "in=s", "out=s", "godb=s", "goname=s");
+    die $usage unless exists $opts{in} && exists $opts{out};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+
+    checkExist('f', $opts{in});
+
+    return %opts;
+}

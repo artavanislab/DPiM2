@@ -1,0 +1,572 @@
+package DpimLib;
+
+use strict;
+use warnings;
+use Exporter;
+use Scalar::Util qw(openhandle);
+
+our @ISA = qw(Exporter);
+
+#our @EXPORT = qw(checkExist); # required expLorts
+# export on request
+our @EXPORT_OK = qw(readAPMS getLineAPMS getLine2015DP3APMS getLineDP4APMS
+    getLineDP4_1APMS getLineHyperspecAPMS getLineBiopAPMS
+    old_getLineDP4APMS getLineMarchAPMS getLineMayAPMS getLineRawAPMS readHS
+    degreeDistribution networkHashFromEdgeList readTable readTableRef readGoDB
+    parseAPMS);
+
+# ret[row]{attr} = attr
+sub readAPMS {
+    my ($ret, $file) = @_;
+    my @cols = qw(tap_id search_id sample_date total_peptides bait_ref prey_ref);
+
+    die "DpimLib::readAPMS expects its first arg to be an array ref "
+	if (ref($ret) ne 'ARRAY');
+
+    open my $IN, "<", $file or die "DpimLib::readAPMS can't read '$file'. $!";
+    while (my $line = <$IN>) {
+	next if $line =~ /^#/;
+	next if $line =~ /tap_id/;
+	next if length($line) < 4;
+	$_ = $line;
+	chomp;
+	my @spl = split;
+	push @$ret, { map {$cols[$_] => $spl[$_]} 0..$#spl };
+    }
+
+    return;
+}
+
+# sets the $ret hash keyed by tap_id search_id sample_date total_peptides bait_ref prey_ref
+sub getLineAPMS {
+    my ($ret, $IN, $wholeLine) = @_;
+
+    return undef if eof($IN);
+
+    my @cols = qw(tap_id search_id sample_date total_peptides bait_ref 
+                  prey_ref);
+    my @spl;
+    my $line;
+    do {{ # perl's next statement doesn't work inside a do block.
+	$line = <$IN>;
+	next if $line =~ /^#/;
+	next if $line =~ /tap_id/;
+	next if length($line) < 4;
+	$_ = $line;
+	chomp;
+	@spl = split;
+	die join ",", (@spl);
+	}
+    } while (!eof($IN) && @spl != @cols);
+    return undef if @spl != @cols; # checks for eof
+
+    $ret->{$cols[$_]} = $spl[$_] for 0..$#cols ;
+    $ret->{$wholeLine} = $line if defined $wholeLine;
+    return 1;
+}
+
+sub getLine2015DP3APMS {
+    my ($ret, $IN, $wholeLine) = @_;
+
+    return undef if eof($IN);
+
+    my @cols = qw( name    bait    search_id       reference       abundance       gene );
+    
+    my @spl;
+    my $line;
+    do {{ # perl's next statement doesn't work inside a do block.
+	$line = <$IN>;
+	next if $line =~ /^#/;
+	next if $line =~ /$cols[0]/;
+	next if length($line) < 4;
+	$_ = $line;
+	chomp;
+	@spl = split;
+	}
+    } while (!eof($IN) && @spl != @cols);
+    return undef if @spl != @cols; # checks for eof
+
+    $ret->{$cols[$_]} = $spl[$_] for 0..$#cols ;
+    $ret->{$wholeLine} = $line if defined $wholeLine;
+    return 1;
+}
+
+sub old_getLineDP4APMS {
+    my ($ret, $IN, $wholeLine) = @_;
+
+    return undef if eof($IN);
+
+    my @cols = qw( search_id bait_ref prey_ref total_peptides sample_date );
+    
+    my @spl;
+    my $line;
+    do {{ # perl's next statement doesn't work inside a do block.
+	$line = <$IN>;
+	next if $line =~ /^#/;
+	next if $line =~ /$cols[0]/;
+	next if length($line) < 4;
+	$_ = $line;
+	chomp;
+	@spl = split;
+	}
+    } while (!eof($IN) && @spl != @cols);
+    return undef if @spl != @cols; # checks for eof
+
+    $ret->{$cols[$_]} = $spl[$_] for 0..$#cols ;
+    $ret->{$wholeLine} = $line if defined $wholeLine;
+    return 1;
+}
+
+sub getLineDP4_1APMS {
+    my ($ret, $IN, $wholeLine) = @_;
+
+    return undef if eof($IN);
+
+    my @cols = qw( search_id bait_ref prey_ref total_peptides sample_date ms_inst_run_id logp );
+    
+    my @spl;
+    my $line;
+    do {{ # perl's next statement doesn't work inside a do block.
+	$line = <$IN>;
+	next if $line =~ /^#/;
+	next if $line =~ /$cols[0]/;
+	next if length($line) < 4;
+	$_ = $line;
+	chomp;
+	@spl = split;
+	}
+    } while (!eof($IN) && @spl != @cols);
+    return undef if @spl != @cols; # checks for eof
+
+    $ret->{$cols[$_]} = $spl[$_] for 0..$#cols ;
+    $ret->{$wholeLine} = $line if defined $wholeLine;
+    return 1;
+}
+
+sub getLineDP4APMS {
+    my ($ret, $IN, $wholeLine) = @_;
+
+    return undef if eof($IN);
+
+    my @cols = qw( search_id bait_ref prey_ref total_peptides sample_date ms_inst_run_id );
+    
+    my @spl;
+    my $line;
+    do {{ # perl's next statement doesn't work inside a do block.
+	$line = <$IN>;
+	next if $line =~ /^#/;
+	next if $line =~ /$cols[0]/;
+	next if length($line) < 4;
+	$_ = $line;
+	chomp;
+	@spl = split;
+	}
+    } while (!eof($IN) && @spl != @cols);
+    return undef if @spl != @cols; # checks for eof
+
+    $ret->{$cols[$_]} = $spl[$_] for 0..$#cols ;
+    $ret->{$wholeLine} = $line if defined $wholeLine;
+    return 1;
+}
+
+sub getLineMarchAPMS {
+    my ($ret, $IN, $wholeLine) = @_;
+
+    return undef if eof($IN);
+
+    #218568  f14944_FH6152_112010    51      106     sp|P04264|K2C1_HUMAN_contaminant
+    #218568  f14944_FH6152_112010    18      38      CG7675-PB_FBgn0038610
+    my @cols = qw( search_id id_string unique_peptides total_peptides prey_string );
+    # missing: sample_date ms_inst_run_id (inside id_string) 
+    #          prey_ref (inside prey_string)
+    #          bait_ref (not included)
+    
+    #my @idCols = qw(ms_inst_run_id tap_id sample_date);
+
+
+    
+    my @spl;
+    my $line;
+    do {{ # perl's next statement doesn't work inside a do block.
+	$line = <$IN>;
+	next if $line =~ /^#/;
+	next if $line =~ /$cols[0]/;
+	next if length($line) < 4;
+	$_ = $line;
+	chomp;
+	@spl = split;
+	}
+    } while (!eof($IN) && @spl < @cols);
+    return undef if @spl != @cols; # checks for eof
+
+    $ret->{$cols[$_]} = $spl[$_] for 0..$#cols ;
+    
+    # example 'f14929_FH4016_112010'
+    #   edge case: 'f14924_JH0005_B_112010'
+    # because of edge cases, get the first and last, then join the middle
+    @spl = split /_/, $ret->{id_string};
+    $ret->{ms_inst_run_id} = shift @spl;
+    $ret->{sample_date} = pop @spl;
+    $ret->{tap_id} = join "_", @spl; 
+
+    @spl = split /_/, $ret->{prey_string};
+    $ret->{prey_ref} = $spl[-1]; # this may be junk
+    $ret->{contam} = ( $ret->{prey_string} =~ /\|/ ); 
+    $ret->{reverse} = ($ret->{prey_string} =~ /^##/ ); 
+    
+    $ret->{$wholeLine} = $line if defined $wholeLine;
+
+    return 1;
+
+}
+
+sub getLineMayAPMS {
+    my ($ret, $IN, $wholeLine) = @_;
+
+    return undef if eof($IN);
+
+    #218568  f14944_FH6152_112010    51      106     sp|P04264|K2C1_HUMAN_contaminant
+    #218568  f14944_FH6152_112010    18      38      CG7675-PB_FBgn0038610
+    my @cols = qw( search_id id_string unique_peptides total_peptides prey_string logp );
+    # missing: sample_date ms_inst_run_id (inside id_string) 
+    #          prey_ref (inside prey_string)
+    #          bait_ref (not included)
+    
+    #my @idCols = qw(ms_inst_run_id tap_id sample_date);
+
+
+    
+    my @spl;
+    my $line;
+    do {{ # perl's next statement doesn't work inside a do block.
+	$line = <$IN>;
+	next if $line =~ /^#/;
+	next if $line =~ /$cols[0]/;
+	next if length($line) < 4;
+	if ($line =~ /^Notice/ || $line =~ /^ERROR/) {
+	    chomp $line;
+	    warn "error line '$line'";
+	    next;
+	}
+	$_ = $line;
+	chomp;
+	@spl = split;
+	}
+    } while (!eof($IN) && @spl < @cols);
+    return undef if @spl < @cols; # checks for eof
+
+    $ret->{$cols[$_]} = $spl[$_] for 0..$#cols ;
+
+    my $IDS = $ret->{id_string};
+    
+    # example 'f14929_FH4016_112010'
+    #   edge case: 'f14924_JH0005_B_112010'
+    # because of edge cases, get the first and last, then join the middle
+    @spl = split /_/, $ret->{id_string};
+    $ret->{ms_inst_run_id} = shift @spl;
+    $ret->{sample_date} = pop @spl;
+    if ($ret->{sample_date} =~ /^([A-Z])\d+/) {
+	## handle cases like FH01_A12345
+	push @spl, $1;
+	$ret->{sample_date} =~ s/^([A-Z])//;
+    }
+    if ($ret->{sample_date} =~ /^\d\d\d\d\d\d?(\D+)/) {
+	## handle cases like w27538_FH2869_111313-XL
+	push @spl, $1;
+	$ret->{sample_date} =~ s/\D//g;
+    }
+    if ($ret->{sample_date} !~ /^\d\d\d\d\d\d?$/) {
+	## handle cases like FH01_12345_A
+	my $tmp = $ret->{sample_date};
+	$ret->{sample_date} = pop @spl;
+	push @spl, $tmp;
+    }
+    $ret->{tap_id} = join "_", @spl; 
+    
+    @spl = split /_/, $ret->{prey_string};
+    $ret->{prey_ref} = $spl[-1]; # this may be junk
+    $ret->{contam} = ( $ret->{prey_string} =~ /\|/ ); 
+    $ret->{reverse} = ($ret->{prey_string} =~ /^##/ ); 
+    
+    $ret->{$wholeLine} = $line if defined $wholeLine;
+
+    ##use Data::Dumper;
+    ##die Dumper($ret, $IDS);
+    return 1;
+
+}
+
+sub getLineHyperspecAPMS {
+    my ($ret, $IN, $wholeLine) = @_;
+
+    return undef if eof($IN);
+
+    my @cols = qw( search_id bait_ref prey_ref total_peptides );
+    
+    my @spl;
+    my $line;
+    do {{ # perl's next statement doesn't work inside a do block.
+	$line = <$IN>;
+	next if $line =~ /^#/;
+	next if $line =~ /$cols[0]/;
+	next if length($line) < 4;
+	$_ = $line;
+	chomp;
+	@spl = split;
+	}
+    } while (!eof($IN) && @spl != @cols);
+    return undef if @spl != @cols; # checks for eof
+
+    $ret->{$cols[$_]} = $spl[$_] for 0..$#cols ;
+        
+    $ret->{$wholeLine} = $line if defined $wholeLine;
+    return 1;
+
+}
+
+# sets the $ret hash keyed by tap_id search_id sample_date total_peptides bait_ref prey_ref
+sub getLineRawAPMS {
+    my ($ret, $IN, $wholeLine) = @_;
+
+    return undef if eof($IN);
+
+    my @cols = qw(tap_id ms_inst_run_id user search_id sample_date 
+                  total_peptides unique_peptides bait_ref prey_ref);
+    my @spl;
+    my $line;
+    do {{ # perl's next statement doesn't work inside a do block.
+	$line = <$IN>;
+	next if $line =~ /^#/;
+	next if $line =~ /tap_id/;
+	next if length($line) < 4;
+	$_ = $line;
+	chomp;
+	@spl = split;
+	}
+    } while (!eof($IN) && @spl != @cols);
+    return undef if @spl != @cols; # checks for eof
+
+    $ret->{$cols[$_]} = $spl[$_] for 0..$#cols ;
+    $ret->{$wholeLine} = $line if defined $wholeLine;
+    return 1;
+}
+
+sub getLineBiopAPMS {
+    my ($ret, $IN, $wholeLine) = @_;
+
+    return undef if eof($IN);
+
+    my @cols = qw( search_id bait_ref prey_ref total_peptides sample_date ms_inst_run_id  rep plate );
+    
+    my @spl;
+    my $line;
+    do {{ # perl's next statement doesn't work inside a do block.
+	$line = <$IN>;
+	next if $line =~ /^#/;
+	next if $line =~ /$cols[0]/;
+	next if length($line) < 4;
+	$_ = $line;
+	chomp;
+	@spl = split;
+	}
+    } while (!eof($IN) && @spl != @cols);
+    return undef if @spl != @cols; # checks for eof
+
+    $ret->{$cols[$_]} = $spl[$_] for 0..$#cols ;
+    $ret->{$wholeLine} = $line if defined $wholeLine;
+    return 1;
+}
+
+# return any line that starts with two FBgn id's
+sub readHS {
+    my ($IN, $human) = @_;
+
+    return undef if eof($IN);
+
+    my $goodLine = sub {
+	return $_[0] =~ /^FBgn\d+\s+FBgn/;
+    };
+
+    if ($human) {
+	$goodLine = sub {
+	    return $_[0] =~ /^\d+\s+\d+\s+\d+/;
+	};
+    }
+    
+    my $line;
+    do {
+	$line = <$IN>;
+    } while (!eof($IN) && ! $goodLine->($line));
+    return undef if ! $goodLine->($line); # checks for eof
+
+    $_ = $line;
+    chomp;
+    return $line;
+}
+
+sub degreeDistribution {
+    my ($in) = @_;
+    my $IN;
+    if (-e $in) {
+        open $IN, "<", $in or 
+            die "degreeDistribution can't read from '$in'. $!";
+    } elsif (openhandle($in)) {
+        $IN = $in;
+    } else {
+        die "degreeDistribution can't interpret input argument '$in'";
+    }
+
+    my %ret;
+    while (my $line = readHS($IN)) {
+        $_ = $line;
+        my @spl = split;
+        $ret{$spl[0]}++;
+        $ret{$spl[1]}++;
+    }
+
+    return %ret;
+}
+
+sub networkHashFromEdgeList {
+    my ($ret, $in, $symmetric, $keepScore, $sort, $human) = @_;
+    
+    die "networkHashFromEdgeList expects a hash ref as its first argument"
+	if ref($ret) ne 'HASH';
+    die "networkHashFromEdgeList expects a valid file as its second argument" 
+	if ! -e $in;
+
+    open my $IN, "<", $in or die "can't read from $in. $!";
+
+    while (my $line = readHS($IN, $human)) {
+	$_ = $line;
+	my @spl = split;
+	my ($n1, $n2, $score) = @spl[0..2];
+	($n1, $n2) = sort ($n1, $n2) if $sort;
+	$score = 1 unless $keepScore;
+	#die "'$n1', '$n2', '$score'\n";
+	# $ret->{$n1} //= {};
+	$ret->{$n1}{$n2} = $score;
+	$ret->{$n2}{$n1} = $score if $symmetric;
+	#print "ret->{$n1}{$n2} = $score\n";
+	#print "ret->{$n2}{$n1} = $score if $symmetric\n";
+	#for my $k1 (%$ret) {
+	#    for my $k2 (%{$ret->{$k1}}) {
+##		print "ret->{$k1}{$k2} = $ret->{$k1}{$k2}\n";
+#	    }
+	#}
+	#exit;
+    }
+    
+    return;
+}
+
+# read a table such as printed out by R's write.table
+# ret[] = { col1 }
+sub readTable {
+    my ($in, $colNames, $rowNames) = @_;
+    my @ret;
+    readTableRef(\@ret, $in, $colNames, $rowNames);
+    return @ret;
+}
+
+# read a table such as printed out by R's write.table *with a header*
+# optional third argument provides an array ref which stores the names of columns
+# optional fourth argument, if specified, indicates that each row has a name
+#   
+# ret[] = { col1 }
+sub readTableRef {
+    my ($ret, $in, $colNames, $rowNames) = @_;
+
+    $colNames //= [];
+
+    open my $IN, "<", $in or die "readTableRef can't read from $in. $!";
+
+    # find header
+    my $line = <$IN>;
+    while ($line =~ /^#/) {
+	$line = <$IN>;
+    } 
+
+    $_ = $line;
+    chomp;
+    my @spl = split;
+    $_ =~ s/"//g for @spl;
+    push @$colNames, $_ for @spl;
+
+    while ($line = <$IN>) {
+	next if $line =~ /^#/;
+	next if length($line) < 2;
+
+	my %row;
+
+	$_ = $line;
+	chomp;
+	@spl = split;
+	$_ =~ s/"//g for @spl;
+	$row{$rowNames} = shift @spl if defined $rowNames;
+
+	die "readTableRef: wrong number of columns" unless @spl == @$colNames;
+	$row{$colNames->[$_]} = $spl[$_] for 0..$#spl;
+
+	push @$ret, \%row;
+    }
+
+    return;
+}
+
+# expects GAF 2.0 format input file, such as gene_association.fb flybase 
+#   download
+# ret->{proteinID} => [ term1, term2,... ]
+# $ignore, if set, is a hash where keys are terms that should be ignored
+sub readGoDB {
+    my ($ret, $in, $ignore) = @_;
+
+    $ignore //= {};
+    
+    my %goHash;
+    
+    open my $IN, "<", $in or die "Can't read from $in. $!";
+
+    my ($fbgnCol, $goCol) = (1, 3);
+    while (my $line = <$IN>) {
+	next if $line =~ /^!/;
+	next if length($line) < 2;
+	$_ = $line;
+	chomp;
+	my @spl = split;
+	my $prot = $spl[$fbgnCol];
+	my $term = $spl[$goCol];
+	next unless $term =~ /^GO:/; # omit rows with "qualifiers"
+	# see http://flybase.org/wiki/FlyBase:Gene_Ontology_(GO)_Annotation
+	next if exists $ignore->{$term};
+	$goHash{$prot}{$term} = 1;
+    }
+
+    for my $p (keys %goHash) {
+	$ret->{$p} = [ keys %{ $goHash{$p} } ];
+    }
+
+    return;
+}
+
+# read a whole APMS file into a hash
+# ret{search_id}{bait} = id
+# ret{search_id}{prey} = {prey_ref => tsc}
+sub parseAPMS {
+    my ($ret, $inFile, $reader, %options) = @_;
+    die "parseAPMS: no options implemented" if 0 > keys %options;
+
+    my $keyCol = 'search_id';
+    
+    open my $IN, "<", $inFile or die "Can't read from $inFile. $!";
+    my %row;
+    while ($reader->(\%row, $IN)) {
+	my $id = $row{$keyCol}; 
+	$ret->{$id}{bait} = $row{bait_ref};
+	$ret->{$id}{prey}{$row{prey_ref}} = $row{total_peptides};
+    }
+
+    return;
+}
+
+"no text after this line"

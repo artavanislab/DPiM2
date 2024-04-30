@@ -1,0 +1,14 @@
+argv <- commandArgs(TRUE)
+if (length(argv) != 1) {
+    print("usage: checkFDR.R <inFile>");
+}
+inFile <- argv[1]
+
+test <- read.table(inFile, sep="\t", header=T, comment.char='', quote='',
+                   stringsAsFactors=F)
+
+print(paste("FDR",
+            length(grep("##",unique(c(test$reference,test$bait)))) /
+            (length(unique(c(test$reference,test$bait))) -
+                 length(grep("##",unique(c(test$reference,test$bait))))),
+            " "))

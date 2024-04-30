@@ -1,0 +1,148 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+use File::Path qw(make_path);
+use File::Spec;
+use Time::Piece;
+use HomeBrew::IO qw(checkExist);
+#use DpimLib qw(getLineDP4APMS);
+
+# perform all LC carryover correction steps
+# 1 calculate commonness
+# 2 find LC carryover events
+# 3 remove these carryover contaminants
+
+my %opts = getCommandLineOptions();
+
+{
+    my $in	= File::Spec->rel2abs($opts{in});
+    my $out	= File::Spec->rel2abs($opts{out});
+    my $qdir	= File::Spec->rel2abs($opts{qdir});
+    my $rt	= $opts{rt};
+    my $job	= $opts{seqjob};
+    
+    if (! -d $qdir) {
+	make_path($qdir) or die "Can't make_path '$qdir'";
+    }
+
+    my $commFile = "$out.working.commContam";
+    my $seqFile = "$out.working.seqContam";
+    die "'$commFile' already exists" if -e $commFile && -s $commFile;
+    die "'$seqFile' already exists" if -e $seqFile && -s $seqFile;
+    chdir($qdir) or die "Can't go to $qdir";
+    
+    
+    my $commContam = $ENV{DPSCR}."/calcCommonContam_KJ_GL.pl";
+    my $seqContam = $ENV{DPSCR}."/find_sequential_contam_KJ_GL.pl";
+    my $apply = $ENV{DPSCR}."/apply_lc_results_KJ.pl";
+    my $qsub = $ENV{UTILSCR}."/qsubWrap.pl";
+    checkExist('f', $_) for ($commContam, $seqContam, $apply, $qsub);
+    
+    if (exists $opts{human}) {
+	# KJ started to resume the work on human 01/15/2018
+	#die "-human mode never tested, though partial thought to it was given";
+	$commContam.=" -mode human";
+	$seqContam.=" -mode human -symb /home/glocke/DPiM/human/nsaf/entrez2symbol.concise.tsv";
+    }
+
+    {
+	my $cmd = "$commContam -in $in -out $commFile";
+	say $cmd;
+	system($cmd);
+    }
+
+    {
+	#my $cmd = "$qsub -job $job -cmd '$seqContam -apms $in -comm $commFile ".
+	#    "-out $seqFile ' -rt $rt";
+	#   01/15/2018  KJ adding the setup scripts to make sure it works for all users
+	my $cmd = "$qsub -job $job -cmd 'source /home/kli3/setup_DPiM.sh; $seqContam -apms $in -comm $commFile ".
+	    "-out $seqFile ' -rt $rt";
+	say $cmd;
+	system($cmd);
+	say "this may take a while!!";
+	say "\t\tthis script will quit when it finds $seqFile and $job.o*";
+	waitForFile($seqFile)
+    }
+
+    {
+	my $cmd = "$apply $seqFile $in";
+	if (exists $opts{human}) {
+	    $cmd.=" human";
+	}
+	$cmd.=" > $out";
+	say $cmd;
+	system($cmd);
+    }
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+# 01/15/2018 KJ changed the rt to 10hrs due to the sequential contanimate job runs really long for human
+sub getCommandLineOptions {
+
+    my $t = localtime;
+    my %defaults = (
+	qdir => $ENV{PWD}."/qdir",
+	rt => '09:59:59',
+	seqjob => 'findSeq'.$t->ymd('-').'_'.(
+	    join '-', $t->hour, $t->min,$t->sec	),
+	
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my $usage = "usage: $0 -in input -out output < $defaultString -human >\n";
+
+    my %opts = ();
+    GetOptions(\%opts, "in=s", "out=s", "qdir=s", "human");
+    die $usage unless exists $opts{in} && exists $opts{out};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+
+    checkExist('f', $opts{in});
+
+    return %opts;
+}
+
+# return when these files exist
+# if these files never appear, this will hang forever
+# in order to prevent returning before the files are complete,
+#   only return if the size of the file hasn't changed since I last checked
+sub waitForFile {
+    my ($file, $waitTime, $minBytes) = @_;
+
+    $waitTime //= 10;
+    $minBytes //= 1000;
+    
+    my $ready = undef;
+    my $prevBytes;
+    my $cnt = 0;
+    until($ready) {
+	$ready = 1;
+
+	if ( -e $file && $minBytes < -s $file ) {
+	    # the file exists and beats the minimum size
+	    # check if file has changed size since I last checked
+	    my $bytes = -s $file;
+	    if (! defined $prevBytes || $prevBytes != $bytes) {
+		$prevBytes = $bytes;
+		$ready = undef;
+	    }
+	} else {
+	    # the file doesn't exist or has size zero
+	    $ready = undef;
+	}
+	sleep($waitTime) unless $ready;
+	print "." unless $ready;
+    }
+}

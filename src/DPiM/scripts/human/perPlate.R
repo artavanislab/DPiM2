@@ -1,0 +1,72 @@
+## remove proteins that are over-abundant on a per-plate basis
+
+
+## algorithm
+## 1. find the fraction of experiments in which every protein appears
+## 2. find the number of experiments in which every protein appears on each plate
+## 3. do binomial tests to see which proteins are significantly overabundant
+## 4. do FDR correction
+## 5. for every protein with q < 0.01, find its average tsc on the plate
+## 6. remove it from experiments on this plate where it had less than this average
+
+args <- commandArgs(TRUE)
+apmsFile <- args[1]
+baseOut <- args[2]
+
+apms <- read.table(apmsFile, header = T)
+
+nExpts <- length(unique(apms$search_id))
+protTab <- table(apms$prey_ref)
+protFrac <- protTab / nExpts
+
+plates <- unique(apms$plate)
+exptsByPlate <- split(apms, apms$plate)
+
+exptsPerPlate <- list()
+
+for (plat in plates) {
+    inPlate <- exptsByPlate[[plat]]
+    nExptsInPlate <- length(unique(inPlate$search_id))
+    exptsPerPlate[[plat]] <- nExptsInPlate
+    
+    protInPlate <- table(inPlate$prey_ref)
+    pVals <- lapply(names(protFrac), function(prot) {
+                        found <- protInPlate[[prot]]
+                        return(pbinom(found-1, nExptsInPlate, protFrac[[prot]],
+                                      lower.tail=F))
+                    })
+    ##allP <- c(allP, unlist(pVals))
+    names(pVals) <- names(protFrac)
+    qVals <- p.adjust(pVals, method="fdr")
+    ##allQ <- c(allQ, unlist(qVals))
+    x <- which(qVals < 0.01)
+
+    if (length(x) > 0) {
+        ##stop("I like cheese!")
+        badBatch <- data.frame(gene = names(protFrac[x]), q = qVals[x], 
+                               appearHere = as.numeric(protInPlate[x]),
+                               appearAll = as.numeric(protTab[x]), avg=0)
+        
+        badBatch$avg <-
+            sapply(as.character(badBatch$gene), function(g) {
+                       withG <- subset(inPlate, prey_ref==g)
+                       return( sum(withG$total_peptides) / nExptsInPlate)
+                   })
+        
+        outFile <- paste(baseOut, ".", plat, sep="")
+    
+        write.table(badBatch, file=outFile, quote=F, row.names=F, sep="\t")
+    }
+}
+
+if (0) { 
+    for (plat in plates) {
+        inPlate <- subset(apms, plate == plat)
+        nExptsInPlate <- length(unique(inPlate$search_id))
+        exptsPerPlate[[plat]] <- nExptsInPlate
+    }
+}
+
+exptsTab <- data.frame(plate = names(exptsPerPlate), expts=unlist(exptsPerPlate))
+outFile <- paste(baseOut, ".exptsPerPlate", sep="")
+write.table(exptsTab, file=outFile, quote=F, row.names=F, sep="\t")

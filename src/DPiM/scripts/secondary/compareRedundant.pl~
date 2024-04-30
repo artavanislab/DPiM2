@@ -1,0 +1,92 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+
+use lib '/home/glocke/utilScripts/HomeBrew/lib';
+use HomeBrew::IO qw(checkExist);
+
+use lib '/home/glocke/DPiM/scripts/lib';
+use DpimLib qw(getLineAPMS);
+
+# make a table showing the TSC's for all preys connected to a given bait
+# one col for each search_id, one row for each prey
+# first row is the bait itself
+
+my %opts = getCommandLineOptions();
+
+{
+    my $in = $opts{in};
+    my $out = $opts{out};
+
+    my %tsc; # tsc{prey}{sid} = tsc
+
+    open my $IN, "<", $in or die "can't read from $in. $!";
+    my %row;
+    my %runHash;
+    my $bait;
+    while (getLineAPMS(\%row, $IN)) {
+	$bait //= $row{bait_ref};
+	die "different baits? $row{bait_ref}" unless $bait eq $row{bait_ref};
+	$tsc{$row{prey_ref}}{$row{search_id}} = $row{total_peptides};
+	$runHash{$row{search_id}} = 1;
+    }
+    close $IN;
+    
+    my @runs = sort keys %runHash;
+    my @prey;
+    {
+	# make the bait the first prey 2-48
+	# sort the rest of the prey according to the 
+	# put the most popular prey after that
+	my $baitCounts = $tsc{$bait};
+	delete $tsc{$bait};
+	@prey = keys %tsc;
+	$run1 = $runs[0];
+	@prey = sort {$tsc{$a}{$run1} <=> $tsc{$b}{$run1}} @prey;
+	unshift @prey, $bait;
+	$tsc{$bait} = $baitCounts; 
+    }
+    
+    $_ = qq{"$_"} for @prey, @runs;
+
+    open my $OUT, ">", $out or die "Can't write to $out. $!";
+    say $OUT join "\t", @runs;
+    for my $p (@prey) {
+	print $OUT "$p\t";
+	say $OUT join "\t" map { $tsc{$p}{$_} // 0 } @runs;
+    }
+    close $OUT;
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+
+    my %defaults = (
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my $usage = "usage: $0 -in input -out output\n";
+
+    my %opts = ();
+    GetOptions(\%opts, "in=s", "out=s");
+    die $usage unless exists $opts{in} && exists $opts{out};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+
+    checkExist('f', $opts{in});
+
+    return %opts;
+}
+

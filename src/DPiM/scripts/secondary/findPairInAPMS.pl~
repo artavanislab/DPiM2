@@ -1,0 +1,70 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+use Storable qw(retrieve);
+use HomeBrew::IO qw(checkExist);
+#use DpimLib qw(getLineDP4APMS);
+
+# find all co-appearances of two proteins in data
+
+my %opts = getCommandLineOptions();
+
+{
+    my %lookFor = ( $opts{p1}=> 1, $opts{p2} => 1 );
+    my $out = $opts{out};
+    my $apmsFile = $opts{apms};
+
+    
+    my $apms = retrieve($apmsFile);
+
+    my @co;
+    for my $bait (keys %$apms) {
+	for my $sid (keys %{ $apms->{$bait} }) {
+	    my $found = 0;
+	    $found++ if exists $lookFor{$bait};
+	    for my $row (@{ $apms->{$bait}{$sid} }) {
+		my $prey = $row->{prey_ref};
+		next if $prey eq $bait;
+		$found++ if exists $lookFor{$prey};
+	    }
+	    push @co, $sid if $found == 2;
+	    die "I think something's wrong ($found, $sid)" if $found > 2;
+	}
+    }
+    
+    say for sort {$a <=> $b} @co;
+    say "found none!" if @co == 0;
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+
+    my %defaults = (
+	apms => '/home/glocke/DPiM/dpim4/withInstr/apmsData/all.combined.01-30-2016.storable',
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my $usage = "usage: $0 -p1 fbgn1 -p2 fbgn2 < $defaultString >\n";
+
+    my %opts = ();
+    GetOptions(\%opts, "p1=s", "p2=s", "apms=s");
+    die $usage unless exists $opts{p1} && exists $opts{p2};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+
+    checkExist('f', $opts{apms});
+
+    return %opts;
+}

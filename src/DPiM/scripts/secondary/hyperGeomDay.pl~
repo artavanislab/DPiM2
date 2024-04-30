@@ -1,0 +1,55 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+
+use lib '/home/glocke/utilScripts/HomeBrew/lib';
+use HomeBrew::IO qw(checkExist);
+
+# given so many bad runs (black) and so many good runs (white)
+#   (where goodness is itself defined by a hyper-geometric test)
+# what is the probability to find a given number of bad runs and good runs
+# on a given day under a hypergeomtric model?
+
+
+my %opts = getCommandLineOptions();
+
+{
+    my $in = $opts{in};
+    my $out = $opts{out};
+
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+
+    my %defaults = (
+	pbinmax => 0.01,
+	apms => '/home/glocke/DPiM/data/dpim3.12232014.nrBait',	
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my $usage = "usage: $0 -in input -out output < $defaultString >\n";
+
+    my %opts = ();
+    GetOptions(\%opts, "in=s", "out=s", "pbinmax=f", "apms=s");
+    die $usage unless exists $opts{in} && exists $opts{out};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+
+    checkExist('f', $opts{in});
+    checkExist('f', $opts{apms});
+
+    return %opts;
+}

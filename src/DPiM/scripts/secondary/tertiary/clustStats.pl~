@@ -1,0 +1,143 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+use HomeBrew::IO qw(checkExist readList readList2);
+#use DpimLib qw(getLineDP4APMS);
+
+# print a table listing some basic statistics about the 
+
+my %opts = getCommandLineOptions();
+
+{
+    my $in = $opts{in};
+    my $out = $opts{out};
+    my $modExt = $opts{mod};
+    my $termExt = $opts{term};
+    
+
+    my @clFiles = readList($in);
+    checkExist('f', $_) for @clFiles;
+    checkExist('f', "$_.$modExt") for @clFiles;
+    checkExist('f', "$_.$termExt") for @clFiles;
+
+    my @cols = qw(nClust	ones	twos	5-perc	10-perc	30-perc	modul	connModul	enriched%	enrichedNum);
+    say join "\t", @cols;
+    for my $f (@clFiles) {
+	my ($nClust, $ones, $twos, $perc5, $perc10, $perc30) 
+	    = percentiles($f, 30);
+	my ($modul, $connModul) = readModularity("$f.$modExt");
+	my ($enrichF, $enrichC) = readEnrich("$f.$termExt");
+	say join "\t", $nClust, $ones, $twos, $perc5, $perc10, $perc30, $modul
+	    , $connModul, $enrichF, $enrichC;
+    }
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+    
+    my %defaults = (
+	mod => 'mod',
+	term => 'hypGeo.termTest',
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my $usage = "usage: $0 -in txt.list -out output < $defaultString >\n";
+
+    my %opts = ();
+    GetOptions(\%opts, "in=s", "out=s", "mod=s", "term=s");
+    die $usage unless exists $opts{in} && exists $opts{out};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+
+    checkExist('f', $opts{in});
+
+    return %opts;
+}
+
+# find the percentage of clusters with at least 5 and 10 members
+sub percentiles {
+    my ($in, $limit) = @_;
+
+    my @clusters = readList2($in);
+    if ($clusters[0][0] =~ /^0/) {
+	shift @$_ for @clusters;
+    }
+
+    my @size = map { 0+ @$_ } @clusters;
+
+    @size = sort { $a <=> $b } @size;
+
+    my ($ones, $twos, $perc5, $perc10, $percLim) = (0,0);
+    
+    for my $i (0..$#size) {
+	$ones++ if $size[$i] == 1;
+	$twos++ if $size[$i] == 2;
+	if (! defined $perc5 && $size[$i] >= 5) {
+	    $perc5 = $i-1; ## number of clusters with size less than 5
+	}
+	if (! defined $perc10 && $size[$i] >= 10) {
+	    $perc10 = $i-1;  ## number of clusters with size less than 10
+	    last if ! defined $limit;
+	}
+	if (! defined $percLim && $size[$i] >= $limit) {
+	    $percLim = $i-1;  ## number of clusters with size less than 10
+	}
+    }
+    $perc5//=1;
+    $perc10//=1;
+    $percLim//=1;
+    
+    # 1 - fraction of clusters with size less than X is the fraction of
+    ##  clusters with size at least X
+    $perc5 = sprintf("%.1f%%", 100* (1 - $perc5/@size));
+    $perc10 = sprintf("%.1f%%", 100* (1 - $perc10/@size));
+    $percLim = sprintf("%.1f%%", 100* (1 - $percLim/@size));
+    
+    return (0+@size, $ones, $twos, $perc5, $perc10, $percLim);
+}
+
+sub readModularity {
+    my $in = shift;
+
+    my $str = `grep "mean modularity" $in` 
+	or die "can't find mean modularity in $in";
+    $str =~ /ty ([\d\.e-]+)/ or die "can't parse mean modularity in $in";
+    my $meanMod = sprintf("%.3f", $1);
+
+    $str = `grep "connected modularity" $in` 
+	or die "can't find connected modularity in $in";
+    $str =~ /ty ([\d\.e-]+)/ or die "can't parse connected modularity in $in";
+    my $connectedMod = sprintf("%.3f", $1);
+
+    return ($meanMod, $connectedMod);
+}
+
+sub readEnrich {
+    my $in  = shift;
+
+    my ($enrichF, $enrichC);
+    
+    my $str = `grep % $in` 
+	or die "can't find enriched fraction in $in";
+    $str =~ /([\d\.e-]+%)/ or die "can't parse enriched fraction in $in";
+    $enrichF = $1;
+
+    $str = `grep beat $in | grep -v %` 
+	or die "can't find enriched count in $in";
+    $str =~ /(\d+) clusters beat/ or die "can't parse enriched count in $in";
+    $enrichC = $1;
+
+    return ($enrichF, $enrichC);
+}

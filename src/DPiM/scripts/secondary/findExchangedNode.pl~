@@ -1,0 +1,59 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+use HomeBrew::IO qw(checkExist);
+use DpimLib qw(networkHashFromEdgeList);
+
+# look for nodes present in target but not in source (X) and vice versa (Y)
+# for every x in X, find the y in Y with max(jacc(x,y))
+#   where jacc(x,y) is the jaccard score for overlap of neighbors
+
+my %opts = getCommandLineOptions();
+
+{
+    my $sourceFile = $opts{source};
+    my $targetFile = $opts{target};
+    my $out = $opts{out};
+
+    
+    open my $IN, "<", $in or die "can't read $in. $!";
+    close $IN; 
+    open my $OUT, ">", $out or die "can't write to $out. $!";
+    say $OUT "# $0 describe this";
+    close $OUT; 
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+
+    my %defaults = (
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my $usage = "usage: $0  -source doThese.net -target appearHere?net -out ".
+	"targetList.tsv\n";
+
+    my %opts = ();
+    GetOptions(\%opts, "source=s", "target=s", "out=s");
+    die $usage unless exists $opts{source} && exists $opts{target} && 
+	exists $opts{out};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+
+    checkExist('f', $opts{source});
+    checkExist('f', $opts{target});
+
+    return %opts;
+}

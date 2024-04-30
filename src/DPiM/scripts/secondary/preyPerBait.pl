@@ -1,0 +1,62 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+use HomeBrew::IO qw(checkExist writeCols);
+use DpimLib qw(getLineAPMS);
+
+# find the distribution of prey per bait
+# i.e. how many rows are there with a given search_id ?
+
+my %opts = getCommandLineOptions();
+
+{
+    my $in = $opts{in};
+    my $out = $opts{out};
+
+    my %cnt; # row{search_id} = number of rows with that search_id
+    open my $IN, "<", $in or die "can't read from $in. $!";
+    my %row;
+    while (getLineAPMS(\%row, $IN)) {
+	$cnt{$row{search_id}}++;
+    }
+    
+    my @sID = sort { $cnt{$b} <=> $cnt{$a} } keys %cnt;
+    my @cnts = map { $cnt{$_} } @sID;
+
+    my $header = join "\t", qw(search_id prey);
+    my $format = join "\t", qw(%d %d);
+    my $preComments = "# counted rows per search_id in $in";
+    writeCols($out, [\@sID, \@cnts], $header, $format, $preComments);
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+
+    my %defaults = (
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my $usage = "usage: $0 -in input -out output\n";
+
+    my %opts = ();
+    GetOptions(\%opts, "in=s", "out=s");
+    die $usage unless exists $opts{in} && exists $opts{out};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+
+    checkExist('f', $opts{in});
+
+    return %opts;
+}

@@ -1,0 +1,185 @@
+#/usr/bin/perl
+
+use warnings;
+use strict;
+
+use Test::More qw(no_plan);
+use Data::Dumper;
+
+# Verify module can be included via "use" pragma
+BEGIN { use_ok('HomeBrew::Bio') };
+
+# Verify module can be included via "require" pragma
+require_ok('HomeBrew::Bio');
+
+# test makeOcc
+{
+    my $objSize = 3;
+    my @prob =   qw( 1 1 0 1 0 1 );
+    my @tarOcc = qw( 1 2 2 2 1 2 );
+    my $occ = [];
+    HomeBrew::Bio::makeOcc($occ, \@prob, $objSize);
+    is_deeply($occ, \@tarOcc, "does makeOcc work by reference?");
+
+    $occ = HomeBrew::Bio::makeOcc(\@prob, $objSize);
+    is_deeply($occ, \@tarOcc, "does makeOcc work by return?");
+}
+
+# test reverseComplement/rc
+{
+    my $word = 'ACGT';
+    my $tar  = $word;
+    my $got = HomeBrew::Bio::reverseComplement($word);
+    is($got, $tar, 'Can I reverse complement once?');
+    $word = 'ggaatt';
+    $tar  = 'AATTCC';
+    $got = HomeBrew::Bio::rc($word);
+    is($got, $tar, 'Can I reverse complement twice?');
+}
+
+# test weight matrix;
+{
+    my @keys = qw(a b);
+    my %background = (a => 0.6, b => 0.4); 
+    my @trainingSeq = qw(aaaaa bbbbb aaaaa abbbb);
+    my @freq = ({a=>0.75, b=>0.25}, {a=>0.5, b=>0.5}, {a=>0.5, b=>0.5},
+		{a=>0.5, b=>0.5}, {a=>0.5, b=>0.5});
+    my @tarMatrix; 
+    for my $i (0..4) {
+	for (@keys) {
+	    #print "trying to log $freq[$i]{$_} / $background{$_}\n";
+	    $tarMatrix[$i]{$_} = log($freq[$i]{$_} / $background{$_});
+	}
+    }
+    my @gotMatrix;
+    HomeBrew::Bio::makeWeightMatrix(\@gotMatrix, \@trainingSeq, \%background);
+    is_deeply(\@gotMatrix, \@tarMatrix, 
+	      "does makeWeightMatrix get the right values?");
+
+    my (@tarScores, @gotStringScores, @gotArrayScores);
+    for my $seq (@trainingSeq) {
+	my $j=0;	
+	push(@tarScores, 0);
+	my @spl = split(//, $seq);
+	for my $c (@spl) {
+	    $tarScores[-1] += $tarMatrix[$j]{$c};
+	    $j++;
+	}
+	push(@gotStringScores, 
+	     HomeBrew::Bio::applyWeightMatrix($seq, \@tarMatrix));
+	push(@gotArrayScores, 
+	     HomeBrew::Bio::applyWeightMatrix(\@spl, \@tarMatrix));
+    }
+    
+    is_deeply(\@gotStringScores, \@tarScores, 
+	      "does makeWeightMatrix work on strings?");
+    is_deeply(\@gotArrayScores, \@tarScores, 
+	      "does makeWeightMatrix work on arrays?");
+}
+
+# test seqToDinucs
+{
+    my $s	= 'AGGAATGG';
+    my $tarGC	= '0100001';
+    my $tarAT	= '0001100';
+    my $tarAATT = '0001000';
+    my $gotGC = $s;
+    my $gotAT = $s;
+    my $gotAATT = $s;
+
+    HomeBrew::Bio::seqToDinucs($gotGC, 'GC');
+    HomeBrew::Bio::seqToDinucs($gotAT, 'AT');
+    HomeBrew::Bio::seqToDinucs($gotAATT, 'AATT');
+    is($gotGC, $tarGC, "can I get GC dinucs?");
+    is($gotAT, $tarAT, "can I get AT dinucs?");
+    is($gotAATT, $tarAATT, "can I get AATT dinucs?");
+}
+
+# test monoNucToWord
+{
+    my @nucs = qw(A C G T);
+    my $seqLen = 100;
+    for my $n (2..6) {
+	my @seq = map {$nucs[int(rand(@nucs))] } 1..$seqLen;
+	my @target;
+	for my $i (0..($seqLen-$n)) {
+	    $target[$i] = join "", @seq[$i..($i+$n-1)];
+	}
+	my @got;
+	HomeBrew::Bio::monoNucToWord(\@got, \@seq, $n);
+	is_deeply(\@got, \@target, "can I make words of length $n?")
+    }
+}
+
+# test wordCount
+{
+    my $seq = 'AGGAATGG';
+
+    my %tarCount1 = (A => 3, G => 4, T => 1);
+    my %gotCount1 = HomeBrew::Bio::wordCount($seq, 1);
+    is_deeply(\%gotCount1, \%tarCount1, "can I count mononucs?");
+
+    my %tarCount2 = (AG => 1, GG => 2, GA => 1, AA => 1, AT => 1, TG => 1);
+    my %gotCount2 = HomeBrew::Bio::wordCount($seq, 2);
+    is_deeply(\%gotCount2, \%tarCount2, "can I count dinucs?");
+}
+
+# test makeWords
+{
+    my @alphabet = qw(a b);
+    my @n1 = sort @alphabet; # sort is only for comparitive purposes;
+
+    sub extend {
+	my ($alpha, $set) = @_;
+	my @ret;
+	for my $let (@$alpha) {
+	    push @ret, $_.$let for (@$set);
+	}
+	return @ret;
+    }
+
+    my @n2 = extend(\@alphabet, \@n1);
+    @n2 = sort @n2;
+    my @n3 = extend(\@alphabet, \@n2);
+    @n3 = sort @n3;
+    
+    my @got1 = HomeBrew::Bio::makeWords(\@alphabet, 1);
+    my @got2 = HomeBrew::Bio::makeWords(\@alphabet, 2);
+    my @got3 = HomeBrew::Bio::makeWords(\@alphabet, 3);
+    @got1 = sort @got1;
+    @got2 = sort @got2;
+    @got3 = sort @got3;
+    
+    is_deeply(\@got1, \@n1, 'can I make words of length 1?');
+    is_deeply(\@got2, \@n2, 'can I make words of length 2?');
+    is_deeply(\@got3, \@n3, 'can I make words of length 3?');
+}
+
+# test hamming
+{
+    {
+	my ($s1, $s2);
+	$s1 = 'abcde';
+	$s2 = 'abcdx';
+	is(HomeBrew::Bio::hamming($s1, $s1), 0, 
+	   "hamming distance of $s1 and $s1");
+	is(HomeBrew::Bio::hamming($s1, $s2), 1, 
+	   "hamming distance of $s1 and $s2");
+    }
+    {
+	my ($s1, $s2) = ("","");
+	my $len = 100;
+	$s1.=int(rand(2)) while length($s1) < $len;
+	$s2.=int(rand(2)) while length($s2) < $len;
+	my $hd = 0;
+	my @spl1 = split //, $s1;
+	my @spl2 = split //, $s2;
+	for my $i (0..$#spl1) {
+	    $hd++ if $spl1[$i] != $spl2[$i];
+	}
+	is(HomeBrew::Bio::hamming($s1, $s2), $hd, 
+	   "hamming distance of long binary strings");	
+    }
+
+    
+}

@@ -1,0 +1,103 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+use List::MoreUtils qw(each_array);
+use HomeBrew::IO qw(checkExist readHeader readColsRef);
+#use DpimLib qw(getLineDP4APMS);
+
+# convert the bioplex to dp4 format
+
+# output columns:
+# search_id       bait_ref        prey_ref        total_peptides  sample_date    ms_inst_run_id
+my %opts = getCommandLineOptions();
+
+{
+    my $outputFile = $opts{output}; # the main input file, but names...
+    my $summaryFile = $opts{summary};
+    my $out = $opts{out};
+
+    # summary{bait}{A} = ms_inst_run_id, effectively
+    my %summary;
+    readSummary(\%summary, $summaryFile);
+
+    my %add = (A => 1_000_000_000, B => 2_000_000_000 );
+
+    my @inCols = qw(search_id Rep     bait_ref    prey_ref    total_peptides);
+    my @outCols = qw(search_id       bait_ref        prey_ref        total_peptides  sample_date    ms_inst_run_id);
+    my $dummyDate = "1970-01-01"; # the epoch
+    
+    open my $IN, "<", $outputFile or die "can't read $outputFile. $!";
+    open my $OUT, ">", $out or die "can't write to $out. $!";
+    say $OUT "# $0 munged $outputFile and $summaryFile";
+    say $OUT "# addA = $add{A}; addB = $add{B}";
+    say $OUT join "\t", @outCols;
+    while (<$IN>) {
+	next if /^#/;
+	next if /^APMS/;
+	chomp;
+	my @spl = split;
+	my %row = map { $inCols[$_] => $spl[$_] } 0..$#spl;
+
+	my $rep = $row{Rep};
+	my $bait = $row{bait_ref};
+	
+	$row{search_id} += $add{$rep};
+	$row{ms_inst_run_id} = $summary{$bait}{$rep} // die "can't find summary{$bait}{$rep}";
+	$row{sample_date} = $dummyDate;
+	say $OUT join "\t", map { $row{$_} } @outCols;
+    }
+    close $IN; 
+    close $OUT; 
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+
+    my %defaults = (
+	output => '/home/kli3/Interactome/data/BioPlex_8400_03282016/gpsRes6_output.tsv',
+	summary => '/home/kli3/Interactome/data/BioPlex_8400_03282016/gpsRes6_runSummary.tsv'
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my $usage = "usage: $0 -out output < $defaultString > \n";
+
+    my %opts = ();
+    GetOptions(\%opts, "out=s", "output=s", "summary=s");
+    die $usage unless exists $opts{out};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+
+    checkExist('f', $opts{output});
+    checkExist('f', $opts{summary});
+
+    return %opts;
+}
+
+# ret{bait}{A} = RAWFile
+# ret{bait}{B} = RAWFile
+sub readSummary {
+    my ($ret, $in) = @_;
+ 
+    my @cols = qw(BaitGeneID Replicate RAWFile);
+    my @read;
+    readColsRef(\@read, $in, \@cols, undef, "\t");
+
+    my $i=0;
+    for my $row (@read) {
+	$ret->{$row->{BaitGeneID}}{$row->{Replicate}} = $row->{RAWFile};
+    }
+
+    return;
+}

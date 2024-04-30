@@ -1,0 +1,120 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+use List::Util qw(max);
+use HomeBrew::IO qw(checkExist readColsRef readHeader);
+#use DpimLib qw(getLineAPMS);
+
+# select the top x percentage of support
+
+my %opts = getCommandLineOptions();
+
+{
+    my $in = $opts{in};
+    my $out = $opts{out};
+    my $percentile = $opts{percentile};
+    my $minSupport = $opts{minsupport};
+
+    if (defined $minSupport && $minSupport <= 1) {
+	system("cp $in $out");
+	exit;
+    }
+ 
+   
+    my @cols = qw(protein1 protein2 support);
+    my @edges;
+    readColsRef(\@edges, $in, \@cols, 'line');
+
+    @edges = sort {$b->{support} <=> $a->{support}} @edges;
+    #
+    
+    my $cutoff;
+    if (defined $percentile) {
+	my $fraction = $percentile/100.0;
+	$cutoff = findFractionCutoff(\@edges, $fraction);
+    } else {
+	$cutoff = findMinCutoff(\@edges, $minSupport);
+	$percentile = 100*($cutoff+1)/@edges;
+    } 
+
+
+    open my $OUT, ">", $out or die "Can't write to $out. $!";
+    say $OUT "# selected the top $percentile of edges (", ($cutoff+1)
+	, ") from $in";
+    say $OUT "# min support = ", $edges[$cutoff]{support};
+    say $OUT join "\t", readHeader($in);
+    print $OUT $_->{line} for @edges[0..$cutoff];
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+
+    my %defaults = (
+	minsupport => 950,
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my $usage = "usage: $0 -in input -out output < $defaultString *or* ".
+	"-percentile x >\n";
+
+    my %opts = ();
+    GetOptions(\%opts, "in=s", "out=s", "percentile=f", "minsupport=i");
+    die $usage unless exists $opts{in} && exists $opts{out};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+
+    checkExist('f', $opts{in});
+
+    return %opts;
+}
+
+sub findFractionCutoff { 
+    my ($edges, $fraction, $col) = @_;
+
+    $col //= 'support';
+    my @dat = map { $_->{$col} } @$edges;
+    my $ret = sprintf("%.0f", $fraction * @dat - 1);
+
+    if ($dat[$ret] == $dat[0]) { 
+	# if the maximum support has a higher fraction than selected
+	$ret++ while $dat[$ret+1] == $dat[0];
+	warn "can't take a fraction smaller than ", $ret/@dat;
+	return $ret;
+    }
+
+    my $middleVal = $dat[$ret];
+    my ($hi, $lo) = ($ret, $ret);
+    $hi++ while $dat[$hi+1] == $middleVal;
+    $lo-- while $dat[$lo-1] == $middleVal;
+    if (($hi+1)/@dat - $fraction > $fraction - ($lo+1)/@dat) {
+	say "hi, *lo* = ", (($hi+1)/@dat), ", ", (($lo+1)/@dat);
+	return $lo;
+    } else {
+	say "*hi*, lo = ", (($hi+1)/@dat), ", ", (($lo+1)/@dat);
+	return $hi;
+    }
+}
+
+sub findMinCutoff { 
+    my ($edges, $min, $col) = @_;
+
+    $col //= 'support';
+    my @dat = map { $_->{$col} } @$edges;
+    my $ret = 0;
+
+    $ret++ while $dat[$ret+1] >= $min;
+
+    return $ret;
+}

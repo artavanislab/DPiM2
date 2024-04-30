@@ -1,0 +1,98 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+use HomeBrew::IO qw(checkExist);
+use DpimLib qw(getLineDP4APMS readColsRef writeCols);
+
+# for each experiment, list the percentile for the bait peptides
+# that is, what fraction of proteins identified in this experiment had fewer
+# peptides than the bait did
+
+my %opts = getCommandLineOptions();
+
+{
+    my $in = $opts{in};
+    my $out = $opts{out};
+    my $statsFile = $opts{stats};
+
+    my %baitPep = getBaitStats($statsFile);
+
+    my %counts; # counts{search_id} = { above=> $a, below=> $b, total=> $t }
+
+    open my $IN, "<", $in or die "Can't read from $in. $!";
+    my %row;
+    while (getLineDP4APMS(\%row, $IN)) {
+	my $sid = $row{search_id};
+	# total starts at 1 for the bait
+	#$counts{$sid} //= {above=>0, below=>0, total=>0};
+	$counts{$sid}{total}++;
+	next if $row{bait_ref} eq $row{prey_ref};
+
+	if ($row{total_peptides} > $baitPep{$sid}) {
+	    $counts{$sid}{above}++;
+	} elsif ($row{total_peptides} < $baitPep{$sid}) {
+	    $counts{$sid}{below}++;
+	} else {
+	    $counts{$sid}{equal}++;
+	}
+    }
+
+    my %perc; # counts{search_id} = {above => $a/$t, below=> $b/$t}
+    for my $k (keys %counts) {
+	my $tot = $counts{$k}{total};
+	$perc{$k} = { above => ($counts{$k}{above} // 0)/$tot,
+		      below => ($counts{$k}{below} // 0)/$tot }
+    }
+
+    my @sid = sort {$a <=> $b} keys %perc;
+    my @data = (\@sid);
+    push @data, [map { $perc{$_}{above} } @sid];
+    push @data, [map { $perc{$_}{below} } @sid];
+    
+    my $header = join "\t", qw(search_id above below);
+    my $format = join "\t", qw(%d %.4f %.4f);
+    my $preComments = "# above = number";
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+
+    my %defaults = (
+	stats => '/home/glocke/DPiM/dpim4/all.combined.10-21-2015.rmDupes.sumIso.0_05.tscFilter.statsBySID',
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my $usage = "usage: $0 -in input -out output\n";
+
+    my %opts = ();
+    GetOptions(\%opts, "in=s", "out=s");
+    die $usage unless exists $opts{in} && exists $opts{out};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+
+    checkExist('f', $opts{in});
+
+    return %opts;
+}
+
+# ret{search_id} = bait_peptides
+sub getBaitStats {
+    my ($inFile) = @_;
+
+    my @read;
+    readColsRef(\@read, $inFile, [qw(search_id bait_peptides)]);
+
+    return map { $_->{search_id} => $_->{bait_peptides} } @read;
+}

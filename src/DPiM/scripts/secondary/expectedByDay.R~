@@ -1,0 +1,21 @@
+{
+    byDay <- read.table("~/DPiM/data/inclusionByDate.dpim3.7-28.tab", header = T)
+    p <- sum(byDay$bad) / sum(byDay$bad + byDay$good) # likelihood that any
+    ## given run is bad
+    mx <- max(byDay$bad)
+    tot <- byDay$bad + byDay$good;
+    x <- factor(byDay$bad, levels=c(0:mx))
+    obser <- table(x)
+    #chiTest <- chisq.test(expec, obser)
+
+    N <- length(tot)
+    expec <- rep(0, mx+1)
+    for (i in 1:N) {
+        expec <- expec + dbinom(c(0:mx), tot[i], p);
+    }
+    plot(c(0:mx), expec, ylim=c(0, max(expec[1], obser[[1]] ) ),
+         xlab="Number of bad runs", ylab="Number of days")
+    points(table(byDay$bad))
+
+    
+}

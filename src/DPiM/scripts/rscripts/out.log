@@ -1,0 +1,93 @@
+
+R version 3.1.2 (2014-10-31) -- "Pumpkin Helmet"
+Copyright (C) 2014 The R Foundation for Statistical Computing
+Platform: x86_64-unknown-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> 
+> library(CBDD)
+Loading required package: Runiversal
+Loading required package: igraph
+
+Attaching package: ‘igraph’
+
+The following objects are masked from ‘package:stats’:
+
+    decompose, spectrum
+
+The following object is masked from ‘package:base’:
+
+    union
+
+Loading required package: rJava
+Loading required package: Matrix
+
+Attaching package: ‘Matrix’
+
+The following objects are masked from ‘package:base’:
+
+    crossprod, tcrossprod
+
+> 
+> 
+> net <- read.table("/home/glocke/DPiM/oldDpim/dpim3.1/dpim3.09-25-2015.nrBait.77.44.network", header = T)
+> 
+> params <- c(0.05, 0.25, 0.75, 0.95)
+> 
+> outDir <- "/home/glocke/DPiM/oldDpim/dpim3.1/mcode1_10-12-2015"
+> for (p in params) {
++     print(p)
++     clus <- MCODE(net, d=p, verbose=T)
++     print(length(clus))
++     i <- 1;
++     for (c in clus) {
++         f <- sprintf("%s/d%s_%03d.network", outDir, p, i);
++         write.table(c$subnetwork, file=f, sep="\t", quote=F, row.names=F)
++         i <- i+1;
++     }
++ }
+[1] 0.05
+Weights calculated. Elapsed 0.47 sec
+Subnetworks found. Elapsed 11.953 sec
+Subnetwork postprocessing: fluff = FALSE , haircut = TRUE ...
+		Done. Elapsed 12.345 sec
+SUbnetworks sorted. All done. Elapsed 12.796 sec
+[1] 85
+[1] 0.25
+Weights calculated. Elapsed 0.108 sec
+Subnetworks found. Elapsed 11.352 sec
+Subnetwork postprocessing: fluff = FALSE , haircut = TRUE ...
+		Done. Elapsed 11.844 sec
+SUbnetworks sorted. All done. Elapsed 12.297 sec
+[1] 95
+[1] 0.75
+Weights calculated. Elapsed 0.09 sec
+Subnetworks found. Elapsed 12.694 sec
+Subnetwork postprocessing: fluff = FALSE , haircut = TRUE ...
+		Done. Elapsed 13.705 sec
+SUbnetworks sorted. All done. Elapsed 14.11 sec
+[1] 76
+[1] 0.95
+Weights calculated. Elapsed 0.062 sec
+Subnetworks found. Elapsed 10.425 sec
+Subnetwork postprocessing: fluff = FALSE , haircut = TRUE ...
+		Done. Elapsed 11.266 sec
+SUbnetworks sorted. All done. Elapsed 11.536 sec
+[1] 47
+> 
+> proc.time()
+   user  system elapsed 
+ 57.697   0.558  58.740 

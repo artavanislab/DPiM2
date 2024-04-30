@@ -1,0 +1,192 @@
+#include "Network.hpp"
+#include "rapidjson/document.h"
+#include <fstream>
+#include <iostream>
+#include <boost/lexical_cast.hpp>
+#include <boost/foreach.hpp>
+//#include <boost/algorithm/string.hpp>
+
+#ifndef DOUBLE_VECTOR
+#define DOUBLE_VECTOR 1
+typedef std::vector< double > doubleVector;
+#endif
+#ifndef DOUBLE_VECTOR_VECTOR
+#define DOUBLE_VECTORP_VECTOR 1
+typedef std::vector< doubleVector > doubleVectorVector; 
+#endif
+
+namespace rj = rapidjson;
+
+/*
+ * Public Methods
+ */
+
+Network::Network() : nRun(0) { };
+Network::~Network() {  };
+Network::Network(const stringVector& jsonFiles) {
+  BOOST_FOREACH(const std::string f, jsonFiles) {
+    ++nRun;
+    std::cout << "\treading " << f << "..." << std::endl;
+    addJson(f);
+    /*
+      DEBUG
+    std::cout << nRun << "\t";
+    if (stats.count(prot1) > 0 && stats.at(prot1).count(prot2) > 0) {
+      std::cout << stats.at(prot1).at(prot2).Mean()
+		<< "\t" << stats.at(prot1).at(prot2).NumDataValues()
+		<< std::endl;
+    } else {
+      std::cout << "no\n";
+    }
+    */
+  }
+}
+
+double Network::mean(std::string fbgn1, std::string fbgn2) const {
+  if (fbgn1.compare(fbgn2) > 0) {
+    std::swap(fbgn1, fbgn2);
+  }
+  return stats.at(fbgn1).at(fbgn2).Mean();
+}
+double Network::sd (std::string  fbgn1, std::string fbgn2) const {
+  if (fbgn1.compare(fbgn2) > 0) {
+    std::swap(fbgn1, fbgn2);
+  }  
+  return stats.at(fbgn1).at(fbgn2).StandardDeviation();
+}
+ 
+double Network::var (std::string  fbgn1, std::string fbgn2) const {
+  if (fbgn1.compare(fbgn2) < 0) {
+    std::swap(fbgn1, fbgn2);
+  }  
+  return stats.at(fbgn1).at(fbgn2).Variance();
+}
+
+/*
+ * Private Methods
+ */
+
+void Network::addJson(const std::string& jsonFile) {
+  //std::cout << "\t\tslurping" << std::endl;
+  std::string json = slurp(jsonFile);
+  //std::cout << "\t\t\tjson.size() = " << json.size() << std::endl;
+
+  // parse
+  //std::cout << "\t\tparsing" << std::endl;
+  rj::Document jsonObj;
+  jsonObj.Parse(json.c_str());
+
+  // verify that the json looks correct
+  //std::cout << "\t\tverify..." << std::endl;
+  assert(jsonObj.IsObject());
+  assert(jsonObj.HasMember("score"));
+  assert(jsonObj["score"].IsObject());
+  assert(jsonObj.HasMember("ids"));
+  assert(jsonObj["ids"].IsObject());
+
+  //std::cout << "\t\tfillFbgnMap...\n";
+  stringIBimap fbgnMap = fillFbgnMap(jsonObj["ids"].MemberBegin(),
+				     jsonObj["ids"].MemberEnd());
+
+  //std::cout << "\t\tupdateStats..\n";
+  updateStats(jsonObj["score"].MemberBegin(), jsonObj["score"].MemberEnd(),
+	      fbgnMap);
+
+  // std::cout << "I love peanuts!\n"; // DEBUG
+}
+
+stringIBimap Network::fillFbgnMap(rj::Value::ConstMemberIterator begin,
+				  rj::Value::ConstMemberIterator end)
+{
+  stringIBimap ret;
+  typedef stringIBimap::value_type keyValue;
+  std::string fbgn;
+  size_t id;
+  rj::Value::ConstMemberIterator p1;
+  size_t maxId = 0;
+  for (p1 = begin; p1 != end; ++p1) {
+    id = boost::lexical_cast<size_t>(p1->name.GetString());
+    fbgn = p1->value.GetString();
+    //std::cout << "(fbgn, id) = ( "<< fbgn << ", " << id << ")\n"; // DEBUG
+    ret.insert(keyValue(fbgn, id));
+    allProteins.insert(fbgn);
+    if (maxId < id) {
+      maxId = id;
+    }
+  }
+
+  // add in any protein we've seen before 
+  // this way, it's easy to keep track of proteins that have no edges 
+  stringSet::iterator all;
+  for (all = allProteins.begin(); all != allProteins.end(); ++all) {
+    if (ret.left.count(*all) == 0) {
+      ret.insert(keyValue(*all, ++maxId));
+    }
+  }
+  return ret;
+}
+
+void Network::updateStats(rj::Value::ConstMemberIterator begin,
+			  rj::Value::ConstMemberIterator end,
+			  const stringIBimap& fbgnMap)
+{
+  // the json is sparse, but here we have to keep track of the zeroes
+  // so we start by filling a matrix with zeroes
+  doubleVector blanks(fbgnMap.size(), 0);
+  doubleVectorVector scores(fbgnMap.size(), blanks);
+
+  //std::cout << "\t\t\tparse jsonObj\n";
+  rj::Value::ConstMemberIterator p1, p2;
+  size_t i1, i2;
+  for (p1 = begin; p1 != end; ++p1) {
+    i1 = boost::lexical_cast<size_t>(p1->name.GetString());
+    //std::cout << "\t\t\tseek fbgnMap.right.at(" << i1 << ")\n"; // DEBUG
+    for (p2 = p1->value.MemberBegin(); p2 != p1->value.MemberEnd(); ++p2) {
+      i2 = boost::lexical_cast<size_t>(p2->name.GetString());
+
+      if (i1 > i2) {
+	std::cerr << "i1 > i2!!!" << std::endl;
+      }
+      //std::cout << "\t\t\tseeking scores.at(" << i1 << ").at(" << i2 << ")\n";
+      scores.at(i1).at(i2) = p2->value.GetDouble();
+    }
+  }
+  std::cout << "\t\t\tadd values to stats\n";
+  std::string prot1, prot2;
+  for (size_t i1 = 0; i1 < fbgnMap.size()-1; ++i1) {
+    if (i1 % 100 == 0) {
+      std::cout << "\t\t\t\t" << i1 << "\n";
+    }
+    for (size_t i2 = i1+1; i2 < fbgnMap.size(); ++i2) {
+      prot1 = fbgnMap.right.at(i1);
+      prot2 = fbgnMap.right.at(i2);
+      // disambiguate stats[prot1][prot2] vs stats[prot2][prot1]
+      if (prot1.compare(prot2) > 0) {
+	std::swap(prot1, prot2);
+      }
+      //std::cout << "\t\t\t\tstats[" << prot1 << "][" << prot2 << "]\n"; // DEBUG
+      if (stats.count(prot1) == 0 || stats.at(prot1).count(prot2) == 0) {
+	// brackets automatically instantiate 
+	stats[prot1][prot2] = RunningStat(nRun, scores.at(i1).at(i2));
+      } else {
+	stats.at(prot1).at(prot2).Push(scores.at(i1).at(i2));
+      }
+    }
+  }
+
+  return;
+}
+
+std::string Network::slurp(const std::string& inFile) {
+  std::ifstream in(inFile);
+  if (in) {
+    std::string contents;
+    in.seekg(0, std::ios::end);
+    contents.resize(in.tellg());
+    in.seekg(0, std::ios::beg);
+    in.read(&contents[0], contents.size());
+    in.close();
+    return(contents);
+  }
+  throw(errno);
+}

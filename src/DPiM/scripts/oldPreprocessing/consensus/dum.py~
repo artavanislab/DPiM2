@@ -1,0 +1,12 @@
+agg = aggregator()
+for f in oldJsonFiles:
+    sparseMat = read(f)
+    agg.add(sparseMat)
+
+oldMeans = agg.means()
+
+for f in newJsonFiles:
+    sparseMat = read(f)
+    agg.add(sparseMat)
+
+newMeans = agg.means()

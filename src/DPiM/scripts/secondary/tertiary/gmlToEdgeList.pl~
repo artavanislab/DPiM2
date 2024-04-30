@@ -1,0 +1,112 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+use HomeBrew::IO qw(checkExist);
+#use Graph::GML; # doesn't capture attributes !?  v0.01....
+#use DpimLib qw(getLineAPMS);
+
+# convert a gml file into an edge list
+# not maximally functional.  just serves a single purpose, namely writing a
+# undirected
+
+my %opts = getCommandLineOptions();
+
+{
+    my $in = $opts{in};
+    my $out = $opts{out};
+
+    my (%nodes, %edges);
+    readGML($in, \%nodes, \%edges);
+    my $gml = new Graph::GML(file=>$in);
+
+    for my $v ($gml->vertices()) {
+	die Dumper($gml->get_vertex_attribute($v, 'name'));
+    }
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+
+    my %defaults = (
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my $usage = "usage: $0 -in in.gml -out out.edgelist\n";
+
+    my %opts = ();
+    GetOptions(\%opts, "in=s", "out=s");
+    die $usage unless exists $opts{in} && exists $opts{out};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+
+    checkExist('f', $opts{in});
+
+    return %opts;
+}
+
+# assume undirected
+# nodes{id} = {id => id, attribute1 => a1, attr2 => a2,....}
+# edges{id1}{id2} = { source, target, attributes... }
+sub readGML {
+    my ($in, $nodes, $edges) = @_;
+
+    open my $IN, "<", $in or die "Can't read from $in. $!";
+
+    my %elemTypes = ( node => 'node', edge => 'edge' );
+    my $started = undef;
+    my ($elemType, $elemOpen, %elem);
+    while (my $line = <$IN>) {
+	if (! $started) {
+	    $started = 1 if $line =~ /^\[/;
+	}
+	$_ = $line;
+	chomp;
+	@spl = split;
+	if (! $elemOpen) {
+	    if (exists $elemTypes{$spl[0]}) { # open an element
+		$elemType = $spl[0];
+		$elemOpen = 1;
+	    } 
+	} else {
+	    if (@spl > 1) {
+		# parse attributes
+		my $key = shift @spl;
+		my $val = join " ", @spl;
+		$val =~ s/['"\]]//g;
+		$elem{$key} = $val;
+	    }
+	    if ($line =~ /\]/) {
+		# close element
+		if ($elemType eq 'node') {
+		    $id = $elem{id} 
+		        // die "can't find node id. \n", Dumper(\%elem);
+		    $edges->{$id} = { map { $_ => $elem{$_} } keys %elem };
+		} elsif ($elemType eq 'edge') {
+		    my $source = $elem{source} // die "can't find source.\n"
+			, Dumper(\%elem);
+		    my $target = $elem{target} // die "can't find target.\n"
+			, Dumper(\%elem);
+		    $edges->{$source}{$target} = {
+			map { $_ => $elem{$_} } keys %elem 
+		    };
+		} 
+		    
+		%elem = ();
+		$elemType = undef;
+		$elemOpen = undef;
+	    }
+	}
+    }
+}

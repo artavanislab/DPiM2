@@ -1,0 +1,85 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+use List::Util qw(sum);
+use List::MoreUtils qw(each_array);
+use HomeBrew::IO qw(checkExist readFastaRef);
+#use DpimLib qw(getLineDP4APMS);
+
+# convert dmel-all-translation-rX.XX.fasta into a file usable by
+# HyperSpec for NSAF
+
+my %opts = getCommandLineOptions();
+
+{
+    my $in = $opts{in};
+    my $out = $opts{out};
+    
+    my @seqs;
+    my @desc;
+    readFastaRef(\@seqs, $in, undef, 'nocheck', \@desc);
+    
+    my $it = each_array(@seqs, @desc);
+    my %length; # length{fbgn} = [length1, length2,...]
+    # where this list is populated by isoforms
+    while (my ($seq, $desc) = $it->()) {
+	if ($desc =~ /parent=(FBgn\d+)/) {
+	    my $fb = $1;
+	    $length{$fb} //= [];
+	    push @{ $length{$fb} }, length($seq);
+	} else {
+	    warn "can't parse '$desc' (seq = '$seq')";
+	    next;
+	} 
+
+    }
+
+    my %aveLength = map { $_ => mean($length{$_}) } keys %length;
+
+    
+    open my $OUT, ">", $out or die "can't write to $out. $!";
+    say $OUT "# computed average length of proteins from $in";
+    say $OUT join "\t", qw(fbgn    avg_exp_tryptic avg_length);
+    for my $fb (sort keys %aveLength) {
+	say $OUT join "\t", $fb, -1, $aveLength{$fb};
+    }
+    close $OUT;
+    exit;
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+
+    my %defaults = (
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my $usage = "usage: $0 -in input -out output\n";
+
+    my %opts = ();
+    GetOptions(\%opts, "in=s", "out=s");
+    die $usage unless exists $opts{in} && exists $opts{out};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+
+    checkExist('f', $opts{in});
+
+    return %opts;
+}
+
+sub mean {
+    my ($list) = @_;
+    return sum(@$list) / (0+ @$list);
+}

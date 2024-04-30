@@ -1,0 +1,13 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+
+my @scr = `ls *.qsub.bash`; 
+die "found no *.qsub.bash" unless @scr > 0;
+chomp @scr; 
+$_ =~ s/\.qsub\.bash// for @scr; 
+for my $s (@scr) { 
+    say "$s.qsub.bash" unless glob("$s.o*");
+}

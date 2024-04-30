@@ -1,0 +1,78 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+use HomeBrew::IO qw(checkExist);
+#use DpimLib qw(getLineDP4APMS);
+
+# describe the purpose for this script
+
+my %opts = getCommandLineOptions();
+
+{
+    my $in = $opts{in};
+    my $out = $opts{out};
+    
+    open my $OUT, ">", $out or die "can't write to $out. $!";
+    say $OUT "# $0 reformatted $in";
+    parseDP2($in);
+    close $OUT; 
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+
+    my %defaults = (
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my $usage = "usage: $0 -in input -out output\n";
+
+    my %opts = ();
+    GetOptions(\%opts, "in=s", "out=s");
+    die $usage unless exists $opts{in} && exists $opts{out};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+
+    checkExist('f', $opts{in});
+
+    return %opts;
+}
+
+
+# remove FBgn0000000 
+sub parseDP2 {
+    my ($in, $OUT) = @_;
+    
+    my @cols = qw(tap_id  ms_inst_run_id  user    search_id       sample_date     total_peptides unique_peptides  bait_ref        prey_ref);
+    my ($sid) =  grep { $cols[$_] =~ /search_id/ } 0..$#cols;
+    my ($bait) = grep { $cols[$_] =~ /bait_ref/ } 0..$#cols;
+    my ($prey) = grep { $cols[$_] =~ /prey_ref/ } 0..$#cols;
+    my ($tsc) =  grep { $cols[$_] =~ /total_peptides/ } 0..$#cols;
+    my ($date) =  grep { $cols[$_] =~ /sample_date/ } 0..$#cols;
+    my ($instID) = grep { $cols[$_] =~ /ms_inst_run_id/ } 0..$#cols;
+    my $parseLine = makeParser($sid, $bait, $prey, $tsc, $date, $instID);
+
+    open my $IN, "<", $in or die "Can't read from $in. $!";
+    
+    # skip header
+    while (<$IN>) {
+	last if /tap_id/;
+    }
+
+    while (<$IN>) {
+	next if /FBgn0000000/;
+	say $OUT join "\t", $parseLine->($_);
+    }
+}

@@ -1,0 +1,215 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+use Storable;
+
+use HomeBrew::IO qw(checkExist writeCols readColsRef);
+use DpimLib qw(readGoDB networkHashFromEdgeList);
+
+# for every GO term annotated among all proteins, list each annotated protein 
+
+my $MAXCNT = 0;
+my %opts = getCommandLineOptions();
+
+{
+    my $in = $opts{in};
+    my $out = $opts{out};
+    my $mode = $opts{mode};
+    my $goDBFile = $opts{godb};
+    my $goNameFile = $opts{goname};
+    my $proteinCols = $opts{proteincols};
+    my $countCol = $opts{countcol};
+    $MAXCNT = $opts{dumpafter} if exists $opts{dumpafter};
+    
+    my %goDB;
+    say "parsing $goDBFile";
+    readGoDB(\%goDB, $goDBFile);
+
+    my $nodeFlag;
+    if ($mode eq 'edge') {
+	$nodeFlag = 0;
+    } elsif ($mode eq 'node') {
+	$nodeFlag = 1;
+    } 
+
+    say "parsing $in";
+    my %goList;
+    if ($proteinCols eq 'auto') {
+	listTerms(\%goList, $in, \%goDB, $nodeFlag);
+    } else {
+	my @pCols = split ",", $proteinCols;
+	listTermsByCol(\%goList, $in, \%goDB, \@pCols, $countCol);
+    }
+    
+    say "retrieving goNameMap";
+    my $goNameMap = retrieve($goNameFile);
+    $goNameMap->{UNKNOWN} = { name => '"unknown"' };
+
+    {
+	# standardize go terms
+	my %oldNew;
+	for my $go (keys %goList) {
+	    if (exists $goNameMap->{$go}{standard_id}) {
+		$oldNew{$go} = $goNameMap->{$go}{standard_id};
+	    }
+	}
+	for my $oldGo (keys %oldNew) {
+	    my $newGo = $oldNew{$oldGo};
+	    $goList{$newGo} //= [];
+	    mergeLists($goList{$newGo}, $goList{$oldGo});
+	    delete $goList{$oldGo};
+	}
+    }
+    
+    my @terms = sort keys %goList;
+    #die Dumper(\@terms);
+    
+
+    my @goNames = map { '"'.($goNameMap->{$_}{name} // 
+			     die "can't find goNames->{$_}{name}").'"'} @terms;
+
+    my @data = (\@terms, \@goNames);
+    push @data, [ map { join ",",@{$goList{$_}} } @terms];
+    
+    my $preComments = "# found go terms associated with proteins listed in $in\n";
+    my $header = join "\t", qw(term name proteins);
+    my $format = join "\t", qw(%s %s %s);
+    writeCols($out, \@data, $header, $format, $preComments);
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+
+    my %defaults = (
+	godb => '/home/glocke/DPiM/flybase/gene_association.fb',
+	goname => '/home/glocke/DPiM/flybase/goMap.storable',
+	proteincols => 'auto',
+	countcol => 'auto'
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my @modes = qw(edge node);
+    my %modes = map {$_ => 1} @modes;
+    my @arr = @modes;
+    $arr[0] = "*".$arr[0]."*";
+    my $modeString = "-mode ".join("/", @arr);
+
+    my $usage = "usage: $0 -in input -out output < $modeString $defaultString ".
+	" -dumpafter n  >\n";
+
+    my %opts = ();
+    GetOptions(\%opts, "in=s", "out=s", "mode=s", "godb=s", "goname=s", 
+	       "proteincols=s", "countcol=s", "dumpafter=i");
+    die $usage unless exists $opts{in} && exists $opts{out};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+
+    checkExist('f', $opts{in});
+    checkExist('f', $opts{godb});
+
+    die "you must select one of the following modes: ", 
+        join(", ",keys(%modes)), "\n" 
+	if (exists $opts{mode} && ! exists $modes{$opts{mode}});
+    $opts{mode} //= $modes[0];
+
+    return %opts;
+}
+
+# for every protein in every edge, count GO terms
+# if $byNode is set, do not take degree into account
+sub countTerms {
+    my ($goList, $in, $goDB) = @_;
+    
+    my @proteins;
+    {
+	# this is obviously not memory-optimized
+	my %network;
+	networkHashFromEdgeList(\%network, $in);
+	for my $k1 (keys %network) {
+	    for my $k2 (keys %{ $network{$k1} }) {
+		$network{$k2}{$k1} = $network{$k1}{$k2};
+	    }
+	}
+	@proteins = keys %network;
+    }
+
+    for my $prot (sort @proteins) {
+	my $go = $goDB->{$prot};
+	warn ">\tno GO terms for $k1\n" unless defined $go;
+	$go //= ["UNKNOWN"];
+	for my $term (@$go) {
+	    $goList->{$term} //= [];
+	    push @{ $goList->{$term} }, $prot;
+	}
+    }
+    
+    # DEBUG open my $OUT, ">", 'totalEdgeLog';
+    #say $OUT $_ for sort keys %test;
+    
+    return;
+}
+
+# read (at least one) protein name column and a count column
+# if count column is "auto", interpret that to mean we're just counting each
+#   protein once
+sub countTermsByCol {
+    my ($goList, $in, $goDB, $pCols, $countCol) = @_;
+
+    die "countTermsByCol not implemented";
+
+    my $autoFlag = ($countCol eq 'auto');
+
+    my @cols = @$pCols;
+    push @cols, $countCol unless $autoFlag;
+
+    my $protCount;
+
+    my @read;
+    readColsRef(\@read, $in, \@cols);
+    for my $row (@read) {
+	my $count = ($autoFlag)?1:$row->{$countCol};
+	$protCount+=$count;
+	for my $col (@$pCols) { 
+	    my $go = $goDB->{$row->{$col}}; # all GO terms for this protein
+	    warn ">\tno GO terms for $row->{$col}\n" unless defined $go;
+	    $go //= ["UNKNOWN"];
+	    for my $term (@$go) {
+		die "NOT protein = $row->{$col}\n"
+		    , Dumper($go) if $term =~ /NOT/;
+		$goList->{$term} += $count;
+	    }
+	}
+	#die dumpHash($goList) if $protCount > $count;
+    }
+    
+
+    return $protCount;
+}
+
+sub mergeLists {
+    my ($l1, $l2) = @_;
+
+    my %hash = map { $_ => 1 } @$l1, @$l2;
+    
+    return [ sort keys %hash ];
+}
+
+sub dumpHash {
+    my $h = shift;
+
+    for my $k (sort keys %$h) {
+	print "$k => ", Dumper($h->{$k});
+    }
+}

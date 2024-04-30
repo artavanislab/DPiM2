@@ -1,0 +1,72 @@
+#!/usr/bin/env perl
+
+use strict;
+use feature ':5.10'; 
+
+sub process_cmd_args();
+process_cmd_args();
+my $input_file = $ARGV[0];
+my $output_file = $ARGV[1];
+
+open my $INPUT, "<", $input_file or die "Cannot open $input_file. $!";
+<$INPUT>; # Strip the header
+
+my %peptideMap; # peptideMap{$fbgn} = { totalPepSum = TSC,        emacs wants->}
+#	{	#		        expt => { $search_id=> 1, ...} }
+my %totalExpts; # totalExpts{$search_id} = 1 for each sID
+					
+# Chew through the file, accumulating information as we go
+while(my $buf = <$INPUT>){
+    chomp $buf;
+    my @tokens = split("\t", $buf);
+    my $peptide = $tokens[8];
+    my $experiment = $tokens[7];
+    my $total_peptides = eval($tokens[5]);
+    #my $unique_peptides = eval($tokens[6]);
+    
+    # Keep a track of total Experiments
+    $totalExpts{$experiment} = 1;
+
+    $peptideMap{$peptide}{totalPepSum} += $total_peptides;
+    $peptideMap{$peptide}{expt}{$experiment} = 1;
+    #$peptideMap{$peptide}{uniqSum} += $unique_peptides;
+}
+close $INPUT;
+
+print("Finished reading file\n");
+
+my $totalExpts = 0+ keys %totalExpts;
+print "Total experiments seen was: $totalExpts\n";
+
+# Now summarize the information collected to produce the output file
+my @out; # out[i] = [ $fbgn, $numExpts, $numExpts/$totalExpts, $avg_tot_pep ]
+foreach my $peptide (keys(%peptideMap)){
+    my %summary = %{ $peptideMap{$peptide} };
+    my $numExpts = 0+ keys %{ $summary{expt} };
+
+    #print "$peptide\t$totalExpts\t$numExpts\t$summary{totalPepSum}\t$summary{uniqSum}\n";
+    my $fraction = $numExpts / $totalExpts;
+    my $avg_tot_pep = $summary{totalPepSum} / $numExpts;
+    #print $OUTPUT "$peptide\t$numExpts\t$fraction\t$avg_tot_pep\n";
+    push @out, [$peptide,$numExpts,$fraction,$avg_tot_pep];
+}
+
+# sort the output by Count
+@out = sort { $a->[0] cmp $b->[0] } @out;
+my @sorted = sort { $b->[1] <=> $a->[1] } @out;
+
+open my $OUTPUT, ">", $output_file or die "Can't write to $output_file. $!";
+
+print $OUTPUT "# totalExpts = $totalExpts\n";
+print $OUTPUT "fbgn\tCount\tFraction\tavg_tot_pep\n";
+foreach my $o (@sorted) {
+    print $OUTPUT join("\t",@$o)."\n";
+}
+close($OUTPUT);
+
+sub process_cmd_args(){
+    if($#ARGV != 1){
+	die "Usage: calcCommonContam.pl [dpim file] [output file]\n";
+    }
+}
+

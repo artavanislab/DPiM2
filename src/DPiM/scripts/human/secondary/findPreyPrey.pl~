@@ -1,0 +1,91 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+use HomeBrew::IO qw(checkExist readColRef);
+use DpimLib qw(networkHashFromEdgeList);
+
+# report how many edges connect proteins that were not baits
+
+my %opts = getCommandLineOptions();
+
+{
+    my $netFile = $opts{net};
+    my $baitFile = $opts{bait};
+    my $out = $opts{out};
+
+    my %net;
+    networkHashFromEdgeList(\%net, $netFile, undef, 'score', undef, 'human');
+    my %bait;
+    {
+	my @baits;
+	readColRef(\@baits, $baitFile, 'bait_ref');
+	%bait = map {$_ => 1} @baits;
+    }
+
+    my $OUT;
+    if (defined $out) { 
+	open $OUT, ">", $out or die "can't write to $out: $!";
+	say $OUT "# $0 prey-prey edges from $netFile ( baits listed in $baitFile )";
+    } else {
+	open $OUT, ">", '/dev/null' or die "can't write to /dev/null: $!"
+    }
+
+    my $nEdge=0;
+    my %edgesPerBaitCnt; # baitCnt{0/1/2} = 1234
+    #                    # key represents the number of 
+    my $doubleBait = 0;
+    my $singleBait = 0;
+    my $noBait = 0;
+    for my $n1 (keys %net) {
+	my $bait1 = 0+ exists $bait{$n1};
+	for my $n2 (keys %{$net{$n1}}) {
+	    $nEdge++;
+	    my $baitCnt = $bait1 + exists $bait{$n2};
+	    $edgesPerBaitCnt{$baitCnt}++;
+	    say $OUT join "\t", $n1, $n2, $net{$n1}{$n2} if $baitCnt == 0;
+	}
+    }
+
+    say join "\t", qw(nbait cnt frac);
+    say join "\t", -1, $nEdge, 1;
+    for my $i (0..2) {
+	say join "\t", $i, $edgesPerBaitCnt{$i}, $edgesPerBaitCnt{$i}/$nEdge;
+    }
+    close $OUT;
+
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+
+    my %defaults = (
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my $usage = "usage: $0 -net in.net -bait bait.list < -out ".
+	"preyPreyEdges.tsv >\n";
+
+    my %opts = ();
+    GetOptions(\%opts, "net=s", "bait=s", "out=s");
+    die $usage unless exists $opts{net} && exists $opts{bait} &&
+	exists $opts{out};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+
+    checkExist('f', $opts{net});
+    checkExist('f', $opts{bait});
+
+    return %opts;
+}

@@ -1,0 +1,217 @@
+#!/usr/bin/env perl
+
+use warnings;
+use strict;
+use Data::Dumper;
+use feature qw(say);
+use File::Path qw(make_path);
+
+# read in a list of files, apply a certain script to each of them
+#   output file is input file.ext where ext is arg
+
+my %opts = getCommandLineOptions();
+my $fileList	= $opts{l}; # input filelist to concatenate
+my $script	= $opts{s};
+my $ext		= $opts{ext};
+my $in		= $opts{in};
+my $out		= $opts{out} // "out";
+my $dir         = $opts{dir};
+my $fileList2	= $opts{l2};
+my $l2Arg	= $opts{l2arg};
+my $fileList3	= $opts{l3};
+my $l3Arg	= $opts{l3arg};
+my $fileList4	= $opts{l4};
+my $l4Arg	= $opts{l4arg};
+my $ext2        = $opts{ext2};
+my $out2        = $opts{out2};
+my $ext3        = $opts{ext3};
+my $out3        = $opts{out3};
+my $extraArgs	= $opts{extra} // "";
+my $qsArgs	= $opts{qsargs} // "";
+my $qsJob	= $opts{qsjob};
+
+$in = ($in eq 'noin')?"":"-$in";
+
+if (defined $dir && ! -d $dir) {
+    make_path($dir) or die "can't make $dir. $!\n";
+}
+
+if (defined $dir && $dir =~ /\/$/) {
+    chop $dir;
+}
+
+my $NO_OUT = ($out eq "noOut" || $out eq "noout");
+
+my @fl = read_list($fileList);
+unless (defined $opts{nocheck}) {
+    checkExist('f',$_) for @fl;
+}
+
+my @l2;
+if (defined $fileList2) {
+    @l2 = read_list($fileList2);
+    unless (defined $opts{nocheck2}) {
+	checkExist('f',$_) for @l2;
+    }
+}
+my @l3;
+if (defined $fileList3) {
+    @l3 = read_list($fileList3);
+    unless (defined $opts{nocheck3}) {
+	checkExist('f',$_) for @l3;
+    }
+}
+my @l4;
+if (defined $fileList4) {
+    @l4 = read_list($fileList4);
+    unless (defined $opts{nocheck4}) {
+	checkExist('f',$_) for @l4;
+    }
+}
+
+
+
+my $cmd;
+for my $i (0..$#fl) {
+    my $f = $fl[$i];
+    my $outFile = "$f.$ext";
+    my ($outFile2, $outFile3);
+    $outFile2 = "$f.$ext2" if defined $ext2;
+    $outFile3 = "$f.$ext3" if defined $ext3;
+    if (defined $dir) {
+	my $baseFile = ( split /\//, $f )[-1];
+	$outFile = "$dir/$baseFile.$ext";
+	$outFile2 = "$dir/$baseFile.$ext2" if defined $ext2;
+	$outFile3 = "$dir/$baseFile.$ext3" if defined $ext3;
+    }
+    if (-f $outFile && ! $opts{rm} && !$NO_OUT) {
+	warn "already found $outFile.  skipping.\n";
+	warn "\t(use -rm to remake the file.)\n";
+	next;
+    }
+
+    $outFile =~ s://:/:g;
+
+    $cmd = "$script $in $f -$out $outFile ";
+    $cmd = "$script $in $f $extraArgs" if $NO_OUT;
+    $cmd.= " -$l2Arg $l2[$i] " if @l2;
+    $cmd.= " -$l3Arg $l3[$i] " if @l3;
+    $cmd.= " -$l4Arg $l4[$i] " if @l4;
+    $cmd.= " -$out2 $outFile2 " if defined $ext2;
+    $cmd.= " -$out3 $outFile3 " if defined $ext3;
+    $cmd.= $extraArgs;
+
+    if ($opts{qs}) {
+	$cmd = qq{/home/glocke/utilScripts/qsubWrap.pl -cmd "$cmd" $qsArgs -job $qsJob-$i};
+    }
+    if ($opts{doubledash}) {
+	$cmd =~ s/ -/ --/g;
+    }
+    if ($opts{inoutnonames}) {
+	$cmd = "$script $f $outFile $extraArgs";
+    }
+    print "cmd = '$cmd'...\n" unless defined $opts{silent};
+    system($cmd);
+    print "\n" unless defined $opts{silent};
+
+}
+
+
+
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+
+sub getCommandLineOptions {
+  use Getopt::Long;
+  my $usage = qq{usage: $0 -l file.list -s script.pl -ext in.ext -in arg/noin}.
+      qq{ <-extra "-extra args"  -dir outdir -out arg/noout -l2 2nd.list }.
+      qq{-l2arg 2nd_list_arg -l3 3rd.list -l3arg 3rd_list_arg -l4 4th.list }.
+      qq{-l4arg 4th_list_arg -ext2 -out2 -ext3 -out3 -qs }. 
+      qq{-qsargs "-nodes 1 -proc 1" -qsjob job -nocheck -nocheck2 -nocheck3 }.
+      qq{-rm -silent -doubledash -inoutnonames>};
+  # Get args
+  GetOptions(\%opts, "l=s", "s=s", "ext=s", "in=s", "extra=s", "dir=s", "out=s",
+	     "l2=s", "l2arg=s", "l3=s", "l3arg=s", "l4=s", "l4arg=s", "ext2=s",
+	     "out2=s", "ext3=s", "out3=s", "qs", 
+	     "qsargs=s", "qsjob=s", "nocheck", "nocheck2", "nocheck3", 
+	     "nocheck4", "rm", "silent", "doubledash", "inoutnonames");
+  unless (exists $opts{l} && exists $opts{s} && exists $opts{ext}  
+	  && exists $opts{in} ) 
+  {
+    warn "$usage\n";
+    exit -1;
+  }
+
+  die "can't use qsargs unless you set -qs\n" 
+      if exists $opts{qsargs} && ! exists $opts{qs};
+  die "must use qsjob if you set -qs\n" 
+      if exists $opts{qs} && ! exists $opts{qsjob};
+  die "must use both -l2arg and -l2, never just one\n"
+      if (exists $opts{l2} || exists $opts{l2arg}) && ! (exists $opts{l2} && exists $opts{l2arg});
+  die "must use both -l3arg and -l3, never just one\n"
+      if (exists $opts{l3} || exists $opts{l3arg}) && ! (exists $opts{l3} && exists $opts{l3arg});
+  die "must use both -l4arg and -l4, never just one\n"
+      if (exists $opts{l4} || exists $opts{l4arg}) && ! (exists $opts{l4} && exists $opts{l4arg});
+  die "must use ext2 and out2 together, never just one\n"
+      if (exists $opts{out2} && ! exists $opts{ext2}) || 
+      (exists $opts{ext2} && ! exists $opts{out2});
+  die "must use ext3 and out3 together, never just one\n"
+      if (exists $opts{out3} && ! exists $opts{ext3}) || 
+      (exists $opts{ext3} && ! exists $opts{out3});
+
+  
+  checkExist('f', $opts{l});
+  checkExist('f', $opts{s});
+  checkExist('f', $opts{l2}) if exists $opts{l2};
+  checkExist('f', $opts{l3}) if exists $opts{l3};
+  checkExist('f', $opts{l4}) if exists $opts{l4};
+
+  return %opts;
+}
+
+# checkExist()
+#
+sub checkExist {
+  my ($type, $path) = @_;
+  if ($type eq 'd') {
+    if (! -d $path) {
+      warn("dir not found: $path\n");
+      exit -3;
+    }
+  }
+  elsif ($type eq 'f') {
+    if (! -f $path) {
+      warn("file not found: $path\n");
+      exit -3;
+    }
+    elsif (! -s $path) {
+      warn("empty file: $path\n");
+      exit -3;
+    }
+  }
+}
+
+
+# This function reads in a list of items from a file (one item per line, rest of line ignored;
+# '#' comment symbols recognized).
+sub read_list {
+  my ($file) = @_;
+  my @tokens = ();
+  my $cnt = 0;
+  open(I,"$file") or die "Can't open file: $!\n";
+  while (<I>) {
+    chomp;
+    my @tt = split ' ';
+    next if (@tt==0);
+    next if (substr($tt[0],0,1) eq '#');
+    my $token = $tt[0];
+    push @tokens,$token;
+    $cnt++;
+  }
+  close I;
+  print "Read $cnt token(s) from file: $file ..\n";
+  return @tokens;
+}

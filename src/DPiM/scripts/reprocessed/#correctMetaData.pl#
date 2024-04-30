@@ -1,0 +1,145 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+use HomeBrew::IO qw(checkExist readColsRef readHeader);
+#use DpimLib qw(getLineDP4APMS);
+
+# take corrections for Bob Obar and George Locke and apply them to the metadata
+# table
+
+my %opts = getCommandLineOptions();
+
+{
+    my $out = $opts{out};
+    my $metaFile = $opts{meta};
+    my $bobFile = $opts{bob};
+    my $georgeFile = $opts{george};
+    
+    
+    my @metaCols = qw(search_id ms_inst_run_id  bait    tap_id  tap_bait        sample_date     id_string       rejected        wonky     tap_test);
+    my @meta;
+    readColsRef(\@meta, $metaFile, \@metaCols);
+
+    {
+	## bob checked into the 198 disagreements between FH_Plate and previous
+	## records
+	
+	my @bobCols = ("Run Number", "Correct FBgn_ID", "Correct FH_ID", 
+		       "RAO Determination", "RAO Confidence");
+	my @bob;
+	readColsRef(\@bob, $bobFile, \@bobCols, undef, "\t");
+
+	my %meta = map { $_->{ms_inst_run_id} => $_ } @meta;
+	for my $correct (@bob) {
+	    if ($correct->{"Correct FBgn_ID"} eq 'FBgn0283510') {
+		warn "Pal1 FBgn0283510 is later than r6.07, correcting to FBgn0033466\n";
+		$correct->{"Correct FBgn_ID"} = 'FBgn0033466';
+	    }
+	       
+	    next unless $correct->{"RAO Confidence"} eq 'High';
+	    my $rid = $correct->{"Run Number"};
+	    ##next if $meta{$rid}{wonky} || $meta{$rid}{rejected};
+	    ## wonky/rejected issues are handled in identifyBait.pl !!
+	    
+	    $meta{$rid}->{tap_bait} = $correct->{"Correct FBgn_ID"};
+	    $meta{$rid}->{tap_test} = "RAO - ".$correct->{"RAO Determination"};
+	    if ($meta{$rid}->{tap_id} ne $correct->{"Correct FH_ID"}) {
+		$meta{$rid}->{tap_test}.= " - tap_id changed from ".$meta{$rid}->{tap_id};
+		$meta{$rid}->{tap_id} = $correct->{"Correct FH_ID"};
+	    }
+
+	    $meta{$rid}->{tap_test} =~ s/"//g;
+	    $meta{$rid}->{tap_test} =~ s/\s/_/g;
+	}
+    }
+    
+    {
+	my @georgeCols = ('TAP_Alias', 'Flybase_ID',  'Bait Name');
+	my @george;
+	readColsRef(\@george, $georgeFile, \@georgeCols, undef, "\t");
+	for my $correct (@george) {
+	    my $tap = $correct->{'TAP_Alias'};
+	    my @tapRows = grep { $meta[$_]{tap_id} eq $tap } 0..$#meta;
+	    for my $tRow (@meta[@tapRows]) {
+		if ($tRow->{tap_test} =~ /^RAO/ && 
+		    $tRow->{tap_bait} ne $correct->{Flybase_ID} )
+		{
+		    warn "recorrecting $tRow->{ms_inst_run_id}/$tap from ".
+			"$tRow->{tap_bait} to $correct->{Flybase_ID}\n";
+		    warn "\t!!! but this is ok because FBgn0016974 (swaPsi) ought to change to FBgn0003655 (swa) !!!\n"
+			if $correct->{Flybase_ID} eq 'FBgn0003655';
+		}
+		$tRow->{tap_bait} = $correct->{"Flybase_ID"};
+		$tRow->{tap_test} = "GLL_remapped_CG_from_FH_plate_file";
+	    }
+	}
+    }
+
+    ## FBgn0259785orFBgn0283451 -> FBgn0259785
+    for my $metaRow (@meta) {
+	if ($metaRow->{tap_bait} eq 'FBgn0259785orFBgn0283451') {
+	    $metaRow->{tap_bait} = 'FBgn0259785';
+	    $metaRow->{tap_test} = 'RAO_personal_communication';
+	}
+    }
+
+    ## count the appearances of each run id
+    my %count; # counts{ms_inst_run_id} == number of appearances for this id
+    for my $metaRow (@meta) {
+	$count{$metaRow->{ms_inst_run_id}}++;
+    }    
+    for my $metaRow (@meta) {
+	$metaRow->{count} = $count{$metaRow->{ms_inst_run_id}};
+    }    
+    
+    
+    my @outCols = qw(search_id ms_inst_run_id  prevbait    tap_id  newbait        sample_date     id_string       rejected        wonky     tap_test count);
+    
+    open my $OUT, ">", $out or die "can't write to $out. $!";
+    say $OUT "# $0 corrected $metaFile using $bobFile and $georgeFile (the latter taking precedence in the single case of overlap, swa/swaPsi)";
+    say $OUT join "\t", @outCols;
+    for my $metaRow (@meta) {
+	print $OUT join "\t", map { $metaRow->{$_} } @metaCols;
+	say $OUT "\t", $metaRow->{count};
+    }
+    
+    close $OUT;
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+
+    my %defaults = (
+	meta => '/home/glocke/DPiM/augRemap/apmsData/annotation/metaDataTable.tap.txt',
+	bob => '/home/glocke/DPiM/augRemap/apmsData/annotation/metaDataTable.tap.geneSymbol.DISAGREE_RAO_090216.GLL.txt',
+	george => '/home/glocke/DPiM/augRemap/apmsData/'.
+'annotation/FH_Plate_Contents_for_JM_052715_short_manual.txt',
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my $usage = "usage: $0 -out output < $defaultString >\n";
+ 
+    my %opts = ();
+    GetOptions(\%opts, "out=s", "meta=s", "bob=s", "george=s");
+    die $usage unless exists $opts{out};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+
+    checkExist('f', $opts{meta});
+    checkExist('f', $opts{bob});
+    checkExist('f', $opts{george});
+
+    return %opts;
+}

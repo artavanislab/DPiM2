@@ -1,0 +1,9 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+
+my $optString = join " ", @ARGV;
+
+die $optString;

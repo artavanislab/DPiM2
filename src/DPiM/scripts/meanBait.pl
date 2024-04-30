@@ -1,0 +1,167 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+#use Storable;
+use DateTime;
+use DateTime::Format::Strptime;
+use HomeBrew::IO qw(checkExist);
+use DpimLib qw(getLineDP4APMS getLineBiopAPMS getLineHyperspecAPMS);
+
+# for each bait, take the average of all replicates
+
+my %opts = getCommandLineOptions();
+
+{
+    my $in = $opts{in};
+    my $out = $opts{out};
+    my $badYearStart = $opts{badyearstart};
+    my $badYearEnd = $opts{badyearend};
+    
+    
+    my %sort;
+    # sort{bait}{search_id} = [ {prey_ref=>'fbgn', 'total_peptides'=>n},...]
+    
+    my @cols = qw(prey_ref total_peptides sample_date);
+    
+    open my $IN, "<", $in or die "Can't read from $in. $!";
+    my %row;
+    say "parse";
+    my $reader = \&getLineDP4APMS;
+    if ($opts{mode} eq 'fourcols') {
+	$reader = \&getLineHyperspecAPMS;
+	@cols = qw(prey_ref total_peptides);
+    } elsif ($opts{mode} eq 'human') {
+	$reader = \&getLineBiopAPMS;
+    } 
+    while ($reader->(\%row, $IN)) {
+	my $bait = $row{bait_ref};
+	my $id = $row{search_id};
+	$sort{$bait}{$id} //= [];
+
+	my $elem = {map { $_ => $row{$_} } @cols};
+	push @{ $sort{$bait}{$id} }, $elem;
+    }
+    close $IN;
+    %sort = removeTimeInterval(\%sort, $badYearStart, $badYearEnd) 
+	unless exists $opts{nobadyear} || exists $opts{fourcols};
+    #say 0+ keys %sort;
+
+    my %mean;
+    for my $bait (keys %sort) {
+	my @reps = values %{ $sort{$bait} };
+	my $nRep = 0+@reps;
+	for my $rep (@reps) {
+	    for my $prey (@$rep) {
+		$mean{$bait}{$prey->{prey_ref}} += 
+		    $prey->{total_peptides} / $nRep;
+	    }
+	}
+    }
+    
+    open my $OUT, ">", $out or die "Can't write to $out. $!";
+    my $sid = 1;
+    for my $bait (keys %mean) {
+	my @preys = keys %{ $mean{$bait} }; # preys be!
+	@preys = sort {$mean{$bait}{$b} <=> $mean{$bait}{$a}} @preys;
+	for my $prey (@preys) {
+	    say $OUT join "\t", $sid, $bait, $prey, $mean{$bait}{$prey};
+	}
+	$sid++;
+    }
+    close $OUT;
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+    my @modes = qw(fly human fourcols);
+    my %modes = map {$_ => 1} @modes;
+    my @arr = @modes;
+    $arr[0] = "*".$arr[0]."*";
+    my $modeString = "-mode ".join("/", @arr);
+
+    my %defaults = (
+	badyearstart => ("2009-04-01"),
+	badyearend => ("2010-06-01"),
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my $usage = "usage: $0 -in input -out output < $modeString $defaultString ".
+	"-nobadyear >\n";
+
+    my %opts = ();
+    GetOptions(\%opts, "in=s", "out=s", "mode=s", "badyearstart=s", 
+	       "badyearend=s", "nobadyear");
+    die $usage unless exists $opts{in} && exists $opts{out};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+    $opts{mode} //= $modes[0];
+    die "you must select one of the following modes: ", 
+        join(", ",keys(%modes)), "\n" if ! exists $modes{$opts{mode}};
+
+    checkExist('f', $opts{in});
+
+    return %opts;
+}
+
+# remove experiments falling within a time interval
+# unless $harsh is defined, only remove if additional experiments exist for 
+#   that bait
+sub removeTimeInterval {
+    my ($sorted, $start, $end, $harsh) = @_;
+
+    my $parseDate = DateTime::Format::Strptime->new(
+	pattern   => '%Y-%m-%d');
+    my $startDate = $parseDate->parse_datetime($start);
+    my $endDate = $parseDate->parse_datetime($end);
+
+    my $inInterval = sub { # return true if this date is in the interval
+	my ($dateString) = @_;
+	my $date = $parseDate->parse_datetime($dateString);
+	if (DateTime->compare($date, $startDate) >= 0 &&
+	    DateTime->compare($date, $endDate) < 0) {
+	    return 1;
+	} 
+	return undef;
+    };
+
+    my @drop; # drop[$i] = {bait=>$bait, sid=>$sid};
+    for my $bait (keys %$sorted) {
+	my @sids = keys %{$sorted->{$bait}};
+	next unless 1 < @sids || $harsh;
+	my @badDates = grep { 
+	    $inInterval->($sorted->{$bait}{$_}[0]{sample_date});
+	} @sids;
+	next unless @badDates > 0 && (@badDates < @sids || $harsh);
+	if (0) {
+	    say "$bait";
+	    for my $sid (@sids) {
+		say "\t$sid\t$sorted->{$bait}{$sid}[0]{sample_date}";
+	    }
+	    exit;
+	}
+	push @drop, {bait => $bait, sid => $_} for @badDates;
+	
+    }
+
+    for my $d (@drop) {
+	delete $sorted->{$d->{bait}}{$d->{sid}};
+	delete $sorted->{$d->{bait}} if 0 == keys %{ $sorted->{$d->{bait}}};
+    }
+
+    return %$sorted;
+}
+
+
+    

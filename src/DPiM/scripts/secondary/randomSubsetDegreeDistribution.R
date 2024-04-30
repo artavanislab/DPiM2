@@ -1,0 +1,147 @@
+## find various statistics on selecting random edges from nrDPiM2 in a fashion representative
+## of the actual missing edges
+
+whole <- read.table("~/DPiM/dpim2/dpim2_nrtap.120123.nrBait.58.17.network", header = T)
+miss <- read.table("/home/glocke/DPiM/analysis/nrDpim2/edgesMissingFromDpim3.tab", header = T)
+
+totSize <- nrow(whole)
+sampSize <- nrow(miss)
+
+library(CBDD)
+
+nSample <- 100
+
+siz <- c()
+for (i in 1:nSample) {
+    ##x <- sample(totSize, sampSize, prob=(whole$score**-1))
+    x <- sample(totSize, sampSize)
+    samp <- whole[x,]
+    net <- graph_from_data_frame(samp)
+    dec <- decompose(net)
+    compSizes <- sapply(dec, ecount)
+    
+    siz <- c(siz, compSizes)
+}
+hist(siz)
+
+sizW <- c()
+for (i in 1:nSample) {
+    x <- sample(totSize, sampSize, prob=(whole$score**-1))
+    samp <- whole[x,]
+    net <- graph_from_data_frame(samp)
+    dec <- decompose(net)
+    compSizes <- sapply(dec, ecount)
+    
+    sizW <- c(sizW, compSizes)
+}
+
+missNet <- graph_from_data_frame(miss)
+missDecomp <- decompose(missNet)
+missSubSizes <- sapply(missDecomp, function(x) length(E(x)))
+collapseTab(missSubSizes)
+
+wholeNet <- graph_from_data_frame(whole)
+wholeDecomp <- decompose(wholeNet)
+wholeSubSizes <- sapply(wholeDecomp, function(x) length(E(x)))
+collapseTab(wholeSubSizes)
+
+sizClps <- collapseTab(siz)
+sizWClps <- collapseTab(sizW)
+missClps <- collapseTab(missSubSizes)
+wholeClps <- collapseTab(wholeSubSizes)
+
+chisq.test(missClps, sizClps)
+chisq.test(missClps, sizWClps)
+chisq.test(missClps, wholeClps)
+
+collapseTab <- function(x) {
+    ret = rep(0, 6);
+
+    ret[1] = sum(x == 1)
+    ret[2] = sum(x == 2)
+    ret[3] = sum(x == 3)
+    ret[4] = sum(x == 4)
+    ret[5] = sum(x > 4 & x < 1000)
+    ret[6] = sum(x >= 1000)
+
+    return(ret);
+}
+collapseTab(siz)
+collapseTab(weightedSize)
+
+randNet <- list()
+biggest <- list()
+for (i in 1:nSample) {
+    ##x <- sample(totSize, sampSize, prob=(whole$score**-1))
+    x <- sample(totSize, sampSize)
+    samp <- whole[x,]
+    net <- graph_from_data_frame(samp)
+    randNet[[i]] = net
+    dec <- decompose(net)
+    compSizes <- sapply(dec, ecount)
+    j <- which(compSizes == max(compSizes))
+    biggest[[i]] = dec[[j]]
+
+}
+
+randNetW <- list()
+biggestW <- list()
+for (i in 1:nSample) {
+    ##x <- sample(totSize, sampSize, prob=(whole$score**-1))
+    x <- sample(totSize, sampSize)
+    samp <- whole[x,]
+    net <- graph_from_data_frame(samp)
+    randNetW[[i]] = net
+    dec <- decompose(net)
+    compSizes <- sapply(dec, ecount)
+    j <- which(compSizes == max(compSizes))
+    biggestW[[i]] = dec[[j]]
+}
+
+
+calcMeanDD <- function(gList) {
+    dd <- lapply(1:length(gList), function(x) degree.distribution(gList[[x]]))
+    mxDegree <- max(sapply(dd, length))-1
+
+    ## sum degree distributions
+    meanDD <- rep(0, mxDegree+1);
+    
+    for (deg in 1:mxDegree) { ## ignore degree=0
+        i <- deg+1
+        x <- sapply(1:nSample, function (j) dd[[j]][i])
+        y <- x[which( sapply(x, function(j) ! is.na(j)) )]
+        meanDD[i] <- sum(y) / nSample
+    }
+
+    return(meanDD)
+}
+
+meanDD <- calcMeanDD(biggest)
+meanDDW <- calcMeanDD(biggestW)
+
+meanDD <- calcMeanDD(randNet)
+meanDDW <- calcMeanDD(randNetW)
+
+
+
+missDD <- degree.distribution(missNet)
+maxMissDeg <- length(missDD) - 1
+
+yMin <- min(meanDD[meanDD > 0], meanDDW[meanDDW > 0])
+
+fscal <- 1.5
+png("~/public_html/DPiM/edgesMissing_degreeDist.png",
+    height=600, width = 800)
+par(oma=c(2,0,0,0))
+plot(1:(length(meanDD)-1), meanDD[-1], pch=1, col="red", lwd=2,
+     log="xy", xlim=c(1, maxMissDeg), ylim=c(yMin, max(missDD)), 
+     xlab="Degree", ylab="Fraction", cex = fscal,
+     cex.main = 1.3*fscal, cex.lab=1.1*fscal, cex.axis= fscal)
+points(1:(length(meanDDW)-1), meanDDW[-1], pch=2, col="blue", lwd=2)
+points(1:maxMissDeg, missDD[-1], pch=3, lwd=2, col="darkgreen")
+legend("topright", legend=c("Missing edges", "Uniform random sample",
+                       "Weighted random sample"), lwd=2, cex=fscal,
+       col=c("darkgreen", "red", "blue"), pch=c(3, 1, 2), bty="n", lty=0)
+dev.off()
+
+

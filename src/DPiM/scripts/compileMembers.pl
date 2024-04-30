@@ -1,0 +1,211 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use File::Basename;
+use Data::Dumper;
+use File::Spec;
+use File::Path qw(make_path);
+use List::MoreUtils qw(each_array);
+use HomeBrew::IO qw(checkExist readList);
+#use DpimLib qw(getLineDP4APMS);
+
+# assemble the support level based on FDR cutoff
+
+my %opts = getCommandLineOptions();
+
+{
+    my $realList = File::Spec->rel2abs($opts{real});
+    my $jobExt = $opts{jobext};
+    my $outDir = File::Spec->rel2abs($opts{outdir});
+    my $scriptDir = File::Spec->rel2abs($opts{qdir});
+    my $simList = $opts{sim};
+    $simList = File::Spec->rel2abs($simList) if defined $simList;    
+
+    unless (-d $outDir) {
+	make_path($outDir) or die "can't make directory $outDir";
+    }
+    unless (-d $scriptDir) {
+	make_path($scriptDir) or die "can't make directory $scriptDir";
+    }
+    chdir($scriptDir);
+
+    my (@fdrJobs, @nets);
+    submitCutoffs(\@fdrJobs, \@nets, $realList, $jobExt, $outDir, $simList);
+
+    say "waiting for jobs to complete";
+    my @jobOutputFiles = waitTilJobsComplete(\@fdrJobs);
+
+    my @cutoffs = readCutoffs(\@jobOutputFiles);
+
+    my (%support, %scoreSum, %scoreSumSq);
+    my $it = each_array(@nets, @cutoffs);
+    while (my ($n, $c) = $it->()) {
+	updateSupport($n, $c, \%support, \%scoreSum, \%scoreSumSq);
+    }
+
+    my $out = "$outDir/support.network";
+    writeSupportScores($out, \%support, \%scoreSum, \%scoreSumSq, (0+ @nets));
+}
+
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+
+    my %defaults = (
+	jobext => 'fdr',
+	outdir => "$ENV{PWD}/nets",
+	qdir => "$ENV{PWD}/fdrqdir",
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my $usage = "usage: $0 -real real.list < $defaultString -sim sim.list ".
+	"-nosub >\n";
+
+    my %opts = ();
+    GetOptions(\%opts, "real=s", "jobext=s", "outdir=s", "qdir=s", "sim=s", 
+	       "nosub");
+    die $usage unless exists $opts{real};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+
+    checkExist('f', $opts{real});
+    checkExist('f', $opts{sim}) if exists $opts{sim};
+
+    return %opts;
+}
+
+sub submitCutoffs {
+    my ($jobs, $nets, $realList, $jobExt, $outDir, $simList) = @_;
+    my @reals = readList($realList);
+    my @sims;
+    @sims = readList($simList) if defined $simList;
+
+    my $qsss = "/home/glocke/utilScripts/qsubWrap.pl";
+    my $compFdr = "/home/glocke/DPiM/scripts/compute_fdr_KJ_consensus_dir2.pl";
+    my $rt = '00:01:00';
+
+    checkExist('f', $_) for @reals, @sims;
+    checkExist('f', $_) for ($qsss, $compFdr);
+
+    for my $i (0..$#reals) {
+	my $r = $reals[$i];
+	my $job = basename($r);
+	$job =~ s/\.o\d+$//;
+	my $s;
+	if (defined $simList) {
+	    $s = $sims[$i];
+	} else {
+	    my $dir = dirname($r);
+	    my @sims = `ls $dir/$job.sim*.o*`;
+	    chomp @sims;
+	    die "found ", (0+ @sims), " simulations for $job" if @sims != 1;
+	    $s = $sims[0];
+	} 
+
+	my $out = "$outDir/$job.fdr.out";
+	my $thisJob = "$job.$jobExt";
+	my $cmd = "$qsss -cmd '$compFdr $r $s $out' -job $thisJob -rt $rt";
+	$cmd .= " -nosub" if exists $opts{nosub};
+	say $cmd;
+	system($cmd);
+	push @$jobs, $thisJob;
+	push @$nets, $out;
+    }
+    
+    return;
+}
+
+sub waitTilJobsComplete {
+    my ($jobs, $dir) = @_;
+    my $pwd;
+    if (defined $dir) {
+	$pwd = $ENV{PWD};
+	chdir($dir);
+    }
+    my $missing = 1;
+    my %outFiles;
+    while ($missing) {
+	$missing = 0;
+	for my $j (@$jobs) {
+	    my @seek = glob("$j.o*");
+	    if (@seek < 1) {
+		$missing = 1;
+		sleep 1;
+		last;
+	    } else {
+		$outFiles{$j} = $seek[-1];
+	    }
+	}
+    }
+    
+    if (defined $dir) {
+	chdir($pwd);
+    }
+
+    return map {$outFiles{$_}} @$jobs;
+}
+
+sub readCutoffs {
+    my ($jobOutputFiles) = @_;
+
+    my @cutoffs = ();
+    for my $f (@$jobOutputFiles) {
+	open my $IN, "<", $f or die "can't read from $f. $!";
+	my @read = <$IN>;
+	die "$f too long" if @read > 1;
+	die "$f too short" if length($read[0]) < 4;
+	chomp @read;
+	push @cutoffs, (split /\s+/, $read[0])[-1];
+    }
+
+    return @cutoffs;
+}
+
+# for each edge in $netFile scored above cutoff, add 1 to its support
+sub updateSupport {
+    my ($netFile, $cutoff, $support, $scoreSum, $scoreSumSq) = @_;
+
+    open my $IN, "<", $netFile or die "Can't read from $netFile. $!";
+
+    while (<$IN>) {
+	#next unless /^FBgn\d+\s+FBgn/;
+	chomp;
+	my ($prot1, $prot2, $score) = split;
+	last if $score < $cutoff;
+
+	($prot1, $prot2) = sort ($prot1, $prot2);
+	$support->{$prot1}{$prot2}++;
+	$scoreSum->{$prot1}{$prot2}+=$score;
+	$scoreSumSq->{$prot1}{$prot2}+= $score*$score;
+    }
+
+    return;
+}
+
+sub writeSupportScores {
+    my ($out, $support, $scoreSum, $scoreSumSq) = @_;
+
+    open my $OUT, ">", $out or die "can't write to $out. $!";
+    say $OUT "# means and scores calculated against support, not against total number of experiments";
+    say $OUT join "\t", qw(protein1 protein2 support scoreMean scoreSD );
+    for my $p1 (sort keys %$support) {
+	for my $p2 (sort keys %{$support->{$p1}}) {
+	    my $sup = $support->{$p1}{$p2};
+	    my $mean = $scoreSum->{$p1}{$p2} / $sup;
+	    my $sd = sprintf("%.3f", sqrt(($scoreSumSq->{$p1}{$p2}/$sup) - ($mean*$mean)));
+	    $mean = sprintf("%.3f", $mean);
+	    say $OUT join "\t", $p1, $p2, $sup, $mean, $sd;
+	}
+    }
+}

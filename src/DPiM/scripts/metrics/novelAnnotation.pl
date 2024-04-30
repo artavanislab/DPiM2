@@ -1,0 +1,242 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+use List::Util qw(sum);
+use HomeBrew::IO qw(checkExist readColsRef readList2 readColsHashRef);
+use DpimLib qw(networkHashFromEdgeList);
+
+# find the number of nodes, edges, etc., for nodes with no annotation
+
+my %opts = getCommandLineOptions();
+
+{
+    my %new = (
+	netFile => $opts{newnet},
+	nodesFile => $opts{newnodes},
+	clusterFile => $opts{newcluster},
+	noAnn => {},
+	);
+    my %dpim = (
+	netFile => $opts{dpnet},
+	nodesFile => $opts{dpnodes},
+	clusterFile => $opts{dpcluster},
+	noAnn => {},
+	);
+    my $out = $opts{out};
+
+
+    ($new{mean}, $new{annFrac}, $new{nProt}) 
+	= annotated($new{noAnn}, $new{nodesFile});
+    ($dpim{mean}, $dpim{annFrac}, $dpim{nProt}) = 
+	annotated($dpim{noAnn}, $dpim{nodesFile});
+
+    say "margin";
+    my %margin = ( noAnn=>{} );
+    ($margin{mean}, $margin{annFrac}, $margin{nProt}) = 
+	getNewNodes($margin{noAnn}, $new{nodesFile}, 
+		    $dpim{nodesFile});
+    say "post margin";
+    
+    ($new{noAnnClust}, $new{noAnnClustFrac}, $new{noAnnClustProtFrac}) 
+	= clusterAnn($new{noAnn}, $new{clusterFile});		     
+    ($dpim{noAnnClust}, $dpim{noAnnClustFrac}, $dpim{noAnnClustProtFrac}) 
+	= clusterAnn($dpim{noAnn}, $dpim{clusterFile});
+    
+    ($new{nEdges}, $new{nAnnEdges}, $new{nAnnEdgeFrac})
+	= networkAnn($new{noAnn}, $new{netFile});
+    ($dpim{nEdges}, $dpim{nAnnEdges}, $dpim{nAnnEdgeFrac})
+	= networkAnn($dpim{noAnn}, $dpim{netFile});
+    
+    open my $OUT, ">", $out or die "can't write to $out. $!";
+    say $OUT "# $0 found statistics in the following files";
+    say $OUT "# new nodes file $new{nodesFile}";
+    say $OUT "# new cluster file $new{clusterFile}";
+    say $OUT "# new net file $new{netFile}";
+    say $OUT "# dpim nodes file $dpim{nodesFile}";
+    say $OUT "# dpim cluster file $dpim{clusterFile}";
+    say $OUT "# dpim net file $dpim{netFile}";
+    say $OUT join "\t", qw(nProt annotatedNodesFrac meanAnnotations
+noAnnClust noAnnClustFrac noAnnClustProtFrac
+nEdges nAnnEdges nAnnEdgeFrac);
+    my @cols = qw(nProt annFrac mean noAnnClust noAnnClustFrac 
+noAnnClustProtFrac nEdges nAnnEdges nAnnEdgeFrac );
+    say $OUT join "\t", "new", map { $new{$_}  } @cols;
+    say $OUT join "\t", "dpim", map { $dpim{$_} } @cols;
+    say $OUT join "\t", "margin", map { $margin{$_} // 'NA'  } @cols;
+
+    
+    close $OUT; 
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+
+    my %defaults = (
+	newnet => '/home/glocke/DPiM/augRemap/nrBait_yRej_nBrand_11-16-2016/nrBait.net',
+	newnodes => '/home/glocke/DPiM/augRemap/nrBait_yRej_nBrand_11-16-2016/node.slow.i1.6.annotation.tsv',
+	newcluster => '/home/glocke/DPiM/augRemap/nrBait_yRej_nBrand_11-16-2016/slowIterMcl/mcl.clusters.i1.6.txt.tidy',
+	newbait => '/home/glocke/DPiM/augRemap/nrBait_yRej_nBrand_11-16-2016/slowIterMcl/mcl.clusters.i1.6.txt.tidy',
+	dpnet => '/home/glocke/DPiM/prevDPIM/DPIM1_scores.r6.07.updateFBgn.tsv',
+	dpnodes => '/home/glocke/DPiM/prevDPIM/dpim1Net/node.slow.i1.6.annotation.tsv',
+	dpcluster => '/home/glocke/DPiM/prevDPIM/dpim1Net/publishedClusters/cell_5871_mmc4.sanitize.mcl.r6.07',
+	dpbait => '/home/glocke/DPiM/prevDPIM/dpim1Net/publishedClusters/cell_5871_mmc4.sanitize.mcl.r6.07',
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my $usage = "usage: $0 -out output < $defaultString >\n";
+
+    my %opts = ();
+    GetOptions(\%opts, "out=s", "newnet=s", "newnodes=s", "newcluster=s", 
+	       "dpnet=s", "dpnodes=s", "dpcluster=s");
+    die $usage unless exists $opts{out};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+
+    return %opts;
+}
+
+# make a map of which nodes have an annotation
+# return a sum of how many nodes have an annotation
+#   and the mean number of annotations per node
+sub annotated {
+    my ($unannot, $nodeFile) = @_;
+
+    my @read;
+    readColsRef(\@read, $nodeFile, [qw( fbgn goID reactomeID pfamID )], undef, 
+		"\t");
+
+    my ($isAnnCnt, $annCnt) = (0,0);
+    for my $row (@read) {
+	my ($goCnt, $reCnt, $pfCnt) = (0, 0, 0);
+
+	if ($row->{goID} ne 'NA') {
+	    $goCnt++;
+	    $goCnt++ while $row->{goID} =~ /,/g;
+	}
+	if ($row->{reactomeID} ne 'NA') {
+	    $reCnt++;
+	    $reCnt++ while $row->{reactomeID} =~ /,/g;
+	}
+	if ($row->{pfamID} ne 'NA') {
+	    $pfCnt++;
+	    $pfCnt++ while $row->{pfamID} =~ /,/g;
+	}
+	my $annSum = sum($goCnt, $reCnt, $pfCnt);
+	if (0 < $annSum) {
+	    $isAnnCnt++;
+	} else {
+	    $unannot->{$row->{fbgn}} = 1;
+	}
+	$annCnt+=$annSum;
+    }
+    my $nProt = 0+ @read;
+    my $meanAnn = $annCnt   / $nProt;
+    my $annFrac = $isAnnCnt / $nProt;
+    
+    return($meanAnn, $annFrac, $nProt);
+}
+
+## gather statistics on nodes appearing only in the new network
+## return ($margin{mean}, $margin{annFrac}, $margin{nProt}) = 
+sub getNewNodes {
+    my ($margin, $newFile, $dpimFile) = @_;
+
+    my %dpimNodes;
+    readColsHashRef(\%dpimNodes, $dpimFile, [qw(fbgn fbgn)]);
+
+    my @read;
+    readColsRef(\@read, $newFile, [qw( fbgn goID reactomeID pfamID )], undef, 
+		"\t");
+    my ($nProt, $isAnnCnt, $annCnt) = (0,0,0);
+    for my $row (@read) {
+	next if exists $dpimNodes{ $row->{fbgn} };
+	$nProt++;
+	my ($goCnt, $reCnt, $pfCnt) = (0, 0, 0);
+
+	if ($row->{goID} ne 'NA') {
+	    $goCnt++;
+	    $goCnt++ while $row->{goID} =~ /,/g;
+	}
+	if ($row->{reactomeID} ne 'NA') {
+	    $reCnt++;
+	    $reCnt++ while $row->{reactomeID} =~ /,/g;
+	}
+	if ($row->{pfamID} ne 'NA') {
+	    $pfCnt++;
+	    $pfCnt++ while $row->{pfamID} =~ /,/g;
+	}
+	my $annSum = sum($goCnt, $reCnt, $pfCnt);
+	if (0 < $annSum) {
+	    $isAnnCnt++;
+	} else {
+	    $margin->{$row->{fbgn}} = 1;
+	}
+	$annCnt+=$annSum;
+    }
+    my $meanAnn = $annCnt   / $nProt;
+    my $annFrac = $isAnnCnt / $nProt;
+    
+
+    return ($meanAnn, $annFrac, $nProt);
+}
+
+# return the number of non-annotated clusters and the fraction they constitute
+sub clusterAnn {
+    my ($noAnn, $clusterFile, $minCluster) = @_;
+    $minCluster //= 2;
+    
+    my @clusters = readList2($clusterFile);
+    if ($clusters[0] !~ /^FB/) {
+	shift @$_ for @clusters;
+    }
+
+    my ($nClust, $unAnn, $testableProteins, $unAnnProt) = (0,0,0,0);
+    for my $cl (@clusters) {
+	next unless $minCluster <= @$cl;
+	$nClust++;
+	$testableProteins+=@$cl;
+	    
+	my $foundAnn = undef;
+	for my $member (@$cl) {
+	    if (! exists $noAnn->{$member}) {
+		$foundAnn = 1;
+		last;
+	    }
+	}
+	next if $foundAnn;
+	$unAnn++;
+	$unAnnProt+=@$cl;
+    }
+
+    return ($unAnn, $unAnn/$nClust, $unAnnProt/$testableProteins);
+}
+
+#     ($dpim{edges}, $dpim{nAnnEdges}, $dpim{nAnnEdgeFrac})
+sub networkAnn {
+    my ($noAnn, $netFile) = @_;
+
+    my %net;
+    networkHashFromEdgeList(\%net, $netFile);
+
+    my ($edges, $unAnnEdges) = (0,0);
+    for my $prot1 (keys %net) {
+	for my $prot2 (keys %{ $net{$prot1 } }) {
+	    $edges++;
+	    $unAnnEdges++ if exists $noAnn->{$prot1} && exists $noAnn->{$prot2};
+	}
+    }
+
+    return($edges, $unAnnEdges, $unAnnEdges/$edges);
+}

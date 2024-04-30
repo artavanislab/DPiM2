@@ -1,0 +1,105 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+use HomeBrew::IO qw(checkExist readColsRef);
+use DpimLib qw(getLineDP4APMS getLineDP4_1APMS);
+
+# identify the baits associated with each search_id
+
+my %opts = getCommandLineOptions();
+
+{
+    my $in = $opts{in};
+    my $out = $opts{out};
+    my $baitFile = $opts{bait};
+
+    my %bait;
+    readBait(\%bait, $baitFile);
+    
+    my $preComments = "# $0 translated baits from $in using $baitFile ";
+    updateAPMS($in, $out, \%bait, $preComments);
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+
+    my %defaults = (
+	bait => '/home/glocke/DPiM/augRemap/apmsData/annotation/baitIdentityTable.11-07-2016.tsv',
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my $usage = "usage: $0 -in input -out output < $defaultString -nologp >\n";
+
+    my %opts = ();
+    GetOptions(\%opts, "in=s", "out=s", "nologp");
+    die $usage unless exists $opts{in} && exists $opts{out};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+
+    checkExist('f', $opts{in});
+
+    return %opts;
+}
+
+# ret->{$sid} = FBgn0123456
+#            or FBgn0000000 if it is rejected
+sub readBait {
+    my ($ret, $in) = @_;
+
+    my @cols = qw(search_id       bait    retain);
+    my @read;
+    readColsRef(\@read, $in, \@cols);
+
+    my $dummyFBgn = 'FBgn0000000';
+    
+    for my $row (@read) {
+	my $sid = $row->{search_id};
+	if ($row->{retain} eq 'Retain') {
+	    $ret->{$sid} = $row->{bait};
+	} else {
+	    $ret->{$sid} = $dummyFBgn;
+	}
+    }
+
+    return;
+}
+
+sub updateAPMS {
+    my ($in, $out, $bait, $preComments) = @_;
+
+    my @cols = qw(search_id       bait_ref        prey_ref        total_peptides  sample_date    ms_inst_run_id);
+    
+    my $reader = \&getLineDP4APMS;
+    if (! exists $opts{nologp}) {
+	$reader = \&getLineDP4_1APMS;
+	push @cols, 'logp';
+    }
+
+    open my $OUT, ">", $out or die "can't write to $out. $!";
+    print $OUT $preComments if defined $preComments;
+    say $OUT join "\t", @cols;
+    
+    open my $IN, "<", $in or die "Can't read from $in. $!";
+    my %row;
+    while($reader->(\%row, $IN, 'line')) {
+	my $id = $row{search_id};
+	$row{bait_ref} = $bait->{$id};
+	say $OUT join "\t", map { $row{$_} // die Dumper(\%row) } @cols;
+    }
+    close $IN;
+    close $OUT;
+
+    return;
+}

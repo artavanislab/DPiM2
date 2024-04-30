@@ -1,0 +1,178 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+use List::Util qw(max);
+    
+use lib '/home/glocke/utilScripts/HomeBrew/lib';
+use HomeBrew::IO qw(checkExist readCol);
+
+use lib '/home/glocke/DPiM/scripts/lib';
+use DpimLib qw(networkHashFromEdgeList readHS);
+
+
+# find edges present in source missing from target
+# in S, not in T
+# if -addcol is on, source is re-written with a column marking absence from target
+my %opts = getCommandLineOptions();
+
+{
+    # check if there are any elements in $source that aren't in $target
+    my $prot = $opts{prot};
+    my $out = $opts{out};
+    my $sourceFile = $opts{source};
+    my $targetFile = $opts{target};
+
+    my @protList;
+    if (-e $prot) {
+	@protList = readCol($prot, "protein");
+    } elsif ($prot =~ /FBgn/) {
+	@protList = split /,/, $prot;
+    } elsif ($prot ne 'all') {
+	die "unable to interpret -prot argument '$prot'"
+    }
+
+    my $checkProtein = makeChecker(@protList);
+
+    my %reference;
+    networkHashFromEdgeList(\%reference, $targetFile);
+
+    open my $IN, "<", $sourceFile or die "Can't read from $sourceFile. $!";
+    my %missing;
+    while (my $line = readHS($IN)) {
+	$_ = $line;
+	my @spl = split;
+	my ($n1, $n2) = sort @spl[0..1];
+	next unless $checkProtein->($n1, $n2);
+	next if exists $reference{$n1}{$n2};
+	$missing{$n1} //= {};
+	$missing{$n1}{$n2} = $spl[2];
+    }
+    close $IN;
+
+    ##
+    
+    my $preComments = "# found edges in $sourceFile not present in $targetFile\n";
+    $preComments   .= "# scores are as reported in $sourceFile\n";
+
+    if (exists $opts{addcol}) {
+	rewriteWithNewCol($out, $sourceFile, \%missing, $preComments);
+    } else { 
+	open my $OUT, ">", $out or die "can't write to $out. $!";
+	print $OUT $preComments;
+	say $OUT join "\t", qw(protein1 protein2 score);
+	my @edgeOrder = sortByScore(\%missing);
+	for my $edge (@edgeOrder) {
+	    my ($n1, $n2) = @$edge;
+	    say $OUT join "\t", $n1, $n2, $missing{$n1}{$n2};	    
+	}
+	if (0) {
+	    for my $n1 (sort {max(values %{$missing{$b}}) <=> 
+				  max(values %{$missing{$a}})}
+			keys %missing) 
+	    {
+		for my $n2 (sort {$missing{$n1}{$b} <=> $missing{$n1}{$a}}
+			    keys %{$missing{$n1}}) 
+		{
+		    say $OUT join "\t", $n1, $n2, $missing{$n1}{$n2};
+		}
+	    }
+	}
+    }
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+
+    my %defaults = (
+	prot => 'all',
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my $usage = "usage: $0 -source doThese.net -target appearHere?net -out output ".
+	"< $defaultString -addcol >\n";
+
+    my %opts = ();
+    GetOptions(\%opts, "prot=s", "out=s", "source=s", "target=s", 
+	       "addcol");
+    die $usage unless exists $opts{source} && exists $opts{target} && 
+	exists $opts{out};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+
+    checkExist('f', $opts{source});
+    checkExist('f', $opts{target});
+    
+    return %opts;
+}
+
+sub makeChecker {
+    my @protList = @_;
+
+    if (@protList == 0) {
+	return sub { return 1 };
+    }
+
+    my %protHash = map {$_ => 1} @protList;
+
+    return sub {
+	for my $p (@_) {
+	    return 1 if exists $protHash{$p};
+	}
+	return undef;
+    }
+
+}
+
+sub sortByScore {
+    my ($net) = @_;
+
+    my %score; # score{$score}=[[n1, n2], [n1, n2],...]
+    for my $n1 (sort keys %$net) {
+	for my $n2 (sort keys %{ $net->{$n1} }) {
+	    my $s = $net->{$n1}{$n2};
+	    $score{$s} //= [];
+	    push @{ $score{$s} }, [$n1, $n2];
+	}
+    }
+
+    my @sort = sort {$b <=> $a} keys %score;
+
+    my @ret = 
+    
+    return map { @{ $score{$_} } } @sort;
+}
+
+    
+# rewrite the checked network
+sub rewriteWithNewCol {
+    my ($out, $sourceFile, $missing, $preComments) = @_;
+
+    open my $IN, "<", $sourceFile or die "Can't read from $sourceFile. $!";
+    open my $OUT, ">", $out or die "Can't write to $out. $!";
+
+    print $OUT $preComments if defined $preComments;
+    say $OUT join "\t", qw(protein1 protein2 score missing);
+    while (my $line = readHS($IN)) {
+	$_ = $line;
+	chomp;
+	my @spl = split;
+	my ($n1, $n2) = sort @spl[0..1];
+	push @spl, (exists $missing->{$n1}{$n2})?1:0;
+	say $OUT join "\t", @spl;
+    }
+
+    return;
+}
+

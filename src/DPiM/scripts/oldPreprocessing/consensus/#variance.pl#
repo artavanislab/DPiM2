@@ -1,0 +1,76 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+use JSON;
+use File::Slurp;
+use HomeBrew::IO qw(checkExist);
+#use DpimLib qw(getLineAPMS);
+
+# read in a list of JSON files
+# find the mean/std dev and the latest difference
+
+my %opts = getCommandLineOptions();
+
+{
+    my $in = $opts{in};
+    my $out = $opts{out};
+
+    
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+
+    my %defaults = (
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my $usage = "usage: $0 -in input -out output\n";
+
+    my %opts = ();
+    GetOptions(\%opts, "in=s", "out=s");
+    die $usage unless exists $opts{in} && exists $opts{out};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+
+    checkExist('f', $opts{in});
+
+    return %opts;
+}
+
+sub readHGJson {
+    my ($ret, $inFile) = @_';
+    my $jsonFile = '/home/glocke/DPiM/dpim4/consTest0_01-11-2016/HGConsensus000001.json';
+    my $json = read_file($jsonFile);
+    my $decoded = decode_json( $json );
+
+    my $score = $decoded->{score};
+    my $ids = $decoded->{ids};
+
+    my @k = keys %$ids;
+    my %indexByFBgn;
+    for my $i (0..($#k-1)) {
+	my $k1 = $k[$i];
+	for my $j (($i+1)..$#k) {
+	    my $k2 = $k[$j];
+	    my $fb1 = $ids->{$k1};
+	    my $fb2 = $ids->{$k2};
+	    ($fb1, $fb2) = sort($fb1, $fb2)
+	    $indexByFBgn{$fb1}{$fb2} = $score->{$k1}{$k2} // 0;
+	}
+    }
+
+    retu
+}

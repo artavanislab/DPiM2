@@ -1,0 +1,104 @@
+## return a data frame with columns:
+## protID, TSC, numExp, numBait
+## TSC is the sum of all total_peptides for this protein (where bait!=prey)
+## numExp is the number of search_ids containing this protein
+## numBait is the number of search_id's with this protein as a bait
+
+safe <- apms
+apms <- apms[1:1000,]
+apms <- safe
+
+ap2 <- apms[1:10,]
+ll <- levels(ap2$prey_ref)
+
+apms[apms$prey_ref == 1]
+apms$prey_ref[1:1000]
+subset(apms, prey_ref == "FBgn0263391")
+table(apms$prey_ref)
+
+class(apms$prey_ref)
+
+broadProteinStats <- function(apms) {
+    allPR <- unique(apms$prey_ref)
+    ##allPID <- unique(c(allBR, allPR))
+
+    
+    tsc_df <- aggregate(apms[,"total_peptides"], by=list(apms$prey_ref),
+                        FUN=sum)
+    row.names(tsc_df) <- tsc_df$Group.1
+    baitbait <- subset(apms, as.character(bait_ref) == as.character(prey_ref))
+    bb_agg <- aggregate(baitbait[,"total_peptides"], by=list(baitbait$prey_ref),
+                        FUN=sum)
+    row.names(bb_agg) <- bb_agg$Group.1
+    for (b in bb_agg$Group.1) {
+        ##b <- as.character(baitbait$bait_ref[i])
+        ## \\==> why is this necessary???
+        tsc_df[b,]$x <- tsc_df[b,]$x - bb_agg[b,]$x
+    }
+
+    preyTab <- table(apms$prey_ref)
+    baitTab <- table(apms$bait_ref)
+
+    ap2 <- apms[1:10,]
+    preyTab <- table(ap2$prey_ref)
+    baitTab <- table(ap2$bait_ref)
+    levels(preyTab) %in% levels(baitTab)
+    
+    
+    numETab["FBgn0011715"]
+    tsc_df["FBgn0011715",]$x <- tsc_df["FBgn0011715",]$x - baitbait$total_peptides[1]
+
+    tsc_df[as.character(b),]$x <- tsc_df[as.character(b),]$x - baitbait$total_peptides[1]
+    
+
+    head(tsc_df)
+    
+    tsc <- function (x) {
+        s <- subset(apms, prey_ref == x & bait_ref != x)
+        return(sum(s$total_peptides))
+    }
+    numE <- function (x) {
+        s <- subset(apms, prey_ref == x & bait_ref != x)
+        sid <- unique(s$search_id)
+        return(length(sid))
+    }
+    numB <- function (x) {
+        s <- subset(apms, bait_ref == x)
+        sid <- unique(s$search_id)
+        return(length(sid))
+    }
+    ret <- as.data.frame(t(vapply(allPID, function(x) { return(c(x, tsc(x), numE(x), numB(x))) },
+                                  c("FBgn0011715", 1, 1, 1))
+                           ))
+    colnames(ret) <- c("protID", "TSC", "numExp", "numBait")
+    ##tsc <- sapply(allPID, function (x) { return(x) })
+    
+    return(ret)
+}
+
+
+
+apms <- read.table("~/DPiM/data/dpim3.12232014.nrBait", colnames = c("tap_id", "search_id", "sample_date", "total_peptides", "bait_ref", "prey_ref"))
+
+
+bps <- broadProteinStats(apms)
+write.table(bps, file="globalProteinStats.nrBait.tab", row.names="F")
+badTime <- subset(apms
+
+ap2 <- apms[1:1000, ]
+bps <- broadProteinStats(ap2)
+head(bps)
+
+allBR <- as.character(unique(ap2$bait_ref))
+allPR <- as.character(unique(ap2$prey_ref))
+unique(c(allBR, allPR))
+
+length(unique(ap2$prey_ref))
+unique(ap2$prey_ref)
+
+as.character(allPR)
+
+unique(list(c(1:10), c(2:11)))
+
+s <- subset(ap2, bait_ref == "I love peanuts")
+length(unique(s$sample_id))

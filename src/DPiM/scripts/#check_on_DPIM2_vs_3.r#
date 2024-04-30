@@ -1,0 +1,63 @@
+dp2File <- '/home/glocke/DPiM/dpim3.0/dpim2_nrtap.120123'
+dp3File <- '/home/glocke/DPiM/dpim3.0/dpim3.09-25-2015.nrBait'
+
+
+argv <- commandArgs(TRUE)
+dp2File <- argv[1]
+dp3File <- argv[2]
+
+dpim2_avgtryp_file <- "/home/glocke/DPiM/interfly_fbgn_avgTryp.out"
+
+dpim2 <- read.table(dp2File,
+                    header=T,sep="\t", comment.char="", quote="",
+                    stringsAsFactors=F)
+dpim3 <- read.table(dp3File, header=F, sep="\t",
+                    comment.char="", quote="", stringsAsFactors=F)
+
+print( paste0('DPIM2 unique baits ',length(unique(dpim2$bait_ref))))
+print( paste0('DPIM3 unique baits ',length(unique(dpim3[,5]))))
+
+list1 <- unique(c(dpim2$bait_ref,dpim2$prey_ref))
+list2 <- unique(c(dpim3[,5],dpim3[,6]))
+list3 <- list2[-na.omit(match(list1,list2))]
+write.table(list3, file="/tmp/additional_FBgn_Ids.txt", row.names=F, col.names=F,quote=F)
+
+# read in the previous inter average trpy file
+dpim2_avgtryp <- read.table(dpim2_avgtryp_file,
+                            header=T, sep="\t", comment.char="", quote="",
+                            stringsAsFactors=F)
+
+# identify which are the ids do not have avgtryp info
+list3[is.na(match(list3, dpim2_avgtryp$fbgn))]
+# [1] "FBgn0266084"     "##FBgn0035169"   "##FBgn0259110"   "##FBgn0037750"
+# [5] "##FBgn0039688"   "##FBgn0039052"   "##FBgn0016675"   "##FBgn0036254"
+# [9] "##FBgn0085405"   "##FBgn0024294"   "##FBgn0037808"   "FBgn0030306_TAG"
+#[13] "FBgn0025549_TAG" "##FBgn0002781"   "FBgn0037146_TAG" "FBgn0039471_TAG"
+#[17] "##FBgn0004378"   "FBgn0029958_TAG" "##FBgn0031356"   "##FBgn0085446"
+#[21] "##FBgn0029874"   "##FBgn0036486"   "##FBgn0036210"
+
+# try to remove the '##' and see if the fbgn ids match the full 5.41db fbgn ids 
+match(gsub('\\#','',list3[is.na(match(list3, dpim2_avgtryp$fbgn))]),dpim2_avgtryp$fbgn)
+# [1]    NA  6642 12692  8401  9737  9292  1679  7347 12392  2070  8439    NA
+#[13]    NA   441    NA    NA   785    NA  4119 12427  3137  7504  7315
+
+# a function to remove the "_TAG" from the fbgn ids
+removeUnderScore <- function(x) {
+	if(length(grep('_',x))) {
+		x <- strsplit(x,'_')[[1]][1]
+		return(x)
+	} else {
+		return(x)
+	}
+}
+
+# try removing '##' and '_TAG' from the fbgn ids and match to the full list
+match(sapply(
+    gsub('\\#', '', list3[is.na(match(list3, dpim2_avgtryp$fbgn))]),
+    removeUnderScore),
+      dpim2_avgtryp$fbgn)
+                                        ## [1]    NA  6642 12692  8401  9737  9292  1679  7347 12392  2070  8439  3404
+#[13]  2186   441  7991  9586   785  3195  4119 12427  3137  7504  7315
+# this means the id "FBgn0266084" is the only one missing from the full avgtryp list
+# plus Julian needs to share how to deal with the ids with '##' and '_TAG' label
+

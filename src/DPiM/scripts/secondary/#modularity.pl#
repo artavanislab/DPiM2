@@ -1,0 +1,237 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+use List::Util qw(sum);
+use HomeBrew::IO qw(checkExist readCols readHeader);
+use DpimLib qw(networkHashFromEdgeList);
+
+# apply the modularity measure defined in 
+#   A. Lázár, D. Ábel, and T. Vicsek, European Physics Letters 2010
+#   http://arxiv.org/pdf/0910.5072v1.pdf
+
+#test();
+#exit;
+
+my %opts = getCommandLineOptions();
+
+{
+    my $netFile = $opts{net};
+    my $moduleFile = $opts{mod};
+    my $out = $opts{out};
+
+    my @moduleData = readCols($moduleFile, ['proteins'], 'line', "\t");
+    my @modules = map { [ split /,/, $_->{proteins} ] } @moduleData;
+    my %net;
+    networkHashFromEdgeList(\%net, $netFile, 'symmetric');
+
+    my @dense = map {density($_, \%net)} @modules;
+    my @conn = map {connected($_, \%net)} @modules;
+    my @modularity = modularity(\@modules, \%net);
+    say sum(@modularity) / @modularity;
+
+    my @indices = sort {$modularity[$b] <=> $modularity[$a] } 0..$#modularity;
+    
+    my @cols = readHeader($moduleFile);
+    push @cols, 'modularity', 'density';
+
+    open my $OUT, ">", $out or die "Can't write to $out. $!";
+    say $OUT "# computed modularity using $netFile and $moduleFile";
+    say $OUT join "\t", @cols;
+    for my $i (@indices) {
+	$moduleData[$i]{line} //= join "\t", -1, "null", "FBgn0000000";
+	chomp $moduleData[$i]{line};
+	say $OUT join "\t", $moduleData[$i]{line}, $modularity[$i], $dense[$i];
+    }
+    close $OUT;
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+    # mode:
+    my @modes = qw(reflist perline);
+    my %modes = map {$_ => 1} @modes;
+    my @arr = @modes;
+    $arr[0] = "*".$arr[0]."*";
+    my $modeString = "-mode ".join("/", @arr);
+
+    my %defaults = (
+	);
+    my $defaultString = join " ", map { "-$_ $defaults{$_}" } keys %defaults;
+    my $usage = "usage: $0 -net input -mod module.list -out output ".
+	"< $modeString>\n";
+
+    my %opts = ();
+    GetOptions(\%opts, "net=s", "mod=s", "out=s", "mode=s");
+    die $usage unless exists $opts{net} && exists $opts{mod} && 
+	exists $opts{out};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+
+    checkExist('f', $opts{net});
+    checkExist('f', $opts{mod});
+
+    die "you must select one of the following modes: ", 
+        join(", ",keys(%modes)), "\n" 
+	if (exists $opts{mode} && ! exists $modes{$opts{mode}});
+    $opts{mode} //= $modes[0];
+
+    return %opts;
+}
+
+sub modularity {
+    my ($modules, $net) = @_;
+
+    # lump all non-annotated nodes into Russell's Paradox
+    my $null = nullModule($modules, $net);
+    push @$modules, $null if @$null > 0;
+    
+    # degree of each node
+    my %degree = map { $_ => 0+ keys %{$net->{$_}} } keys %$net;
+
+    # how many modules does each node belong to?
+    my %membership;
+    calcMembership(\%membership, $modules, $net);
+    
+    my @mod; # modularity of each module
+    for my $i (0..$#$modules) {
+	push @mod, oneModule($modules->[$i], $i, $net, \%degree, \%membership);
+    }
+    #@mod = sort { $a<=> $b} @mod;
+    #print Dumper(\@mod);
+    #my $netMod = sum(@mod) / @mod;
+
+    return @mod;
+}
+
+# make a list of every node not in a module
+sub nullModule {
+    my ($modules, $net, $membership) = @_;
+
+    my %already;
+    for my $mod (@$modules) {
+	$already{$_} = 1 for @$mod;
+    }
+
+    my @nullMod = ();
+    for my $node (keys %$net) {
+	push @nullMod, $node if ! exists $already{$node};
+    }
+
+    return \@nullMod;
+}
+
+# for each node, make a hash of all modules it's in
+# reverseModules{$node}{$module} = 1 if $node is in $module 
+#   (where $module denotes an array index in the @modules list)
+sub calcMembership {
+    my ($ret, $modules) = @_;
+    
+    for my $i (0..$#$modules) {
+	my $mod = $modules->[$i];
+	for my $node (@$mod) {
+	    $ret->{$node}{$i} = 1;
+	}
+    }
+
+    return;
+}
+
+# find the modularity of this module
+sub oneModule {
+    my ($module, $modIndex, $net, $degree, $membership) = @_;
+
+    my $ret=0;
+    for my $member (@$module) {
+	my $thisNode = 0;
+	for my $neighbor (keys %{ $net->{$member} }) {
+	    if (exists $membership->{$neighbor}{$modIndex} ) {
+		$thisNode++;
+	    } else {
+		$thisNode--;
+	    }
+	}
+	$thisNode /= ($degree->{$member} * 
+		      (0+ keys %{ $membership->{$member} }));
+	#say "\t$member\t$thisNode";
+	$ret+= $thisNode;
+    }
+    $ret *= density($module, $net) / @$module;
+
+    return $ret;
+}
+
+sub density {
+    my ($module, $net) = @_;
+
+    # density is the number of edges among cluster members divided by the 
+    #   number of possible edges
+    my $edgeCount=0;
+    for my $i (0..($#$module-1)) { # don't double-count
+	my $nodeI = $module->[$i];
+	for my $nodeJ (@$module[($i+1)..$#$module]) {
+	    $edgeCount++ if exists $net->{$nodeI}{$nodeJ};
+	}
+    }
+    
+    my $maxEdges = @$module * $#$module / 2;
+
+    return $edgeCount / $maxEdges;
+}
+
+sub test {
+
+    # two disconnected powersets
+    my $size1 = 4;
+    my $size2 = 5;
+
+    my $prevNodes = 0;
+    my (@correct, @incomplete, @swap, %net);
+
+    @correct = ([], []);
+    @incomplete = ([], []);
+    @swap = ([], []);
+    for my $i (1..$size1) {
+	my $nodeI = $i + $prevNodes;
+	#push @{$correct[0]}, $nodeI;
+	for my $j (1..$size1) {
+	    my $nodeJ = $j + $prevNodes;
+	    next if $i == $j;
+	    $net{$nodeI}{$nodeJ} = 1;
+	}
+    }
+
+    $prevNodes = $size1;
+    for my $i (1..$size2) {
+	my $nodeI = $i + $prevNodes;
+	for my $j (1..$size2) {
+	    my $nodeJ = $j + $prevNodes;
+	    next if $i == $j;
+	    $net{$nodeI}{$nodeJ} = 1;
+	}
+    }
+
+    
+    @correct = ([1..$size1], [($size1+1)..($size1+$size2)]);
+    my @modules = @correct;
+    say "correct modularity is ", modularity(\@modules, \%net);
+
+    # swap
+    ($modules[0][0], $modules[1][0]) = ($modules[1][0], $modules[0][0]);
+    say "swap-one modularity is ", modularity(\@modules, \%net);
+
+    # drop one
+    shift @{ $modules[0] };
+    shift @{ $modules[1] };
+    say "drop-one modularity is ", modularity(\@modules, \%net);
+}

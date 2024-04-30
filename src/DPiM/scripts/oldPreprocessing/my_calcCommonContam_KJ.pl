@@ -1,0 +1,95 @@
+use strict;
+use warnings;
+use Data::Dumper;
+use v5.10; 
+
+{
+    my ($inFile, $outFile) = process_cmd_args();
+    
+    open my $IN, "<", $inFile or die "Cannot open $inFile. $!";
+    my $buf = <$IN>; # Strip the header
+    
+    # Set up an enum for later reference
+    my $EXPERIMENTS = 0;
+    my $TOTALPEPSUM = 1;
+    my $UNIQUESUM = 2;
+    
+    my %peptideMap;
+    my %totalExpts;
+    # Chew through the file, accumulating information as we go
+    while($buf = <$IN>){	
+	chomp $buf;
+	my @tokens = split("\t", $buf);
+	my $peptide = $tokens[8];
+	my $experiment = $tokens[7];
+	my $total_peptides = eval($tokens[5]);
+	my $unique_peptides = eval($tokens[6]);
+	die Dumper(\@tokens);
+	# Keep a track of total Experiments
+	if( ! exists $totalExpts{$experiment} ){
+	    $totalExpts{$experiment} = '';
+	}
+	
+	#if( exists $peptideMap{$peptide} ){
+	if( defined $peptideMap{$peptide} ){
+	    my @results = @ { $peptideMap{$peptide} };
+	    $results[$TOTALPEPSUM] = ($total_peptides + $results[$TOTALPEPSUM]);
+	    $results[$UNIQUESUM] = ($unique_peptides + $results[$UNIQUESUM]);
+	    my %experiments = %{ $results[$EXPERIMENTS] };
+	    $experiments{$experiment} //= "";
+	    $results[$EXPERIMENTS] = \%experiments;
+	    $peptideMap{$peptide} = \@results;
+	} else {
+	    my @results;
+	    $results[$TOTALPEPSUM] = $total_peptides;
+
+	    my %experiments;
+	    $experiments{$experiment} = "";
+
+	    $results[$EXPERIMENTS] = \%experiments;
+	    $results[$UNIQUESUM] = $unique_peptides;
+	    $peptideMap{$peptide} = \@results;
+	}
+    }
+
+    close $IN;
+    say "Finished reading $inFile\n";
+
+    my $totalExpts = scalar keys %totalExpts;
+    my @out;
+    foreach my $peptide (keys(%peptideMap)) {
+	my @summary = @{ $peptideMap{$peptide} };
+	my %experiments = %{ $summary[$EXPERIMENTS] };
+	my @expts = keys %experiments;
+	my $numExpts = scalar @expts;
+	
+	#say join "\t", $peptide, $totalExpts, $numExpts, $summary[$TOTALPEPSUM], $summary[$UNIQUESUM];
+	my $fraction = eval($numExpts / $totalExpts);
+	my $avg_tot_pep = eval(($summary[$TOTALPEPSUM]) / $numExpts);
+	#print OUT "$peptide\t$numExpts\t$fraction\t$avg_tot_pep\n";
+	push @out, [$peptide,$numExpts,$fraction,$avg_tot_pep];
+    }
+    
+    # sort the out by Count
+    my @sorted = sort { $b->[1] <=> $a->[1] } @out;
+    
+    open my $OUT, ">", $outFile or die "can't write to $outFile. $!";
+    # Now summarize the information collected to produce the out file
+    print "Total experiments seen was: $totalExpts\n";
+    print $OUT "fbgn\tCount\tFraction\tavg_tot_pep\n";
+    foreach my $o (@sorted) {
+	say $OUT join "\t", @$o;
+    }
+    close($OUT);
+}
+
+sub process_cmd_args {
+    if($#ARGV != 1){
+	print "Usage: calcCommonContam.pl [dpim file] [output file]\n";
+	die;
+    }
+    my $inFile = $ARGV[0];
+    my $outFile = $ARGV[1];
+    return ($inFile, $outFile);
+}
+

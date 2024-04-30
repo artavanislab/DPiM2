@@ -1,0 +1,20 @@
+CXX = g++
+CXXFLAGS = -Wall -O3
+#CXXFLAGS = -Wall -Wno-deprecated -O3
+
+LIBS = Histogram.o BaitByPrey.o PreyByPrey.o 
+GSL = -lgsl -lgslcblas
+
+all: ${LIBS} hyperspec
+
+Histogram.o: Histogram.hpp Histogram.cpp
+	$(CXX) -c Histogram.cpp $(CXXFLAGS) $(GSL)
+
+BaitByPrey.o: BaitByPrey.hpp BaitByPrey.cpp
+	$(CXX) -c BaitByPrey.cpp $(CXXFLAGS) $(GSL)
+
+PreyByPrey.o: PreyByPrey.hpp PreyByPrey.cpp
+	$(CXX) -c PreyByPrey.cpp $(CXXFLAGS) $(GSL)
+
+hyperspec: HyperSpec.cpp $(LIBS)
+	$(CXX) HyperSpec.cpp -o hyperspec $(LIBS) $(CXXFLAGS) $(GSL)

@@ -1,0 +1,45 @@
+// all this class does is write doubles using snprintf("%.*lf"), so that the *
+//   allows control over how many digits are printed
+
+#ifndef PRECISE_WRITER
+#define PRECISE_WRITER 1
+
+#include "rapidjson/writer.h" 
+
+//! JSON writer
+/*! Writer implements the concept Handler.
+    It generates JSON text by events to an output os.
+
+    User may programmatically calls the functions of a writer to generate JSON text.
+
+    On the other side, a writer can also be passed to objects that generates events, 
+
+    for example Reader::Parse() and Document::Accept().
+
+    \tparam OutputStream Type of output stream.
+    \tparam SourceEncoding Encoding of source string.
+    \tparam TargetEncoding Encoding of output stream.
+    \tparam StackAllocator Type of allocator for allocating memory of stack.
+    \note implements Handler concept
+*/
+template<typename Stream>
+class PreciseWriter : public rapidjson::Writer<Stream> {
+public:
+  int precision;
+
+  PreciseWriter(Stream& stream, int precision_) :
+    rapidjson::Writer<Stream>(stream) { precision = precision_; }
+  
+  PreciseWriter& Double(double d) {
+    this->Prefix(rapidjson::kNumberType);
+    char buffer[100];
+    int ret = snprintf(buffer, sizeof(buffer), "%.*lf", precision, d);
+    RAPIDJSON_ASSERT(ret >= 1);
+    for (int i = 0; i < ret; ++i)
+      this->os_->Put(buffer[i]);
+    return *this;
+  }
+
+};
+
+#endif // PRECISE_WRITER

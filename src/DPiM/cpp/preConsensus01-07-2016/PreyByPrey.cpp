@@ -1,0 +1,256 @@
+/* 
+ * File:   PreyByPrey.cpp
+ * Author: jmintser
+ * 
+ * Created on July 21, 2010, 12:23 PM
+ * Minor modifications August 11, 2015 by George Locke
+ */
+
+#include "PreyByPrey.hpp"
+#include "gsl/gsl_cdf.h"
+#include "rapidjson/prettywriter.h" 
+
+PreyByPrey::PreyByPrey(BaitByPrey &bbp_mat) {
+    preyRef2Idx = bbp_mat.preyRef2Idx;
+    uniqPreyReferenceVec = bbp_mat.uniqPreyReferenceVec;
+    //directBait_PreyPair = bbp_mat.directBait_PreyPair;
+    makePBPmatrix(bbp_mat);
+
+    for (unsigned int i = 0; i < preyByPrey.size(); ++i) {
+      preyByPreySum.push_back(rowSum(i, 0, preyByPrey.size()-1) +
+			    colSum(i, 0, preyByPrey[0].size()-1));
+    }
+    
+    double minDouble;
+    if (std::numeric_limits<double>::has_denorm) {
+      // obscure floating point values less than the "minimum" double
+      // potentially platform dependent
+      minDouble = std::numeric_limits<double>::denorm_min();
+    } else {
+      minDouble = std::numeric_limits<double>::min();
+    }
+    maxScore = ceil(-log(minDouble));
+
+    return;
+}
+
+
+void PreyByPrey::makePBPmatrix(BaitByPrey &bbp_mat) {
+  cout << "... computing a " << preyRef2Idx.size() << " X " << preyRef2Idx.size() << " prey-by-prey data matrix" << endl;
+  shuffled = bbp_mat.shuffled;
+  preyByPrey.clear();
+  preyByPrey.resize(preyRef2Idx.size(), vector<double>(preyRef2Idx.size(), 0));
+  for (unsigned int i = 0; i < bbp_mat.searchByPrey.size(); i++) {
+    // for each search_id
+    for (unsigned int j = 0; j < bbp_mat.searchByPrey[0].size(); j++) {
+      // for each protein pulled down in that experiment
+      if (bbp_mat.searchByPrey[i][j] > 0) {
+	for (unsigned int k = (j + 1); k < bbp_mat.searchByPrey[0].size(); k++) {
+	  // for every other protein, 
+	  // i.e. for every pair of prey in this experiment
+	  //if (bbp_mat.searchByPrey[i][k] > 0) {
+	  preyByPrey[j][k] += min(bbp_mat.searchByPrey[i][j],
+				  bbp_mat.searchByPrey[i][k]);
+	  //}
+	}
+      }
+    }
+  }
+  return;
+}
+
+void PreyByPrey::computeHyge() {
+  unsigned int i, j;
+  int safeA, A, B, AB, N;
+  double p;
+  double min_hyge_score = -log(0.01); // do not report scores lower than this
+  N = sumSum();
+  preyByPreyHyge.resize(preyRef2Idx.size(),
+			vector<double>(preyRef2Idx.size(), 0));
+  ////i = preyRef2Idx["FBgn0003721"];//
+  for (i = 0; i < preyByPrey.size(); ++i) {
+    ////j = preyRef2Idx["FBgn0005634"];//
+    safeA = preyByPreySum.at(i);
+    for (j = (i + 1); j < preyByPrey[0].size(); ++j) {
+      AB = preyByPrey[i][j];
+      ////cout << i << " " << j << " " << AB << endl; ////
+      if (AB > 0) {
+	A = safeA;
+	B = preyByPreySum.at(j);;
+	if (A > B) {
+	  swap(A,B);
+	}
+	p = gsl_cdf_hypergeometric_Q(AB-1, A, N-A, B);
+	if (p == 0) {
+	  preyByPreyHyge[i][j] = maxScore;
+	} else {
+	  preyByPreyHyge[i][j] = -log(p);
+	}
+	/*
+	  if ((uniqPreyReferenceVec[i].compare("FBgn0001224") == 0 & uniqPreyReferenceVec[j].compare("FBgn0001225") == 0) |
+	  (uniqPreyReferenceVec[i].compare("FBgn0001225") == 0 & uniqPreyReferenceVec[j].compare("FBgn0001224") == 0)) {
+	  cout << "hygecdf " << (AB - 1) << " " << A << " " << (N - A) << " " << B << "\t" << scientific << p << fixed << "\t" << preyByPreyHyge[i][j] << endl; ////
+	  }
+	*/
+
+	// add new score to the map
+	if (preyByPreyHyge[i][j] >= min_hyge_score) {
+	  scoreMMap.
+	    insert( pair<double,string>
+		    (preyByPreyHyge[i][j],
+		     (uniqPreyReferenceVec[i] + "\t" +
+		      uniqPreyReferenceVec[j])) );
+
+	}
+      }
+    }
+  }
+  return;
+}
+
+
+void PreyByPrey::outputScores() {
+  //double zScore;
+    for(multimap<double,string>::reverse_iterator MMapIt = scoreMMap.rbegin(); MMapIt != scoreMMap.rend(); ++MMapIt) {
+        double hygeScore = (*MMapIt).first;
+        string protPair = (*MMapIt).second;
+        //  if (directBait_PreyPair.count(protPair) == 0)
+        //    continue; //cout << "*";
+        cout << protPair << "\t" << hygeScore;
+	/*
+	// commented out because there is no code that populates extraScoreMap!
+        if ((shuffled > 0) & (extraScoreMap.size() > 0)) {
+            double vecMean = vectorMean(extraScoreMap[protPair]);
+            double vecStd = vectorStd(extraScoreMap[protPair]);
+            if (vecStd == 0) {
+                vecStd = 1;
+            }
+            zScore = (hygeScore - vecMean)/vecStd;
+
+            cout << "\t" << zScore;
+            cout << "\t" << vecMean << "\t" << vecStd << "\t"; ////
+            copy (extraScoreMap[protPair].begin(), extraScoreMap[protPair].end(), ostream_iterator<double> (cout, " ")); ////
+        }
+	*/
+        cout << endl;
+    }
+    return;
+}
+
+void PreyByPrey::json(string outFile) {
+
+  ofstream out;
+  out.open(outFile.c_str());
+  if (out.fail()) {
+    std::cerr << "failed to write to " << outFile << std::endl;
+  }
+  
+  rapidjson::StringBuffer sb;
+  rapidjson::Writer<rapidjson::StringBuffer> writer(sb);
+  //rapidjson::PrettyWriter approximately doubles the disk space
+  writer.StartObject();
+
+  // report HGScore -- only the non-zero elements
+  const double minScore = 0.00001; // report only elements with score higher than
+  writer.String("score");
+  writer.StartObject();
+
+  for (size_t i = 0; i < preyByPrey.size()-1; i++) {
+    char iString[10];
+    sprintf(iString, "%lu", i);
+    writer.String(iString);
+    writer.StartObject();
+    for (size_t j = (i + 1); j < preyByPrey[0].size(); j++) {
+      double s = preyByPreyHyge[i][j];
+      if (s > minScore) {
+	char jString[10];
+	sprintf(jString, "%lu", j);
+	writer.String(jString);
+	writer.Double(preyByPreyHyge[i][j]);
+      }
+    }
+    writer.EndObject();
+  }
+  writer.EndObject();
+
+  // report the rownames
+  writer.String("ids");
+  writer.StartObject();
+  for (map<string,int>::iterator pair = preyRef2Idx.begin();
+       pair != preyRef2Idx.end(); ++pair) {
+    char gString[10]; // I'm so clever
+    sprintf(gString, "%d", pair->second);
+    writer.String(gString);
+    writer.String(pair->first.c_str(),
+		  static_cast<rapidjson::SizeType>(pair->first.length()));
+  }
+  writer.EndObject();
+  writer.EndObject();
+  
+  out << sb.GetString() << std::endl;
+  out.close();
+}
+
+
+double PreyByPrey::vectorMean(vector<double> &vec) {
+    double sum = accumulate(vec.begin(), vec.end(), 0.0);
+    return sum/vec.size();
+}
+
+
+double PreyByPrey::vectorStd(vector<double> &vec) {
+    double mean = vectorMean(vec);
+    vector<double> mean_diff_squared = vec;
+    for (unsigned int i = 0; i < mean_diff_squared.size(); i++) {
+        mean_diff_squared[i] = pow((mean_diff_squared[i] - mean), 2);
+    }
+    
+    double SSE = accumulate(mean_diff_squared.begin(), mean_diff_squared.end(), 0.0);
+    return pow(SSE/(mean_diff_squared.size() - 1), 0.5);
+}
+
+
+double PreyByPrey::rowSum(int row, int start, int end) {
+    double row_sum = 0;
+    for (int j = start; j <= end; j++) {
+        row_sum += preyByPrey[row][j];
+    }
+    return row_sum;
+}
+
+
+double PreyByPrey::colSum(int col, int start, int end) {
+    double col_sum = 0;
+    for (int i = start; i <= end; i++) {
+        col_sum += preyByPrey[i][col];
+    }
+    return col_sum;
+}
+
+
+double PreyByPrey::sumSum() {
+    double sum_sum = 0.0;
+    for (vector< vector<double> >::const_iterator vecIt = preyByPrey.begin(); vecIt != preyByPrey.end(); vecIt++) {
+        sum_sum += accumulate((*vecIt).begin(), (*vecIt).end(), 0.0);
+    }
+    return sum_sum;
+}
+
+
+PreyByPrey::~PreyByPrey() {
+}
+
+void PreyByPrey::print () {
+  cout << "\t";
+  for (unsigned int i = 0; i < preyByPrey.size(); i++) {
+    cout << uniqPreyReferenceVec[i] << "\t";
+  }
+  cout << endl;
+  for (unsigned int i = 0; i < preyByPrey.size(); i++) {
+    cout << uniqPreyReferenceVec[i] << "\t";
+    for (unsigned int j = 0; j < preyByPrey[0].size(); j++) {
+      cout << (int) preyByPrey[i][j] << "\t";
+    }
+    cout << endl;
+  }
+}

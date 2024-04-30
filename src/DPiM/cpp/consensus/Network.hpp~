@@ -1,0 +1,70 @@
+/* 
+ * File:   Network.hpp
+ * Author: glocke
+ * Description: 
+ *   read in json files for many permutations
+ *   aggregate statistics to get mean and stddev for every protein pair
+ */
+
+#ifndef _NETWORK_HPP
+#define	_NETWORK_HPP 1
+
+#include "MatrixRunningStat.hpp"
+#include "rapidjson/document.h"
+#include <boost/numeric/ublas/symmetric.hpp>
+#include <boost/numeric/ublas/io.hpp>
+#include <boost/bimap.hpp>
+#include <vector>
+#include <string>
+#include <set>
+
+#ifndef SYM_MAT
+#define SYM_MAT 1
+typedef boost::numeric::ublas::symmetric_matrix<double, boost::numeric::ublas::upper> symMat;
+#endif
+#ifndef STRING_I_BIMAP
+#define STRING_I_BIMAP 1
+typedef boost::bimap< std::string, size_t > stringIBimap;
+#endif
+#ifndef STRING_VECTOR
+#define STRING_VECTOR 1
+typedef std::vector< std::string > stringVector;
+#endif
+#ifndef STRING_SET
+#define STRING_SET 1
+typedef std::set< std::string > stringSet;
+#endif
+
+class Network {
+public:
+  stringIBimap allProteins;
+
+  Network();
+  ~Network();
+  Network(const stringVector &jsonFiles, size_t size);
+
+  void addJson(const std::string& jsonFile);
+  
+  double mean (std::string fbgn1, std::string fbgn2) const; 
+  double sd (std::string fbgn1, std::string fbgn2); 
+  double var (std::string fbgn1, std::string fbgn2); 
+  
+  // return all scores for this pair of proteins
+  //doubleVector* pairScores(const std::string prot1, const std::string prot2);
+  
+private:
+  MatrixRunningStat stats;
+  unsigned nRun;
+  
+  stringIBimap mapLocalProteins(rapidjson::Value::ConstMemberIterator begin,
+			     rapidjson::Value::ConstMemberIterator end);
+  void updateAllProteins(const stringIBimap& localFbgnMap);
+  void updateStats(rapidjson::Value::ConstMemberIterator begin,
+		   rapidjson::Value::ConstMemberIterator end,
+		   const stringIBimap& indexMap );
+
+  std::string slurp(const std::string& inFile);
+  
+};
+
+#endif	/* _NETWORK_HPP */

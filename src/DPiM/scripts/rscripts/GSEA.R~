@@ -1,0 +1,8 @@
+##module add CRAN3/cbdd
+##module add CRAN3/ROCR
+##module add oracleinstantclient
+##module add CRAN3/ROracle
+##module add CRAN3/metabaser
+
+source("/home/glocke/setup_MetaBase.R")
+

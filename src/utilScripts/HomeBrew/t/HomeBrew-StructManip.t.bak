@@ -1,0 +1,75 @@
+#/usr/bin/perl
+
+use warnings;
+use strict;
+
+use POSIX;
+use Test::More qw(no_plan);
+
+# Verify module can be included via "use" pragma
+BEGIN { use_ok('HomeBrew::StructManip') };
+
+# Verify module can be included via "require" pragma
+require_ok('HomeBrew::StructManip');
+
+{
+    my @cols = qw(colors numbers hats);
+    my (@colors, @numbers, @hats);
+    @colors = qw(red blond green);
+    @numbers = qw(349 1234.5678 3.14159265);
+    @hats = qw(fedora porkpie bowler);
+    use Data::Dumper;
+    #print Dumper(\@tarArray);
+    #print Dumper(\%tarHash);
+    my %baseHash = (colors => \@colors, numbers => \@numbers, 
+		   hats => \@hats);
+    my @baseArray;
+    for my $i (0..$#colors) {
+	push(@baseArray, {});
+	$baseArray[$i]{$_} = $baseHash{$_}[$i] for @cols;
+    }
+
+    # test converter subs
+    {
+	my @tarArray = @baseArray;
+	my %tarHash  = %baseHash;
+	my %gotHash = HomeBrew::StructManip::convertArray2Hash(\@tarArray);
+	is_deeply(\%gotHash, \%tarHash, 
+		  "can I convert array2Hash and return the result?");
+	my $gotHashR = {};
+	HomeBrew::StructManip::convertArray2Hash(\@tarArray, $gotHashR);
+	is_deeply($gotHashR, \%tarHash, "can I convert array2Hash with a ref?");
+
+	my @gotArray = HomeBrew::StructManip::convertHash2Array(\%tarHash);
+	is_deeply(\@gotArray, \@tarArray, 
+		  "can I convert hash2Array and return the result?");
+	my $gotArrayR = [];
+	HomeBrew::StructManip::convertHash2Array(\%tarHash, $gotArrayR);
+	is_deeply($gotArrayR, \@tarArray, 
+		  "can I convert hash2Array with a ref?");
+    }
+    # test sort
+    {
+	my @sortNumbers = qw(3.14159265 349 1234.5678);
+	my @sortColors = qw(green red blond);
+	my @sortHats = qw(bowler fedora porkpie);
+	my %tarHash = (colors => \@sortColors, numbers => \@sortNumbers, 
+		       hats => \@sortHats);
+	my @tarArray;
+	for my $i (0..$#colors) {
+	    push(@tarArray, {});
+	    $tarArray[$i]{$_} = $tarHash{$_}[$i] for @cols;
+	}
+
+	my $numericalSort = sub ($$) { $_[0] <=> $_[1] };
+	my @gotArray = @baseArray;
+	HomeBrew::StructManip::sortArrayOfHashes(\@gotArray, "numbers", 
+						 $numericalSort);
+	is_deeply(\@gotArray, \@tarArray, "can I sort an array of hashes?");
+
+	my %gotHash = %baseHash;
+	HomeBrew::StructManip::sortHashOfArrays(\%gotHash, "numbers", 
+						$numericalSort);
+	is_deeply(\@gotArray, \@tarArray, "can I sort a hash of arrays?");
+    }    
+}

@@ -1,0 +1,8 @@
+#include "Network.hpp"
+#include <iostream>
+#include <string>
+
+int main  (int argc, char* argv[]) {
+  std::string jsonList = "/home/glocke/DPiM/dpim4/consTest0_01-11-2016/json.list";
+  Network n(jsonList);
+}

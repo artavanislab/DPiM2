@@ -1,0 +1,134 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+
+use lib '/home/glocke/utilScripts/HomeBrew/lib';
+use HomeBrew::IO qw(checkExist readColsHashRef readHeader readColsRef);
+
+# describe the purpose for this script
+
+my %opts = getCommandLineOptions();
+
+{
+    my $in = $opts{in};
+    my $out = $opts{out};
+    my $transFile = $opts{trans};
+
+    if ($opts{mode} ne 'net' && $opts{mode} ne 'raw') {
+	die "only -mode net is implemented";
+    }
+    
+    my %entrezMap;
+    say "parsing $transFile...";
+    readColsHashRef(\%entrezMap, $transFile, [qw(entrez symbol)]);
+
+    say "translating...";
+    if ($opts{mode} eq 'raw') {
+	translateRaw($in, $out, \%entrezMap);
+	exit;
+    }
+
+    
+    my @cols = qw(protein1 protein2 score);
+    my @read;
+    readColsRef(\@read, $in, \@cols);
+	
+    if (exists $opts{addcols}) {
+	addCols($out, \@read, \%entrezMap, $opts{addcols}, $in);
+    } else {
+	replace($out, \@read, \%entrezMap);
+    }
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+    my @modes = qw(net apms raw);
+    my %modes = map {$_ => 1} @modes;
+    my @arr = @modes;
+    $arr[0] = "*".$arr[0]."*";
+    my $modeString = "-mode ".join("/", @arr);
+
+    my %defaults = (
+	trans => '/home/glocke/DPiM/human/nsaf/entrez2symbol.concise.tsv',
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my $usage = "usage: $0 -in input -out output < $modeString $defaultString ".
+	"-addcols <number of columns> >\n";
+
+    my %opts = ();
+    GetOptions(\%opts, "in=s", "out=s", "mode=s", "trans=s", "addcols=i");
+    die $usage unless exists $opts{in} && exists $opts{out};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+    $opts{mode} //= $modes[0];
+    die "you must select one of the following modes: ", 
+        join(", ",keys(%modes)), "\n" if ! exists $modes{$opts{mode}};
+
+    checkExist('f', $opts{in});
+    checkExist('f', $opts{trans});
+
+    return %opts;
+}
+
+sub addCols {
+    my ($out, $input, $map, $nCols, $inFile) = @_;
+
+    my @cols = readHeader($inFile);
+    my $extraCols = "geneSymbol";
+    if ($nCols > 1) {
+	push @cols, "$extraCols$_" for 1..$nCols;
+    }
+
+    open my $OUT, ">", $out or die "Can't write to $out. $!";
+    say $OUT "# $0 converted entrez to symbol from $inFile";
+    say $OUT join "\t", @cols;
+
+    for my $row (@$input) {
+	$row->{geneSymbol1} = $map->{$row->{protein1}} // 'unknown';
+	$row->{geneSymbol2} = $map->{$row->{protein2}} // 'unknown';
+	say $OUT join "\t", map { $row->{$_} } @cols;
+    }
+    close $OUT;
+    return;
+}
+
+sub replace {
+    my ($out, $input, $map, $nCols, $inFile) = @_;
+    die "reeeeppplaaaaaaaaaaace not implmemnted";
+}
+
+sub translateRaw {
+    my ($in, $out, $entrezMap) = @_;
+
+    open my $IN, "<", $in or die "can't read from $in .$!";
+    open my $OUT, ">", $out or die "can't write to $out .$!";
+
+    while (my $line = <$IN>) {
+	my %replace;
+	while ($line =~ /(?<=\s)(\d+)(?=\s)/g) {
+	    $replace{$1} = $entrezMap->{$1} // $_;
+	}
+	if ($line =~ /^(\d+)\s/) {
+	    $replace{$1} = $entrezMap->{$1} // $_;
+	}
+	for my $k (keys %replace) {
+	    $line =~ s/$k/$replace{$k}/g;
+	}
+	print $OUT $line;
+    }
+    close $IN;
+    close $OUT;
+}

@@ -1,0 +1,26 @@
+enList <- read.table("/home/glocke/DPiM/dpim3.1/mcode1_10-12-2015/minLength.enrich.list", stringsAsFactor=F)
+flList <- read.table("/home/glocke/DPiM/dpim3.1/mcode1_10-12-2015/minLength.flagNet.list", stringsAsFactor=F)
+
+
+i <- 1
+
+pears <- sapply(1:nrow(enList), function(i) {
+                    en <- read.table(enList$V1[i], header = T);
+                    fl <- read.table(flList$V1[i], header = T);
+                    enP <- en$p[order(en$term)]
+                    flP <- fl$p[order(fl$term)]
+                    
+                    return(cor(enP, flP))
+                }
+                )
+
+spear <- sapply(1:nrow(enList), function(i) {
+                    en <- read.table(enList$V1[i], header = T);
+                    fl <- read.table(flList$V1[i], header = T);
+                    enP <- en$p[order(en$term)]
+                    flP <- fl$p[order(fl$term)]
+                                        
+                    return(cor(enP, flP, method="spearman"))
+                }
+                )
+

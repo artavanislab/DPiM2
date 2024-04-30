@@ -1,0 +1,614 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use sort 'stable';
+use Getopt::Long;
+use Data::Dumper;
+use File::Temp qw(tempfile);
+use List::Util qw(min sum shuffle);
+use Scalar::Util 'refaddr';
+use Test::More;
+use HomeBrew::IO qw(checkExist readColsRef);
+use DpimLib qw(getLineDP4_1APMS);
+
+# find experiments that have identical prey TSC
+
+# algorithm: for every experiment, find the prey with the most TSC
+#   create a hash with abundant TSC as the key and list of experiments as value
+#   for each prey, compare each experiment, find duplicates
+#   once a duplicate class has been identified, select the right one
+#
+# How to pick the experiment to pick among a group of duplicates.
+#   The winner: 
+#    *will not* have FBgn0000000
+#    *will* have a decimal in its ms_inst_run_id
+#      prefer a reordered experiment vs a non-reordered experiment
+#      in principle this hsould never happen...
+#    failing these meaningful criteria, pick the earlier search_id
+
+
+my %opts = getCommandLineOptions();
+
+{
+    if (exists $opts{test}) {
+	test();
+	exit;
+    }
+
+    my $in = $opts{in};
+    my $out = $opts{out};
+    my $statFile = $opts{stats};
+    my $logOut = $opts{log};
+    
+    if (! defined $statFile) {
+	my $FH;
+	($FH, $statFile) = tempfile();
+	close $FH;
+	my $statScr = $opts{statscr};
+	my $cmd = "$statScr -in $in -out $statFile -mode logp";
+	say $cmd;
+	system($cmd);
+    }
+    my %stats; # stats{search_id} = {bait_ref, ms_inst_run_id}
+    readStats(\%stats, $statFile);
+
+    my @potentialDupes;
+    findPotentials(\@potentialDupes, $in);
+    say "found ", (0+ @potentialDupes), " potentials";
+    ##die Dumper(\@potentialDupes);
+    
+    my @equivClasses; ## using the equality test runsAreEqual(),
+    ## find all runs equivalent to other runs
+    ## this is like finding the "quotient set" for all experiments, then
+    ## selecting those classes in the quotient set with more than one member
+    findDupRuns(\@equivClasses, \@potentialDupes);
+
+    my %filterThese; ## filterThese{$sid}=1 iff this $sid is to be removed
+    filterWhich(\%filterThese, \@equivClasses, \%stats);
+    
+    filterAndReprint($in, $out, \%filterThese);
+
+    if (defined $logOut) {
+	writeLog($logOut, \@equivClasses, \%filterThese, \%stats);
+    }
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+
+    my %defaults = (
+	statscr => $ENV{DPSCR}."/baitPullDown.pl",
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my $usage = "usage: $0 -in input -out output < -stats ".
+	"remakeUnlessSupplied.statsBySID $defaultString -log report -test  >\n";
+
+    my %opts = ();
+    GetOptions(\%opts, "in=s", "out=s", "stats=s", "statscr=s", "log=s", 
+	       "test");
+    die $usage unless exists $opts{test} || exists $opts{in} && exists $opts{out};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+    return %opts if exists $opts{test};
+    
+    checkExist('f', $opts{in});
+    if (exists $opts{stats}) {
+	checkExist('f', $opts{stats});
+    } else {
+	checkExist('f', $opts{statscr});
+    }
+
+    return %opts;
+}
+
+#ret->{search_id} = {bait_ref, ms_inst_run_id}
+sub readStats {
+    my ($ret, $statFile) = @_;
+
+    my @cols = qw(search_id bait_ref ms_inst_run_id);
+    my @read;
+    readColsRef(\@read, $statFile, \@cols, 'line');
+    for my $row (@read) {
+	$ret->{$row->{search_id}} =
+	{ bait_ref => $row->{bait_ref},
+	  ms_inst_run_id => $row->{ms_inst_run_id},
+	  line => $row->{line},
+	};
+    }
+
+    return;
+}
+
+# find experiments that might possibly be duplicates
+# $ret[$i] = { $sid1 => {prey1 => $tsc, prey2 => $tsc,...}, $sid2 => {},...}
+#   that is, the return value is an array whose elements are sets of experiments
+#   meeting the following criteria
+## each set is a *congruence class*
+## A congruence class is defined as:
+##   All experiments whose most abundant prey is X, which has TSC Y,
+##   And these experiments have Z unique prey in them
+## Only those congruence classes with more than element are retained
+
+# when finding the most abundant prey, break ties alphanumerically 
+sub findPotentials {
+    my ($ret, $in) = @_;
+
+    my %parseAll; # parseAll{search_id}{prey} = tsc for the max prey iff there is an experiment with
+    # these id's
+    
+    open my $IN, "<", $in or die "can't read $in. $!";
+    my %row;
+    while (getLineDP4_1APMS(\%row, $IN)) {
+	$parseAll{$row{search_id}}{$row{prey_ref}} = $row{total_peptides};
+    }
+    close $IN; 
+    ##warn Dumper($parseAll{1181}, $parseAll{8993});
+
+    my %maxPrey; # maxPrey{prey_ref}{tsc}{$numberOfPrey}{$search_id} = 1
+    # $numberOfPrey is the number of different prey found in this experiment
+    for my $sid (keys %parseAll) {
+	my @prey = sort keys %{ $parseAll{$sid} };
+	next if 1 == @prey;
+	## rely on the "stability" of perl's sort
+	## note the "use sort 'stable'" in this script's header
+	@prey = sort {$parseAll{$sid}{$b} <=> $parseAll{$sid}{$a}} @prey;
+	$maxPrey{$prey[0]}{$parseAll{$sid}{$prey[0]}}{0+@prey}{$sid} = 1;
+    }
+    ##warn Dumper("before pruning", \%maxPrey);
+
+    ## now prune maxPrey to find only potential duplicates
+    for my $fbgn (keys %maxPrey) {
+	my @allTsc = keys %{$maxPrey{$fbgn}};
+	my $nRemoved = 0; ## how many branches have been pruned
+	for my $tsc (@allTsc) {
+	    my @allNPrey = keys %{ $maxPrey{$fbgn}{$tsc} };
+
+	    ## if there is only one experiment with this tsc and this number of
+	    ## prey, it cannot possibly be a duplicate
+	    my @nonDupes = grep { 
+		1 == keys %{$maxPrey{$fbgn}{$tsc}{$_}} 
+	    } @allNPrey;
+	    
+	    if (@nonDupes == @allNPrey) {
+		##warn '\tdeleting maxPrey{$fbgn}{$tsc}\n';
+		delete $maxPrey{$fbgn}{$tsc};
+	    } else {
+		delete $maxPrey{$fbgn}{$tsc}{$_} for @nonDupes;
+	    }
+	} continue {
+	    $nRemoved++ if ! exists $maxPrey{$fbgn}{$tsc};
+	}
+	delete $maxPrey{$fbgn} if $nRemoved == @allTsc;
+    }
+    
+    for my $fbgn (keys %maxPrey) {
+	for my $tsc (keys %{$maxPrey{$fbgn}}) {
+	    for my $nPrey (keys %{$maxPrey{$fbgn}{$tsc}}) {
+		my %set;
+		for my $sid (keys %{ $maxPrey{$fbgn}{$tsc}{$nPrey} }) {
+		    $set{$sid} = $parseAll{$sid};
+		}
+		die "set{$fbgn}{$tsc}{$nPrey} has no keys" if 0 == keys %set;
+		die "set{$fbgn}{$tsc}{$nPrey} has one key" if 1 == keys %set;
+		push @$ret, \%set;
+	    }
+	}
+    }
+    #warn Dumper("after pruning", \%maxPrey, $ret);
+    
+    return;
+}
+
+
+# $ret is an array of equivalence classes
+#   two experiments are equivalent if their prey_ref=>tsc pairs match perfectly
+#   an equivalence class is the set of all mutually equivalent experiments
+# $ret is the set of all equivalence classes with more than one member
+# $ret[$i] = [$sid1, $sid2, $sid3,...] <==-.__.-==> a list of lists
+sub findDupRuns {
+    my ($ret, $congruents) = @_;
+    
+    ## $equiv{id1}{id2} == 1 iff id1 and id2 are equivalent
+    my %equiv;
+
+    for my $set (@$congruents) {
+	my @sids = sort {$a <=> $b} keys %$set;
+	my @remainder;
+	do {
+	    my $prevID = shift @sids;
+	    @remainder = ();
+	    for my $sid (@sids) {
+		#say $sid;
+		if (runsAreEqual($set->{$prevID}, $set->{$sid})) {
+		    #say "\tsetEqual $prevID, $sid";
+		    setEqual(\%equiv, $prevID, $sid);
+		} else {
+		    #say "\tpush $sid onto remainder";
+		    push @remainder, $sid;
+		}
+	    }
+	    @sids = @remainder;
+	    #say Dumper(\@remainder);
+	} while (2 <= @remainder);
+    }
+
+    equiv2list($ret, \%equiv);
+    return;
+}
+
+# return true if every prey=>tsc pair in the two experiments match
+sub runsAreEqual {
+    my ($run1, $run2) = @_;
+
+    my @prey1 = keys %$run1;
+    return undef if @prey1 != keys %$run2;
+    for my $prey (@prey1) {
+	return undef if ! exists $run2->{$prey};
+	return undef if $run1->{$prey} != $run2->{$prey};
+    }
+
+    return 1;
+}
+
+## place id1 and id2 in the same equivalence class
+## $equiv{id1}{id2} == 1 iff id1 and id2 are equivalent
+##   note that this is commutative
+
+## This implementation is perhaps non-obvious.  
+## Basically, each equivalence class is stored in a hash 
+## each id is a hash key for %$equiv whose corresponding value is a reference 
+##   to that hash
+## (hairiest when this requires two equivalence classes be merged)
+sub setEqual {
+    my ($equiv, $id1, $id2) = @_;
+
+    if (exists $equiv->{$id1} && exists $equiv->{$id2}) {
+	# both are known
+	if (! exists $equiv->{$id1}{$id2}) {
+	    # but not known to be equal
+	    mergeEquiv($equiv, $id1, $id2);
+	} 
+	## no else block because if they are already equal, nothing need be done
+    } elsif (exists $equiv->{$id1}) {
+	## have seen $id1, haven't seen $id2
+	$equiv->{$id1}{$id2} = 1;
+	$equiv->{$id2} = $equiv->{$id1};
+    } elsif (exists $equiv->{$id2}) {
+	## have seen $id2, haven't seen $id1
+	$equiv->{$id2}{$id1} = 1;
+	$equiv->{$id1} = $equiv->{$id2};
+    } else {
+	## haven't seen either, create a new class
+	$equiv->{$id1} = { $id1 => 1, $id2 => 1 };
+	$equiv->{$id2} = $equiv->{$id1};
+    }
+
+    return;
+}
+
+# put all members of the $id2 equivalence class into the $id1 equivalence class
+#  and delete the $id2 class as an entity separate from the $id1 class
+sub mergeEquiv {
+   my ($equiv, $id1, $id2) = @_;
+
+   my $class1 = $equiv->{$id1};
+   my $class2 = $equiv->{$id2};
+   $class1->{$_} = 1 for keys %$class2;
+   $equiv->{$_} = $class1 for keys %$class2;
+
+   return;
+}
+
+# return a list of lists representing the equivalence classes
+sub equiv2list {
+    my ($ret, $equiv) = @_;
+    my %quotientSet = map { refaddr($_) => $_ } values %$equiv;
+    ##die Dumper(\%quotientSet);
+    push @$ret, map { [ keys %$_ ] } values %quotientSet;
+    return;
+}
+
+# $filterThese->{$sid} == 1 iff this is an sid to be removed
+sub filterWhich {
+    my ($filterThese, $equivClasses, $stats) = @_;
+
+    # How to pick the experiment to pick among a group of duplicates.
+    #   The winner: 
+    #    *will not* have FBgn0000000
+    #    *will* have a decimal in its ms_inst_run_id
+    #      prefer a reordered experiment vs a non-reordered experiment
+    #      in principle this hsould never happen...
+    #    failing these meaningful criteria, pick the earlier search_id
+    my %tests = (
+	bait => sub {
+	    my $sid = shift;
+	    my $fbgn = $stats->{$sid}{bait_ref} // 
+		die "Can't parse stats->{$sid}\n".Dumper($stats, $equivClasses);
+	    return $fbgn ne 'FBgn0000000';
+	},
+	rid => sub {
+	    my $sid = shift;
+	    my $rid =  $stats->{$sid}{ms_inst_run_id};
+	    return $rid =~ /\d\.\d+$/;
+	}
+    );
+    my @testOrder = qw(bait rid);
+
+    for my $set (@$equivClasses) {
+	my $winner = undef; ## $sid of the one to keep
+	my @tmpSet = @$set;
+	for my $test (@testOrder) {
+	    die Dumper(\@tmpSet) if @tmpSet == 0;
+	    my %pass;
+	    for my $sid (@tmpSet) {
+		$pass{$sid} = $tests{$test}->($sid) // 
+		    die "can't test tests{$test}->($sid)";
+	    }
+	    # my %pass = map { $_ => $tests{$test}->($_) } @tmpSet;
+	    my @winners = grep { $pass{$_} } @tmpSet;
+	    if (1 == @winners) {
+		$winner = $winners[0];
+		last;
+	    } elsif (1 < @winners) {
+		@tmpSet = @winners;
+	    }
+	}
+	if (! defined $winner) {
+	    $winner = (sort {$a <=> $b} @tmpSet)[0];
+	}
+	for my $sid (@$set) {
+	    $filterThese->{$sid} = 1 unless $sid == $winner;
+	}
+    }
+
+    return;
+}
+
+sub filterAndReprint {
+    my ($in, $out, $dupRuns) = @_;
+
+    my $nDupes = 0+ keys %$dupRuns;
+
+    open my $IN, "<", $in or die "can't read $in. $!";
+    open my $OUT, ">", $out or die "can't write to $out. $!";
+    say $OUT "# $0 removed $nDupes duplicate runs";
+    while (<$IN>) {
+	next if /^#/;
+	my @spl = split;
+	my $sid = $spl[0];
+	next if exists $dupRuns->{$sid};
+	print $OUT $_;
+    }
+    close $OUT; 
+    close $IN; 
+}
+
+
+sub writeLog {
+    my ($out, $equivClasses, $filterThese, $stats) = @_;
+
+    doubleSort($equivClasses);
+    
+    my @cols = qw(search_id       bait_ref        bait_peptides   tsc     prey_count      date    ms_inst_run_id duplicateGroup removed);
+
+    open my $OUT, ">", $out or die "can't write to $out. $!";
+    say $OUT "# $0 log of what was removed";
+    say $OUT join "\t", @cols;
+    my $i = 0;
+    for my $set (@$equivClasses) {
+	for my $sid (@$set) {
+	    chomp $stats->{$sid}{line};
+	    say $OUT join "\t", $stats->{$sid}{line}, $i
+		, $filterThese->{$sid} // 0;
+	}
+	$i++;
+    }
+}
+
+	
+
+
+# make a bunch of experiments, see if you remove the right ones
+sub test {
+
+    
+    my $equivTests = 3; ## test with merging, without merging, and listification
+    ## main tests: 
+    ##  * 1 find potential duplicates 
+    ##  * 2 find actual duplicates
+    ##  * 3 pick the correct sids to remove
+    my $findDupTests = 3;
+    
+    plan tests => $findDupTests + $equivTests;
+    testEquiv();
+    testFindDups();
+}
+
+# test the equivalence class implementation
+## note that "equivalence class" is a mathematical term unrelated to OO
+sub testEquiv {
+    my @classes = ([qw(1 2 3 4)], [qw(5 6 7 8)], [qw(9 10 11 12)]);
+    my %targetEquiv;
+    for my $c (@classes) {
+	my %hash = map { $_ => 1 } @$c;
+	$targetEquiv{$_} = \%hash for @$c;
+    }
+    
+    my %gotEquivNoMerge;
+    for my $c (@classes) {
+	my @cc = @$c;
+	my $c1 = shift @cc;
+	for my $c2 (@cc) {
+	    setEqual(\%gotEquivNoMerge, $c1, $c2);
+	}
+    }
+    is_deeply(\%gotEquivNoMerge, \%targetEquiv, "can I make equivalence classes without merging?");
+    
+    my %gotEquivMerge;
+    for my $c (@classes) {
+	setEqual(\%gotEquivMerge, $c->[0], $c->[1]);
+	setEqual(\%gotEquivMerge, $c->[2], $c->[3]);
+	#say Dumper(\%gotEquivMerge);
+	setEqual(\%gotEquivMerge, $c->[0], $c->[3]);
+	#say Dumper(\%gotEquivMerge);
+	#exit;
+    }
+    is_deeply(\%gotEquivMerge, \%targetEquiv, "can I make equivalence classes with merging?");
+    my @gotClasses;
+    equiv2list(\@gotClasses, \%gotEquivMerge);
+    doubleSort(\@gotClasses);
+    is_deeply(\@gotClasses, \@classes, "can I listify an equivalence class?");
+}
+
+# input: list of numerically sortable lists (list-of-lists = LOL
+# output: same elements reordered
+# reordering consists of:
+#   1. for each list in the LOL, sort the elements
+#   2. sort the LOL by the first element 
+# Notes:
+#   * ties are handled however perl's "sort" handles them (usually stable)
+#   * there may be a better way to handle sorting an array reference
+sub doubleSort {
+    my $ar = shift;
+    my @sorted;
+    for my $arr (@$ar) {
+	push @sorted, [sort {$a <=> $b} @$arr];
+    }
+    @sorted = sort { $a->[0] <=> $b->[0] } @sorted;
+    $ar->[$_] = $sorted[$_] for 0..$#sorted;
+    return;
+}
+    
+sub testFindDups {    
+
+    my @groupSize = qw(1 1 1 1 1 1 1 1 1 1 2 3 4 5 2 3 4 5 2 3 4 5);
+    my $minPrey = 10;
+    my $extraPrey = 50; ## add up to this many extra prey
+    my @sids = shuffle 1000..9000;
+
+    ##my %trueStats; not testing this
+    my @trueEquivGroups;
+    my @truePotentials;  # tp[$i] = { sid1 => {prey1=>tsc, prey2=>tsc,... },
+    #                    #            sid2 => 
+    my %trueFilterThese; # tft{$sid} = 1 iff this sid should be removed
+    my %baits; 
+    my %allData;
+    for my $n (@groupSize) {
+	my @groupSids;
+	my %groupExpts; 
+	my $nPrey = $minPrey + int(rand($extraPrey));
+	my $expt = randExpt($nPrey);
+	my $bait;
+	
+	for (1..$n) {
+	    my $sid = shift @sids;
+	    my $bait;
+	    if (0 == @groupSids) {
+		$bait = sprintf "FBgn%07d", rand(8_000_000);
+		$expt->{$bait} = $sid;
+	    } else {
+		$bait = 'FBgn0000000';
+		$trueFilterThese{$sid} = 1;
+	    }
+	    $allData{$sid} = $expt;
+	    $baits{$sid} = $bait;
+	    
+	    push @groupSids, $sid;
+	    my %thisExp = %$expt; ##  clone for is_deeply (necessary?)
+	    $groupExpts{$sid} = \%thisExp;
+	    ## $trueStats{$sid}
+	}
+	if (1 < $n) {
+	    push @trueEquivGroups, \@groupSids;
+	    push @truePotentials, \%groupExpts;
+	}
+    }
+    doubleSort(\@trueEquivGroups);
+    # for a given element of potentials, find the lowest search_id
+    my $minKey = sub {
+	my ($set) = @_;
+
+	return min keys %$set;
+    };
+    @truePotentials = sort {$minKey->($a) <=> $minKey->($b)} @truePotentials;
+    
+    my ($BASE, $baseFile) = tempfile();
+    say "writing unfiltered input to $baseFile";
+    writeAPMS(\%allData, \%baits, $BASE);
+    close $BASE;
+    my @allSids = keys %allData;
+
+    my $statFile;
+    {
+	my $FH;
+	($FH, $statFile) = tempfile();
+	close $FH;
+	my $statScr = $opts{statscr};
+	my $cmd = "$statScr -in $baseFile -out $statFile -mode logp";
+	say $cmd;
+	system($cmd);
+    }
+    my %stats; # stats{search_id} = {bait_ref, ms_inst_run_id}
+    readStats(\%stats, $statFile);
+
+    my @potentialDupes;
+    findPotentials(\@potentialDupes, $baseFile);
+    @potentialDupes = sort {$minKey->($a) <=> $minKey->($b)} @potentialDupes;
+
+    is_deeply(\@potentialDupes, \@truePotentials, "can I find potentials?");
+
+    my @equivClasses; ## using the equality test runsAreEqual(),
+    ## find all runs equivalent to other runs
+    ## this is like finding the "quotient set" for all experiments, then
+    ## selecting those classes in the quotient set with more than one member
+    findDupRuns(\@equivClasses, \@potentialDupes);
+    doubleSort(\@equivClasses);
+
+    is_deeply(\@equivClasses, \@trueEquivGroups, "can I find equivalent sids?");
+    
+    my %filterThese; ## filterThese{$sid}=1 iff this $sid is to be removed
+    filterWhich(\%filterThese, \@equivClasses, \%stats);
+
+    is_deeply(\%filterThese, \%trueFilterThese, "can I identify the sids to keep?")
+}
+
+sub randExpt {
+    my $nPrey = shift;
+    my @tsc = map 
+    { 1 + int(rand(20)) } 1..$nPrey;
+    my @randInts = shuffle 1..1000;
+    my @ids = map { sprintf "FBgn%07d", $_ } @randInts[0..$#tsc];
+    return { map { $ids[$_] => $tsc[$_] } 0..$#tsc };
+}
+    
+sub writeAPMS {
+    my ($apms, $baits, $OUT) = @_;
+
+    say $OUT join "\t", qw(search_id       bait_ref        prey_ref        total_peptides  sample_date    ms_inst_run_id logp);
+    my $sid = 1;
+    my $date = "2008-01-31";
+    for my $sid (keys %$apms) {
+	#say $sid;
+	my $bait = $baits->{$sid};
+	my $rid = sprintf "w%05d" , rand(20000);
+	my @prey = sort { 
+	    $apms->{$sid}{$b} <=> $apms->{$sid}{$a}
+	} keys %{ $apms->{$sid} };
+	for my $prey (@prey) {
+	    say $OUT join "\t", $sid, $bait, $prey, $apms->{$sid}{$prey}, $date
+		, $rid, rand();
+	}
+    }
+    return;
+}

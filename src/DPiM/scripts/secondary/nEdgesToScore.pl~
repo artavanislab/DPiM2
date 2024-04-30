@@ -1,0 +1,58 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+
+use lib '/home/glocke/utilScripts/HomeBrew/lib';
+use HomeBrew::IO qw(checkExist);
+
+# look at the HyperSpec main output file, find the number edges necessary
+# to reach FDR.  Then go to the simulation output and find the score cutoff
+# implied by this number of edges
+
+my %opts = getCommandLineOptions();
+
+{
+    my $in = $opts{in};
+    my $simList = $opts{sim};
+    my $out = $opts{out};
+
+    my @edgeCount = getEdgeCount($in);
+
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+
+    my %defaults = (
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my $usage = "usage: $0 -in hyperspec.out -sim sim.list -out output\n";
+
+    my %opts = ();
+    GetOptions(\%opts, "in=s", "sim=s", "out=s");
+    die $usage unless exists $opts{in} && exists $opts{out};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+
+    checkExist('f', $opts{in});
+    checkExist('f', $opts{sim});
+
+    return %opts;
+}
+
+sub getEdgeCount {
+    my ($hypOut) = @_;
+}

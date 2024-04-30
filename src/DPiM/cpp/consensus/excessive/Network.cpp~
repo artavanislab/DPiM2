@@ -1,0 +1,79 @@
+#include "Network.hpp"
+#include "rapidjson/document.h"
+#include <fstream>
+#include <boost/lexical_cast.hpp>
+
+#ifndef INT_STRING_MAP
+#define INT_STRING_MAP 1
+typedef std::map< int, std::string > intStringMap;
+#endif
+
+namespace rj = rapidjson;
+
+Network::Network() { };
+
+Network::Network(const std::string jsonFileList) {
+  fbgnMap = new stringIBimap;
+  scoreHist = new doubleVectorPVectorVector;
+  
+  stringVector * jsonFiles = readList(jsonFileList);
+
+  stringVector::const_iterator f = jsonFiles->begin();
+  firstJson(*f);
+
+  ++f;
+  for (; f != jsonFiles->end(); ++f) {
+    addJson(*f);
+  }
+  
+  delete jsonFiles;
+}
+  
+
+// return all scores for this pair of proteins
+// returning a pointer is potentially unsafe, but probably that doesn't matter
+doubleVector* Network::pairScores(const std::string prot1,
+				  const std::string prot2)
+{
+  size_t i1 = fbgnMap->left.at(prot1);
+  size_t i2 = fbgnMap->left.at(prot2);
+  return scoreHist->at(i1).at(i2);
+  // scoreHist->at(prot1).at(prot2)->at(run) = score of this interaction
+}
+
+void Network::firstJson(const std::string jsonFile) {
+  char* json;
+  {
+    std::ifstream t;
+    int length;
+    t.open(jsonFile.c_str());        
+    t.seekg(0, std::ios::end); // go to the end
+    length = t.tellg();        // report location (this is the length)
+    t.seekg(0, std::ios::beg); // go back to the beginning
+    json = new char[length];   // 
+    t.read(json, length);      // read the whole file into the buffer
+    t.close();                 
+  }
+  rj::Document parse;
+  parse.Parse(json);
+  delete json;
+  
+  assert(parse.IsObject());
+  assert(parse.HasMember("score"));
+  assert(parse["score"].IsObject());
+  assert(parse.HasMember("ids"));
+  assert(parse["ids"].IsObject());
+
+  /*
+  for (rj::Value::ConstMemberIterator p1 = parse["ids"].MemberBegin()
+  
+  rj::Value::ConstMemberIterator p1, p2;
+  */
+}
+void Network::addJson(const std::string jsonFile) {
+}
+
+stringVector * Network::readList(const std::string file) {
+  stringVector * ret = new stringVector;
+  return ret;
+}

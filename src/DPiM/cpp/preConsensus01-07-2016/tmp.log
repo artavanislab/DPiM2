@@ -1,0 +1,491 @@
+In file included from /pkg/boost/1.55.0/Linux/x86_64/include/boost/mpl/aux_/integral_wrapper.hpp:22:0,
+                 from /pkg/boost/1.55.0/Linux/x86_64/include/boost/mpl/int.hpp:20,
+                 from /pkg/boost/1.55.0/Linux/x86_64/include/boost/type_traits/detail/template_arity_spec.hpp:10,
+                 from /pkg/boost/1.55.0/Linux/x86_64/include/boost/type_traits/detail/type_trait_def.hpp:14,
+                 from /pkg/boost/1.55.0/Linux/x86_64/include/boost/type_traits/remove_reference.hpp:21,
+                 from /pkg/boost/1.55.0/Linux/x86_64/include/boost/any.hpp:21,
+                 from /pkg/boost/1.55.0/Linux/x86_64/include/boost/program_options/value_semantic.hpp:12,
+                 from /pkg/boost/1.55.0/Linux/x86_64/include/boost/program_options/options_description.hpp:13,
+                 from /pkg/boost/1.55.0/Linux/x86_64/include/boost/program_options.hpp:15,
+                 from HyperSpec.cpp:21:
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp: In function ‘void boost::function_requires(Model*)’:
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:20: warning: typedef ‘boost_concept_check45’ locally defined but not used [-Wunused-local-typedefs]
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+                    ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/preprocessor/cat.hpp:29:34: note: in definition of macro ‘BOOST_PP_CAT_I’
+ #    define BOOST_PP_CAT_I(a, b) a ## b
+                                  ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:7: note: in expansion of macro ‘BOOST_PP_CAT’
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+       ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/assert.hpp:44:5: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT_FN’
+     BOOST_CONCEPT_ASSERT_FN(void(*)ModelInParens)
+     ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp:45:7: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT’
+       BOOST_CONCEPT_ASSERT((Model));
+       ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp: In destructor ‘boost::AdaptableGenerator<Func, Return>::~AdaptableGenerator()’:
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:20: warning: typedef ‘boost_concept_check453’ locally defined but not used [-Wunused-local-typedefs]
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+                    ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/preprocessor/cat.hpp:29:34: note: in definition of macro ‘BOOST_PP_CAT_I’
+ #    define BOOST_PP_CAT_I(a, b) a ## b
+                                  ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:7: note: in expansion of macro ‘BOOST_PP_CAT’
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+       ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/assert.hpp:44:5: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT_FN’
+     BOOST_CONCEPT_ASSERT_FN(void(*)ModelInParens)
+     ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp:453:11: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT’
+           BOOST_CONCEPT_ASSERT((Convertible<result_type, Return>));
+           ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp: In destructor ‘boost::AdaptableUnaryFunction<Func, Return, Arg>::~AdaptableUnaryFunction()’:
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:20: warning: typedef ‘boost_concept_check465’ locally defined but not used [-Wunused-local-typedefs]
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+                    ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/preprocessor/cat.hpp:29:34: note: in definition of macro ‘BOOST_PP_CAT_I’
+ #    define BOOST_PP_CAT_I(a, b) a ## b
+                                  ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:7: note: in expansion of macro ‘BOOST_PP_CAT’
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+       ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/assert.hpp:44:5: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT_FN’
+     BOOST_CONCEPT_ASSERT_FN(void(*)ModelInParens)
+     ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp:465:11: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT’
+           BOOST_CONCEPT_ASSERT((Convertible<result_type, Return>));
+           ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:20: warning: typedef ‘boost_concept_check466’ locally defined but not used [-Wunused-local-typedefs]
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+                    ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/preprocessor/cat.hpp:29:34: note: in definition of macro ‘BOOST_PP_CAT_I’
+ #    define BOOST_PP_CAT_I(a, b) a ## b
+                                  ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:7: note: in expansion of macro ‘BOOST_PP_CAT’
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+       ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/assert.hpp:44:5: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT_FN’
+     BOOST_CONCEPT_ASSERT_FN(void(*)ModelInParens)
+     ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp:466:11: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT’
+           BOOST_CONCEPT_ASSERT((Convertible<Arg, argument_type>));
+           ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp: In destructor ‘boost::AdaptableBinaryFunction<Func, Return, First, Second>::~AdaptableBinaryFunction()’:
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:20: warning: typedef ‘boost_concept_check484’ locally defined but not used [-Wunused-local-typedefs]
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+                    ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/preprocessor/cat.hpp:29:34: note: in definition of macro ‘BOOST_PP_CAT_I’
+ #    define BOOST_PP_CAT_I(a, b) a ## b
+                                  ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:7: note: in expansion of macro ‘BOOST_PP_CAT’
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+       ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/assert.hpp:44:5: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT_FN’
+     BOOST_CONCEPT_ASSERT_FN(void(*)ModelInParens)
+     ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp:484:11: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT’
+           BOOST_CONCEPT_ASSERT((Convertible<result_type, Return>));
+           ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:20: warning: typedef ‘boost_concept_check485’ locally defined but not used [-Wunused-local-typedefs]
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+                    ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/preprocessor/cat.hpp:29:34: note: in definition of macro ‘BOOST_PP_CAT_I’
+ #    define BOOST_PP_CAT_I(a, b) a ## b
+                                  ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:7: note: in expansion of macro ‘BOOST_PP_CAT’
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+       ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/assert.hpp:44:5: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT_FN’
+     BOOST_CONCEPT_ASSERT_FN(void(*)ModelInParens)
+     ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp:485:11: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT’
+           BOOST_CONCEPT_ASSERT((Convertible<First, first_argument_type>));
+           ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:20: warning: typedef ‘boost_concept_check486’ locally defined but not used [-Wunused-local-typedefs]
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+                    ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/preprocessor/cat.hpp:29:34: note: in definition of macro ‘BOOST_PP_CAT_I’
+ #    define BOOST_PP_CAT_I(a, b) a ## b
+                                  ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:7: note: in expansion of macro ‘BOOST_PP_CAT’
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+       ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/assert.hpp:44:5: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT_FN’
+     BOOST_CONCEPT_ASSERT_FN(void(*)ModelInParens)
+     ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp:486:11: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT’
+           BOOST_CONCEPT_ASSERT((Convertible<Second, second_argument_type>));
+           ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp: In destructor ‘boost::InputIterator<TT>::~InputIterator()’:
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:20: warning: typedef ‘boost_concept_check517’ locally defined but not used [-Wunused-local-typedefs]
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+                    ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/preprocessor/cat.hpp:29:34: note: in definition of macro ‘BOOST_PP_CAT_I’
+ #    define BOOST_PP_CAT_I(a, b) a ## b
+                                  ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:7: note: in expansion of macro ‘BOOST_PP_CAT’
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+       ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/assert.hpp:44:5: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT_FN’
+     BOOST_CONCEPT_ASSERT_FN(void(*)ModelInParens)
+     ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp:517:9: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT’
+         BOOST_CONCEPT_ASSERT((SignedInteger<difference_type>));
+         ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:20: warning: typedef ‘boost_concept_check518’ locally defined but not used [-Wunused-local-typedefs]
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+                    ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/preprocessor/cat.hpp:29:34: note: in definition of macro ‘BOOST_PP_CAT_I’
+ #    define BOOST_PP_CAT_I(a, b) a ## b
+                                  ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:7: note: in expansion of macro ‘BOOST_PP_CAT’
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+       ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/assert.hpp:44:5: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT_FN’
+     BOOST_CONCEPT_ASSERT_FN(void(*)ModelInParens)
+     ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp:518:9: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT’
+         BOOST_CONCEPT_ASSERT((Convertible<iterator_category, std::input_iterator_tag>));
+         ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp: In destructor ‘boost::ForwardIterator<TT>::~ForwardIterator()’:
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:20: warning: typedef ‘boost_concept_check551’ locally defined but not used [-Wunused-local-typedefs]
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+                    ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/preprocessor/cat.hpp:29:34: note: in definition of macro ‘BOOST_PP_CAT_I’
+ #    define BOOST_PP_CAT_I(a, b) a ## b
+                                  ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:7: note: in expansion of macro ‘BOOST_PP_CAT’
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+       ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/assert.hpp:44:5: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT_FN’
+     BOOST_CONCEPT_ASSERT_FN(void(*)ModelInParens)
+     ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp:548:11: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT’
+           BOOST_CONCEPT_ASSERT((Convertible<
+           ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp: In destructor ‘boost::BidirectionalIterator<TT>::~BidirectionalIterator()’:
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:20: warning: typedef ‘boost_concept_check579’ locally defined but not used [-Wunused-local-typedefs]
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+                    ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/preprocessor/cat.hpp:29:34: note: in definition of macro ‘BOOST_PP_CAT_I’
+ #    define BOOST_PP_CAT_I(a, b) a ## b
+                                  ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:7: note: in expansion of macro ‘BOOST_PP_CAT’
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+       ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/assert.hpp:44:5: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT_FN’
+     BOOST_CONCEPT_ASSERT_FN(void(*)ModelInParens)
+     ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp:576:11: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT’
+           BOOST_CONCEPT_ASSERT((Convertible<
+           ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp: In destructor ‘boost::RandomAccessIterator<TT>::~RandomAccessIterator()’:
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:20: warning: typedef ‘boost_concept_check609’ locally defined but not used [-Wunused-local-typedefs]
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+                    ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/preprocessor/cat.hpp:29:34: note: in definition of macro ‘BOOST_PP_CAT_I’
+ #    define BOOST_PP_CAT_I(a, b) a ## b
+                                  ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:7: note: in expansion of macro ‘BOOST_PP_CAT’
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+       ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/assert.hpp:44:5: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT_FN’
+     BOOST_CONCEPT_ASSERT_FN(void(*)ModelInParens)
+     ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp:606:11: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT’
+           BOOST_CONCEPT_ASSERT((Convertible<
+           ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp: In destructor ‘boost::Container<C>::~Container()’:
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:20: warning: typedef ‘boost_concept_check653’ locally defined but not used [-Wunused-local-typedefs]
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+                    ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/preprocessor/cat.hpp:29:34: note: in definition of macro ‘BOOST_PP_CAT_I’
+ #    define BOOST_PP_CAT_I(a, b) a ## b
+                                  ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:7: note: in expansion of macro ‘BOOST_PP_CAT’
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+       ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/assert.hpp:44:5: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT_FN’
+     BOOST_CONCEPT_ASSERT_FN(void(*)ModelInParens)
+     ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp:653:11: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT’
+           BOOST_CONCEPT_ASSERT((InputIterator<const_iterator>));
+           ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp: In destructor ‘boost::Mutable_Container<C>::~Mutable_Container()’:
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:20: warning: typedef ‘boost_concept_check681’ locally defined but not used [-Wunused-local-typedefs]
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+                    ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/preprocessor/cat.hpp:29:34: note: in definition of macro ‘BOOST_PP_CAT_I’
+ #    define BOOST_PP_CAT_I(a, b) a ## b
+                                  ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:7: note: in expansion of macro ‘BOOST_PP_CAT’
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+       ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/assert.hpp:44:5: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT_FN’
+     BOOST_CONCEPT_ASSERT_FN(void(*)ModelInParens)
+     ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp:680:11: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT’
+           BOOST_CONCEPT_ASSERT((
+           ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:20: warning: typedef ‘boost_concept_check683’ locally defined but not used [-Wunused-local-typedefs]
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+                    ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/preprocessor/cat.hpp:29:34: note: in definition of macro ‘BOOST_PP_CAT_I’
+ #    define BOOST_PP_CAT_I(a, b) a ## b
+                                  ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:7: note: in expansion of macro ‘BOOST_PP_CAT’
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+       ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/assert.hpp:44:5: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT_FN’
+     BOOST_CONCEPT_ASSERT_FN(void(*)ModelInParens)
+     ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp:683:11: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT’
+           BOOST_CONCEPT_ASSERT((InputIterator<iterator>));
+           ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp: In destructor ‘boost::ForwardContainer<C>::~ForwardContainer()’:
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:20: warning: typedef ‘boost_concept_check703’ locally defined but not used [-Wunused-local-typedefs]
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+                    ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/preprocessor/cat.hpp:29:34: note: in definition of macro ‘BOOST_PP_CAT_I’
+ #    define BOOST_PP_CAT_I(a, b) a ## b
+                                  ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:7: note: in expansion of macro ‘BOOST_PP_CAT’
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+       ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/assert.hpp:44:5: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT_FN’
+     BOOST_CONCEPT_ASSERT_FN(void(*)ModelInParens)
+     ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp:700:11: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT’
+           BOOST_CONCEPT_ASSERT((
+           ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp: In destructor ‘boost::Mutable_ForwardContainer<C>::~Mutable_ForwardContainer()’:
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:20: warning: typedef ‘boost_concept_check716’ locally defined but not used [-Wunused-local-typedefs]
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+                    ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/preprocessor/cat.hpp:29:34: note: in definition of macro ‘BOOST_PP_CAT_I’
+ #    define BOOST_PP_CAT_I(a, b) a ## b
+                                  ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:7: note: in expansion of macro ‘BOOST_PP_CAT’
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+       ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/assert.hpp:44:5: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT_FN’
+     BOOST_CONCEPT_ASSERT_FN(void(*)ModelInParens)
+     ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp:713:11: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT’
+           BOOST_CONCEPT_ASSERT((
+           ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp: In destructor ‘boost::ReversibleContainer<C>::~ReversibleContainer()’:
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:20: warning: typedef ‘boost_concept_check731’ locally defined but not used [-Wunused-local-typedefs]
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+                    ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/preprocessor/cat.hpp:29:34: note: in definition of macro ‘BOOST_PP_CAT_I’
+ #    define BOOST_PP_CAT_I(a, b) a ## b
+                                  ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:7: note: in expansion of macro ‘BOOST_PP_CAT’
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+       ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/assert.hpp:44:5: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT_FN’
+     BOOST_CONCEPT_ASSERT_FN(void(*)ModelInParens)
+     ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp:729:11: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT’
+           BOOST_CONCEPT_ASSERT((
+           ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:20: warning: typedef ‘boost_concept_check733’ locally defined but not used [-Wunused-local-typedefs]
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+                    ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/preprocessor/cat.hpp:29:34: note: in definition of macro ‘BOOST_PP_CAT_I’
+ #    define BOOST_PP_CAT_I(a, b) a ## b
+                                  ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:7: note: in expansion of macro ‘BOOST_PP_CAT’
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+       ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/assert.hpp:44:5: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT_FN’
+     BOOST_CONCEPT_ASSERT_FN(void(*)ModelInParens)
+     ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp:733:11: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT’
+           BOOST_CONCEPT_ASSERT((BidirectionalIterator<const_reverse_iterator>));
+           ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp: In destructor ‘boost::Mutable_ReversibleContainer<C>::~Mutable_ReversibleContainer()’:
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:20: warning: typedef ‘boost_concept_check755’ locally defined but not used [-Wunused-local-typedefs]
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+                    ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/preprocessor/cat.hpp:29:34: note: in definition of macro ‘BOOST_PP_CAT_I’
+ #    define BOOST_PP_CAT_I(a, b) a ## b
+                                  ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:7: note: in expansion of macro ‘BOOST_PP_CAT’
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+       ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/assert.hpp:44:5: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT_FN’
+     BOOST_CONCEPT_ASSERT_FN(void(*)ModelInParens)
+     ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp:755:11: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT’
+           BOOST_CONCEPT_ASSERT((Mutable_BidirectionalIterator<iterator>));
+           ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:20: warning: typedef ‘boost_concept_check756’ locally defined but not used [-Wunused-local-typedefs]
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+                    ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/preprocessor/cat.hpp:29:34: note: in definition of macro ‘BOOST_PP_CAT_I’
+ #    define BOOST_PP_CAT_I(a, b) a ## b
+                                  ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:7: note: in expansion of macro ‘BOOST_PP_CAT’
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+       ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/assert.hpp:44:5: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT_FN’
+     BOOST_CONCEPT_ASSERT_FN(void(*)ModelInParens)
+     ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp:756:11: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT’
+           BOOST_CONCEPT_ASSERT((Mutable_BidirectionalIterator<reverse_iterator>));
+           ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp: In destructor ‘boost::RandomAccessContainer<C>::~RandomAccessContainer()’:
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:20: warning: typedef ‘boost_concept_check776’ locally defined but not used [-Wunused-local-typedefs]
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+                    ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/preprocessor/cat.hpp:29:34: note: in definition of macro ‘BOOST_PP_CAT_I’
+ #    define BOOST_PP_CAT_I(a, b) a ## b
+                                  ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:7: note: in expansion of macro ‘BOOST_PP_CAT’
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+       ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/assert.hpp:44:5: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT_FN’
+     BOOST_CONCEPT_ASSERT_FN(void(*)ModelInParens)
+     ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp:773:11: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT’
+           BOOST_CONCEPT_ASSERT((
+           ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp: In destructor ‘boost::Mutable_RandomAccessContainer<C>::~Mutable_RandomAccessContainer()’:
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:20: warning: typedef ‘boost_concept_check800’ locally defined but not used [-Wunused-local-typedefs]
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+                    ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/preprocessor/cat.hpp:29:34: note: in definition of macro ‘BOOST_PP_CAT_I’
+ #    define BOOST_PP_CAT_I(a, b) a ## b
+                                  ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:7: note: in expansion of macro ‘BOOST_PP_CAT’
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+       ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/assert.hpp:44:5: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT_FN’
+     BOOST_CONCEPT_ASSERT_FN(void(*)ModelInParens)
+     ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp:800:11: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT’
+           BOOST_CONCEPT_ASSERT((Mutable_RandomAccessIterator<typename self::iterator>));
+           ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:20: warning: typedef ‘boost_concept_check801’ locally defined but not used [-Wunused-local-typedefs]
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+                    ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/preprocessor/cat.hpp:29:34: note: in definition of macro ‘BOOST_PP_CAT_I’
+ #    define BOOST_PP_CAT_I(a, b) a ## b
+                                  ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:7: note: in expansion of macro ‘BOOST_PP_CAT’
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+       ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/assert.hpp:44:5: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT_FN’
+     BOOST_CONCEPT_ASSERT_FN(void(*)ModelInParens)
+     ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp:801:11: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT’
+           BOOST_CONCEPT_ASSERT((Mutable_RandomAccessIterator<typename self::reverse_iterator>));
+           ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp: In destructor ‘boost::AssociativeContainer<C>::~AssociativeContainer()’:
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:20: warning: typedef ‘boost_concept_check905’ locally defined but not used [-Wunused-local-typedefs]
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+                    ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/preprocessor/cat.hpp:29:34: note: in definition of macro ‘BOOST_PP_CAT_I’
+ #    define BOOST_PP_CAT_I(a, b) a ## b
+                                  ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:7: note: in expansion of macro ‘BOOST_PP_CAT’
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+       ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/assert.hpp:44:5: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT_FN’
+     BOOST_CONCEPT_ASSERT_FN(void(*)ModelInParens)
+     ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp:905:11: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT’
+           BOOST_CONCEPT_ASSERT((BinaryPredicate<key_compare,key_type,key_type>));
+           ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:20: warning: typedef ‘boost_concept_check908’ locally defined but not used [-Wunused-local-typedefs]
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+                    ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/preprocessor/cat.hpp:29:34: note: in definition of macro ‘BOOST_PP_CAT_I’
+ #    define BOOST_PP_CAT_I(a, b) a ## b
+                                  ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:7: note: in expansion of macro ‘BOOST_PP_CAT’
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+       ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/assert.hpp:44:5: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT_FN’
+     BOOST_CONCEPT_ASSERT_FN(void(*)ModelInParens)
+     ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept_check.hpp:908:11: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT’
+           BOOST_CONCEPT_ASSERT((BinaryPredicate<value_compare,value_type_,value_type_>));
+           ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/range/algorithm/equal.hpp: In function ‘bool boost::range::equal(const SinglePassRange1&, const SinglePassRange2&)’:
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:20: warning: typedef ‘boost_concept_check172’ locally defined but not used [-Wunused-local-typedefs]
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+                    ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/preprocessor/cat.hpp:29:34: note: in definition of macro ‘BOOST_PP_CAT_I’
+ #    define BOOST_PP_CAT_I(a, b) a ## b
+                                  ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:7: note: in expansion of macro ‘BOOST_PP_CAT’
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+       ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/assert.hpp:44:5: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT_FN’
+     BOOST_CONCEPT_ASSERT_FN(void(*)ModelInParens)
+     ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/range/concepts.hpp:92:45: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT’
+     #define BOOST_RANGE_CONCEPT_ASSERT( x ) BOOST_CONCEPT_ASSERT( x )
+                                             ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/range/algorithm/equal.hpp:172:13: note: in expansion of macro ‘BOOST_RANGE_CONCEPT_ASSERT’
+             BOOST_RANGE_CONCEPT_ASSERT(( SinglePassRangeConcept<const SinglePassRange1> ));
+             ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:20: warning: typedef ‘boost_concept_check173’ locally defined but not used [-Wunused-local-typedefs]
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+                    ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/preprocessor/cat.hpp:29:34: note: in definition of macro ‘BOOST_PP_CAT_I’
+ #    define BOOST_PP_CAT_I(a, b) a ## b
+                                  ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:7: note: in expansion of macro ‘BOOST_PP_CAT’
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+       ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/assert.hpp:44:5: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT_FN’
+     BOOST_CONCEPT_ASSERT_FN(void(*)ModelInParens)
+     ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/range/concepts.hpp:92:45: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT’
+     #define BOOST_RANGE_CONCEPT_ASSERT( x ) BOOST_CONCEPT_ASSERT( x )
+                                             ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/range/algorithm/equal.hpp:173:13: note: in expansion of macro ‘BOOST_RANGE_CONCEPT_ASSERT’
+             BOOST_RANGE_CONCEPT_ASSERT(( SinglePassRangeConcept<const SinglePassRange2> ));
+             ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/range/algorithm/equal.hpp: In function ‘bool boost::range::equal(const SinglePassRange1&, const SinglePassRange2&, BinaryPredicate)’:
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:20: warning: typedef ‘boost_concept_check185’ locally defined but not used [-Wunused-local-typedefs]
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+                    ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/preprocessor/cat.hpp:29:34: note: in definition of macro ‘BOOST_PP_CAT_I’
+ #    define BOOST_PP_CAT_I(a, b) a ## b
+                                  ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:7: note: in expansion of macro ‘BOOST_PP_CAT’
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+       ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/assert.hpp:44:5: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT_FN’
+     BOOST_CONCEPT_ASSERT_FN(void(*)ModelInParens)
+     ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/range/concepts.hpp:92:45: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT’
+     #define BOOST_RANGE_CONCEPT_ASSERT( x ) BOOST_CONCEPT_ASSERT( x )
+                                             ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/range/algorithm/equal.hpp:185:13: note: in expansion of macro ‘BOOST_RANGE_CONCEPT_ASSERT’
+             BOOST_RANGE_CONCEPT_ASSERT(( SinglePassRangeConcept<const SinglePassRange1> ));
+             ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:20: warning: typedef ‘boost_concept_check186’ locally defined but not used [-Wunused-local-typedefs]
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+                    ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/preprocessor/cat.hpp:29:34: note: in definition of macro ‘BOOST_PP_CAT_I’
+ #    define BOOST_PP_CAT_I(a, b) a ## b
+                                  ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/detail/general.hpp:71:7: note: in expansion of macro ‘BOOST_PP_CAT’
+       BOOST_PP_CAT(boost_concept_check,__LINE__)
+       ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/concept/assert.hpp:44:5: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT_FN’
+     BOOST_CONCEPT_ASSERT_FN(void(*)ModelInParens)
+     ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/range/concepts.hpp:92:45: note: in expansion of macro ‘BOOST_CONCEPT_ASSERT’
+     #define BOOST_RANGE_CONCEPT_ASSERT( x ) BOOST_CONCEPT_ASSERT( x )
+                                             ^
+/pkg/boost/1.55.0/Linux/x86_64/include/boost/range/algorithm/equal.hpp:186:13: note: in expansion of macro ‘BOOST_RANGE_CONCEPT_ASSERT’
+             BOOST_RANGE_CONCEPT_ASSERT(( SinglePassRangeConcept<const SinglePassRange2> ));
+             ^

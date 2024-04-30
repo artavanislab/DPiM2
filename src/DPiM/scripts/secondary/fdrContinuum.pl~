@@ -1,0 +1,140 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use File::Basename;
+use Getopt::Long;
+use Data::Dumper;
+use HomeBrew::IO qw(checkExist readList readCols);
+use Statistics::Basic qw(median);
+#use DpimLib qw(getLineDP4APMS);
+
+# find the HGScore cutoff using simulations
+
+my %opts = getCommandLineOptions();
+
+{
+    my $realFile = $opts{real};
+    my $simFile = $opts{sim};
+    my $outFile = $opts{out};
+
+    my @simFiles;
+    if (exists $opts{simlist}) {
+	@simFiles = readList($simFile);
+	checkExist('f', $_) for @simFiles;
+    } else {
+	@simFiles = ($simFile);
+    }
+
+    my @cutoffs = ();
+    for my $sf (@simFiles) {
+	push @cutoffs, compHGScoreCutoff($realFile, $sf, $outFile);
+    }
+    say "cutoffs <- c(".( join ",", @cutoffs ).")";
+    my $hgCutoff = median(\@cutoffs);
+    
+    my $runName = basename($realFile);
+    $runName =~ s/\.o\d+//;
+    say join "\t", $runName, $hgCutoff;
+    
+    if (defined $outFile) {
+	my $scr = '/home/glocke/DPiM/scripts/scoreCutoff.pl';
+	my $cmd = "$scr -in $realFile -out $outFile -cutoff $hgCutoff";
+	system($cmd);
+    }
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+    my @modes = qw(fly human);
+    my %modes = map {$_ => 1} @modes;
+    my @arr = @modes;
+    $arr[0] = "*".$arr[0]."*";
+    my $modeString = "-mode ".join("/", @arr);
+
+    my %defaults = (
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my $usage = "usage: $0 -real hypspec.o123 -sim hypspec.o123 < -out output ".
+	"-simlist $modeString>\n";
+
+    my %opts = ();
+    GetOptions(\%opts, "real=s", "sim=s", "out=s", "simlist", "mode=s");
+    die $usage unless exists $opts{real} && exists $opts{sim};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+    $opts{mode} //= $modes[0];
+    die "you must select one of the following modes: "
+	, join(", ",keys(%modes)), "\n" if ! exists $modes{$opts{mode}};
+
+    checkExist('f', $opts{real});
+    checkExist('f', $opts{sim});
+
+    return %opts;
+}
+
+
+
+sub compHGScoreCutoff {
+    my ($realFile, $simFile, $outFile, $fdr) = @_;
+
+    $fdr //= 0.05; # by default look for cutoff for 0.05 FDR
+
+    $fdr = 100*$fdr - 1; #conver the FDR to column index from the file read in 
+
+
+    my @real_edges = ();
+    open my $IN, "<", $realFile or die "can't read from $realFile. $!";
+    while (my $line = <$IN>) {
+	if ($line =~ "^FBgn" || $line =~ /^\d+\s+\d+\s+\d+/){
+	    chomp($line);
+	    my @field = split(/\t/, $line);
+	    push @real_edges, $field[2];
+	}
+    }
+    close($IN);
+
+    my @simulated_edges = ();
+    open $IN, "<", $simFile or die "can't read from $simFile. $!";
+    while (my $line = <$IN>) {
+	if ($line =~ "^FBgn" || $line =~ /^\d+\s+\d+\s+\d+/){
+	    chomp($line);
+	    my @field = split(/\t/, $line);
+	    push @simulated_edges, $field[2];
+	}
+    }
+    close($IN);
+    die "can't find any simulated edges.  maybe you want to use -simlist?\n" if @simulated_edges == 0;
+    
+    my $FDR_cutoff = 0;
+    my $FDR = 0;
+    my $s = 0;
+    my $r;
+    while ($FDR < 0.05 && $s < $#simulated_edges) {
+	$r = 0;
+	if (! defined $real_edges[$r]) {
+	    warn "real_edges[$r] not defined.  \$#real_edges = $#real_edges\n";
+	}
+	if (! defined $simulated_edges[$s]) {
+	    warn "simulated_edges[$s] not defined.  \$#simulated_edges = $#simulated_edges\n";
+	}
+	while ($real_edges[$r] >= $simulated_edges[$s]) {
+	    $r ++;
+	}
+	$FDR = ($s+1)/($r+1);
+	$s ++;
+    }
+    $FDR_cutoff = $real_edges[$r+1];
+    return $FDR_cutoff;
+}
+

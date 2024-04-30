@@ -1,0 +1,21 @@
+#/usr/bin/perl
+
+use warnings;
+use strict;
+
+use POSIX;
+use Test::More qw(no_plan);
+
+# Verify module can be included via "use" pragma
+BEGIN { use_ok('HomeBrew::Misc') };
+
+# Verify module can be included via "require" pragma
+require_ok('HomeBrew::Misc');
+
+# test converter subs
+
+my (@colors, @numbers, @hats);
+@colors = qw(red yellow green);
+@numbers = qw(349 1234.5678 3.14159265);
+@hats = qw(fedora porkpie bowler);
+my %tarHash = {colors => \@colors, numbers => \@numbers, hats => \@hats};

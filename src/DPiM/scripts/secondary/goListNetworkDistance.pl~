@@ -1,0 +1,47 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+use HomeBrew::IO qw(checkExist);
+#use DpimLib qw(getLineAPMS);
+
+# find the HG-score of 
+
+my %opts = getCommandLineOptions();
+
+{
+    my $distFile = $opts{dist};
+    my $listFile = $opts{list};
+    my $out = $opts{out};
+
+    
+}
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+
+    my %defaults = (
+	dist => '/home/glocke/DPiM/oldDpim/dpim3.1/dpim3.09-25-2015.nrBait.noCutoff.network',
+	list => '/home/glocke/DPiM/oldDpim/dpim3.1/dpim3.09-25-2015.nrBait.77.44.network.GOComplexes.min4',
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my $usage = "usage: $0 -out junk < $defaultString >\n";
+
+    my %opts = ();
+    GetOptions(\%opts, "out=s");
+    die $usage unless exists $opts{out};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+
+    return %opts;
+}

@@ -1,0 +1,10 @@
+package HomeBrew::IO;
+
+use strict;
+use warnings;
+
+require Exporter;
+
+# sortArrayOfHashes(\@array, $col, (optional: $sortFunction))
+# sortHashOfArrays(\%hash, $col, (optional: $sortFunction))
+#  must convert %hash{cols} to @array[{cols}] then call sAoH

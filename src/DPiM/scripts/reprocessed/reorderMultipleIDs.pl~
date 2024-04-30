@@ -1,0 +1,75 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+use HomeBrew::IO qw(checkExist);
+#use DpimLib qw(getLineDP4APMS);
+
+# ms_inst_run_id is supposed to be a unique key, but it isn't.
+# There are id's corresponding to multiple experiments.
+# This is mainly a problem because of LC carryover correction.
+# These id's are treated as sequential by the LCCC code, but the experiments
+#   sharing these non-unique keys are out of order (at least some of them).
+# Bob and Marina put together some spreadsheets explaining how to re-order these
+#   experiments.
+# This script executes these corrections.
+
+# For each (contiguous block of) to-be-reordered experiment(s), find the nearest
+#   preceding experiment that is correctly ordered.
+# Use the id for that preceding experiment as the base for the TBR experiments,
+#   adding decimals to it indicating the order.
+
+# This means finding the correct order for every non-duplicate-id experiment 
+#   first - keyed by date.
+# It so happens that the dates for the DPIM1 era experiments are not recorded
+#   accurately, but we're in luck because the only duplicates from from 2014 and
+#   2015.
+
+# The end product of this script is a table showing how id strings have been
+#   changed, and, of course, a corrected version of the apms data file
+
+
+my %opts = getCommandLineOptions();
+
+{
+    my $in = $opts{in};
+    my $out = $opts{out};
+
+    
+    open my $IN, "<", $in or die "can't read $in. $!";
+    close $IN; 
+    open my $OUT, ">", $out or die "can't write to $out. $!";
+    say $OUT "# $0 describe this";
+    close $OUT; 
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+
+    my %defaults = (
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my $usage = "usage: $0 -in input -out output\n";
+
+    my %opts = ();
+    GetOptions(\%opts, "in=s", "out=s");
+    die $usage unless exists $opts{in} && exists $opts{out};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+
+    checkExist('f', $opts{in});
+
+    return %opts;
+}

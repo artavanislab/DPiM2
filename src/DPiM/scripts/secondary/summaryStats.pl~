@@ -1,0 +1,57 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+use HomeBrew::IO qw(checkExist);
+use DpimLib qw(getLineDPIM3 getLineAPMS);
+
+# report number of
+#  * experiments
+#  * experiments with 0, 1, 2+ bait peptides
+#  * prey
+#  * baits
+#  * baits with 1, 2, 3, 4+ experiments
+
+my %opts = getCommandLineOptions();
+
+{
+    my $in = $opts{in};
+    my $out = $opts{out};
+
+    
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+
+    my %defaults = (
+	dp2_clean => '/home/glocke/DPiM/dpim3.1/dpim2_nrtap.120123',
+	dp2_raw => '/home/glocke/DPiM/dpim3_raw/dpim2_all.120123.plusUniqMsInst',
+	dp3 => '/home/glocke/DPiM/dpim3.1/DPiM_Data_Summary_2014_edited.reformatted.rmDupes.tab',
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my $usage = "usage: $0 -in input -out output\n";
+
+    my %opts = ();
+    GetOptions(\%opts, "in=s", "out=s");
+    die $usage unless exists $opts{in} && exists $opts{out};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+
+    checkExist('f', $opts{in});
+
+    return %opts;
+}
+

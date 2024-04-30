@@ -1,0 +1,131 @@
+## find the fraction of edges that connect nodes with the same annotation
+## report 
+
+
+netFile <- ""
+outFile <- ""
+moode <- "human"
+{
+    ## collect command line arguments
+    argv <- commandArgs(TRUE)
+    moodes = c("fly", "human")
+    if (length(argv) < 2) {
+        write("usage: edgeGOTest.R <net> (<terms.out/null>  *human*/fly )",
+              stderr())
+        stop("required args missing")
+    }
+    netFile <- argv[1]
+    if (length(argv) >= 2 && argv[2] != 'null') {
+        outFile <- argv[2]
+    }
+    if (length(argv) > 3) {
+        moode = argv[3]
+        if (! moode %in% moodes) {
+            stop(paste("don't understand the moode argument '", moode, "'",
+                       sep=""))
+        }
+    }
+}
+
+library(org.Dm.eg.db)
+library(org.Hs.eg.db)
+library(GO.db)
+library(igraph)
+library(data.table)
+
+if (0) {
+excludedTerms <- c('GO:0003674', 'GO:0005515', 'GO:0005575', 'GO:0005634',
+                   'GO:0005737', 'GO:0005739', 'GO:0005829', 'GO:0008150',
+                   'GO:0005829', 'GO:0008150')
+## that's molecular_function, protein binding, cellular component, nucleus, 
+## cytoplasm, mitochondrion, cytosol, biological_process
+}
+excludedTerms <- c()
+
+if (moode == 'fly') {
+    eg.db <- org.Dm.eg.db
+    idCol <- "FLYBASE"
+} else if (moode == 'human') {
+    eg.db <- org.Hs.eg.db
+    idCol <- "ENTREZID"
+} else {
+    stop(paste("unknown moode '", moode, "'", sep=""))
+}
+
+termThresh <-  0.15 ## ignore any term covering this fraction of all nodes
+
+{
+    netTab <- read.table(netFile, header = T)
+    colnames(netTab) <- c("protein1", "protein2", "score")
+    netTab$protein1 <- as.character(netTab$protein1)
+    netTab$protein2 <- as.character(netTab$protein2)
+
+    proteins <- unique(c(netTab$protein1, netTab$protein2))
+    allGO <- select(eg.db, proteins, c(idCol, "GO"), keytype=idCol)
+    allGO <- unique(allGO[,c(idCol, "GO")])
+    
+    if (0) {
+        ## remove over-abundant terms
+        listByGO <- split(allGO, allGO$GO)
+        nodesPerTerm <- sapply(listByGO, nrow)
+        tooMany <- which(nodesPerTerm > (termThresh * length(proteins)))
+        allGO <- subset(allGO, ! GO %in% names(listByGO)[tooMany])
+    }
+
+
+    ## remove uesless terms
+    allGO <- subset(allGO, ! GO %in% excludedTerms)
+    
+    ## now split the result
+    listByGO <- split(allGO, allGO$GO)
+    listByEG <- split(allGO, allGO[,idCol])
+    allTerms <- select(GO.db, names(listByGO), c("TERM"), keytype="GOID")
+    
+}
+
+## how many edges connect proteins sharing at least one GO term
+edgesSharingGO <- function(netTab, listByEG) {
+
+    commonGO <- apply(netTab, 1, function(edg) {
+                          go1 <- listByEG[[as.character(edg["protein1"])]]
+                          go2 <- listByEG[[as.character(edg["protein2"])]]
+                          ##go2 <- listByEG[[edg$protein2]]
+                          return (0 < length(intersect(go1$GO, go2$GO)))
+                      })
+    tot <- length(commonGO)
+    shar <- sum(commonGO)
+    return(data.frame(total=tot, shared=shar, frac=shar/tot))
+}
+
+{
+    ## calc statistics by term
+
+    netG <- graph_from_data_frame(netTab, directed=F)
+    degrees <- degree(netG)
+    
+    interEdges <-
+        lapply(listByGO, function(frame) {
+                   genes <- frame[,idCol]
+                   vertices <- V(netG)[genes]
+                   deg <- degrees[genes]
+                   ## for each gene, for neighbor, test if the
+                   ## gene on the other end of that edge shares this
+                   ## GO term
+                   common <- sapply(adjacent_vertices(netG, vertices),
+                                    function(neigh) {
+                                        sum(neigh %in% vertices)
+                                    })
+                   sumD <- sum(deg)
+                   sumC <- sum(common)
+                   return(data.frame(annotated=length(genes),
+                                     sumDegree = sumD,
+                                     sumCommon = sumC,
+                                     frac=sumC/sumD))
+               })
+    commonGO <- rbindlist(interEdges)
+    
+    commonGO <- cbind(commonGO, allTerms)
+
+    commonGO <- commonGO[order(-commonGO$annotated),]
+    write.table(commonGO, outFile, row.names=F, sep="\t");
+}

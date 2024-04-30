@@ -1,0 +1,52 @@
+
+R version 3.1.2 (2014-10-31) -- "Pumpkin Helmet"
+Copyright (C) 2014 The R Foundation for Statistical Computing
+Platform: x86_64-unknown-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> 
+> library(CBDD)
+Loading required package: Runiversal
+Loading required package: igraph
+
+Attaching package: ‘igraph’
+
+The following objects are masked from ‘package:stats’:
+
+    decompose, spectrum
+
+The following object is masked from ‘package:base’:
+
+    union
+
+Loading required package: rJava
+Loading required package: Matrix
+
+Attaching package: ‘Matrix’
+
+The following objects are masked from ‘package:base’:
+
+    crossprod, tcrossprod
+
+> 
+> 
+> net <- read.table("/home/glocke/DPiM/dpim3.1/dpim3.09-25-2015.nrBait.77.44.network", header = T)
+Error in file(file, "rt") : cannot open the connection
+Calls: read.table -> file
+In addition: Warning message:
+In file(file, "rt") :
+  cannot open file '/home/glocke/DPiM/dpim3.1/dpim3.09-25-2015.nrBait.77.44.network': No such file or directory
+Execution halted

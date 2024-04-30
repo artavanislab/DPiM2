@@ -1,0 +1,63 @@
+##module add CRAN3/cbdd
+##module add CRAN3/ROCR
+##module add oracleinstantclient
+##module add CRAN3/ROracle
+##module add CRAN3/metabaser
+
+source("/home/glocke/setup_MetaBase.R")
+
+pathways <- pathwaysFromMetabase(edgetype = TRUE, mechanism = TRUE,
+                                 species="human")
+
+{
+    paths <- sapply(pathways, function(p) {
+                        ids <- union(p$id1, p$id2)
+                        an <- annotate.nwobj2gene(ids)
+                        return(an$gene)
+                    })
+    ## iinm, all you need is a list of geneid vectors
+
+    comPhoEnt <- comPhos ## this is a matrix with expression values with
+    ## row names matching ids in your pathway list
+    row.names(comPhoEnt) <- rawPhos[row.names(comPhos), "entrez"]
+
+    ## cond <- design matrix
+    ## row names match column names in comPhoEnt
+##                       dose twk batch
+## X00000nM_NoTweak      0   0     1
+## X00000nM_NoTweak.1    0   0     0
+## X00000nM_NoTweak.2    0   0     0
+## X00100nM_NoTweak   0.1k   0     1
+## X00100nM_NoTweak.1 0.1k   0     0
+## X00100nM_NoTweak.2 0.1k   0     0
+## X01000nM_NoTweak     1k   0     1
+## X01000nM_NoTweak.1   1k   0     0
+## X01000nM_NoTweak.2   1k   0     0
+## X10000nM_NoTweak    10k   0     1
+## X10000nM_NoTweak.1  10k   0     0
+## X10000nM_NoTweak.2  10k   0     0
+## X00000nM_Tweak        0   1     1
+## X00000nM_Tweak.1      0   1     0
+## X00000nM_Tweak.2      0   1     0
+## X00100nM_Tweak     0.1k   1     1
+## X00100nM_Tweak.1   0.1k   1     0
+## X00100nM_Tweak.2   0.1k   1     0
+## X01000nM_Tweak       1k   1     1
+## X01000nM_Tweak.1     1k   1     0
+## X01000nM_Tweak.2     1k   1     0
+## X10000nM_Tweak      10k   1     1
+## X10000nM_Tweak.1    10k   1     0
+## X10000nM_Tweak.2    10k   1     0
+}
+
+{
+    ## GSEA
+    mbDat <- ExpressionSet(as.matrix(comPhoEnt))
+    mbDat <- attach.annotation(mbDat, cond) 
+    mbDat <- defineSampleGroups(mbDat, variable="dose")
+    paths2 <- paths[1:10] ## doing it on all pathways took me ~10 minutes or something, and my dataset had only ~2600 genes
+    enrch <- GSEA(mbDat, paths2, controlGroup = "0", nperm=10, processors=1)
+    ## processors=1 because forking is prohibited on the server
+    enrch$pathway <- row.names(enrch)
+    write.table(enrch,file=paste(outDir, "gseaOnComBat_0vs10k.tsv", sep=""), row.names=F, quote=F, sep="\t")
+}

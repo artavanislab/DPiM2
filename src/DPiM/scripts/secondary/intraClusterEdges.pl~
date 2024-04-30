@@ -1,0 +1,55 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+use HomeBrew::IO qw(checkExist);
+#use DpimLib qw(getLineDP4APMS);
+
+# find the fraction of edges within a network that connect clusters
+
+my %opts = getCommandLineOptions();
+
+{
+    my $in = $opts{in};
+    my $out = $opts{out};
+
+    my %clusters
+    $nClusters = clusterFromEachLine(\%clusters, $in);
+
+    
+    open my $IN, "<", $in or die "can't read $in. $!";
+    open my $OUT, ">", $out or die "can't write to $out. $!";
+    close $IN; 
+    close $OUT; 
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+
+    my %defaults = (
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my $usage = "usage: $0 -net in.net -clust mcl.txt \n";
+
+    my %opts = ();
+    GetOptions(\%opts, "net=s", "clust=s");
+    die $usage unless exists $opts{in} && exists $opts{clust};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+
+    checkExist('f', $opts{in});
+
+    return %opts;
+}

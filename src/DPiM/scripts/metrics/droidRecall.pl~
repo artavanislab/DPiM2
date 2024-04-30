@@ -1,0 +1,70 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+use HomeBrew::IO qw(checkExist);
+use DpimLib qw(networkHashFromEdgeList readHS);
+
+# annotate a network so that it gives the recall of the discoverable edges*
+#   in all droid sources
+# * a discoverable edge is an edge in the droid network that connects two nodes
+#   present in our network
+#
+# algorithm:
+#   ingest our network
+#   ingest all droid edges
+#   take the subset of the droid edges connecting nodes in our network
+#   find the column sums for each droid source
+#   finally, go through our edges in order of high to low score and annotate
+#     the recall of each source at each step of the way
+#
+# if -raw flag is set, merely report whether each edge is seen in the given
+#   network
+
+my %opts = getCommandLineOptions();
+
+{
+    my $net = $opts{in};
+    my $droidFile = $opts{droid};
+    my $out = $opts{out};
+
+    
+    
+    open my $IN, "<", $in or die "can't read $in. $!";
+    open my $OUT, ">", $out or die "can't write to $out. $!";
+    say $OUT "# $0 describe this";
+    close $OUT; 
+    close $IN; 
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+
+    my %defaults = (
+	droid => '/home/glocke/DPiM/droid/comprehensive.net',
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my $usage = "usage: $0 -in input -out output < $defaultString -raw >\n";
+
+    my %opts = ();
+    GetOptions(\%opts, "in=s", "out=s");
+    die $usage unless exists $opts{in} && exists $opts{out};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+
+    checkExist('f', $opts{in});
+
+    return %opts;
+}

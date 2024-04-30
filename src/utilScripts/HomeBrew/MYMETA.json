@@ -1,0 +1,29 @@
+{
+   "abstract" : "Various utilities for reading files",
+   "author" : [
+      "George Locke"
+   ],
+   "dynamic_config" : 0,
+   "generated_by" : "Module::Build version 0.4214",
+   "license" : [
+      "unknown"
+   ],
+   "meta-spec" : {
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : "2"
+   },
+   "name" : "HomeBrew-IO",
+   "prereqs" : {
+      "build" : {
+         "requires" : {
+            "List::Util" : "0",
+            "Test::Exception" : "0",
+            "Test::More" : "0.10",
+            "Text::ParseWords" : "0"
+         }
+      }
+   },
+   "release_status" : "stable",
+   "version" : "0.01",
+   "x_serialization_backend" : "JSON::PP version 2.27203"
+}

@@ -1,0 +1,72 @@
+#!/usr/bin/perl -w
+use strict;
+
+# perl compute_fdr.pl <real network out> <simulation network out>
+
+sub compHGScoreCutoff {
+	my ($outfile, $simfile, $all_res, $fdr) = @_;
+	if (! defined $fdr) {
+		$fdr = 0.05; # by default look for cutoff for 0.05 FDR
+	}
+	$fdr = 100*$fdr - 1; #conver the FDR to column index from the file read in 
+
+
+	my @real_edges = ();
+	open(IN, "<$outfile");
+	while (my $line = <IN>) {
+		if ($line =~ "^FBgn"){
+			chomp($line);
+			my @field = split(/\t/, $line);
+			push @real_edges, $field[2];
+		}
+	}
+	close(IN);
+
+        my @simulated_edges = ();
+        open(IN, "<$simfile");
+        while (my $line = <IN>) {
+		if ($line =~ "^FBgn"){
+			chomp($line);
+			my @field = split(/\t/, $line);
+			push @simulated_edges, $field[2];
+		}
+        }
+        close(IN);
+
+        my $FDR_cutoff = 0;
+        my $FDR = 0;
+        my $s = 0;
+        my $r;
+        while ($FDR < 0.05 && $s < $#simulated_edges) {
+		$r = 0;
+		while ($real_edges[$r] >= $simulated_edges[$s]) {
+			$r ++;
+		}
+		$FDR = ($s+1)/($r+1);
+		$s ++;
+	}
+	$FDR_cutoff = $real_edges[$r+1];
+	$r = $r+1;
+	my $range = "8,".$r."p";
+#	`echo "qsub sed -n $range $outfile >> $all_res" | qsub -l h_rt=00:01:00`; # wrtie out the interactions in one file
+	`sed -n $range $outfile > $all_res`; # wrtie out the interactions in one file
+	return ($FDR_cutoff);
+}
+
+my $all_res = "All_Permutation_results.txt";
+
+foreach my $f (@ARGV) {
+my $outfile = $f;
+my $simfile = $f;
+($simfile) = $simfile =~ /(.*)\.o/;
+my ($simOut) = $simfile =~ /(HGConsensus.*)/;
+$simfile .= ".sim001.o";
+$simfile = `ls -1 $simfile*`;
+chomp($simfile);
+
+my ($hg_cutoff, $num_sims_new) = compHGScoreCutoff($outfile, $simfile, "/home/kli3/Interactome/consensus_network/temp/".$simOut);
+#print "HGScore cutoff is $hg_cutoff\n";
+
+my ($sim) = $outfile =~ /(HGConsensus.*)\.o/;
+print "$sim\t$hg_cutoff\n";
+}

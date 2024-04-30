@@ -1,0 +1,14 @@
+#!/bin/bash 
+module add perl
+module add gcc
+module add gsl
+module add boost
+module add CPAN
+module add CPAN/BioPerl
+module add CPAN/DateTime
+module add CPAN/Math-GSL-CDF
+
+DPSCR="/home/glocke/DPiM/scripts/"; export DPSCR;
+DPCPP="/home/glocke/DPiM/cpp/"; export DPCPP;
+UTILSCR="/home/glocke/DPiM/scripts/"; export UTILSCR;
+PERL5LIB="/home/glocke/DPiM/scripts/lib:/home/glocke/utilScripts/HomeBrew/lib:/home/glocke/perl5/lib/perl5${PERL5LIB+:}${PERL5LIB}"; export PERL5LIB;

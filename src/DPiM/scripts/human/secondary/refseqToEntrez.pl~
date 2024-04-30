@@ -1,0 +1,76 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+use File::Temp qw(tempfile);
+use HomeBrew::IO qw(checkExist readList readFastaRef);
+#use DpimLib qw(getLineDP4APMS);
+
+# make lists of NP_xxx and XP_xxx, feed them to biomart, make a table
+
+my %opts = getCommandLineOptions();
+
+{
+    my $faList = $opts{in};
+    my $out = $opts{out};
+
+    my @faFiles = readList($faList);
+    checkExist('f', $_) for @faFiles;
+
+    my ($XPOUT, $xp) = tempfile();
+    my ($NPOUT, $np) = tempfile();
+    for my $f (@faFiles) {
+	my @seqs;
+	my @names;
+	readFastaRef(\@seqs, $f, \@names, 'nocheck');
+	for my $name (@names) {
+	    my $rsPep = (split /\|/, $name)[3];
+	    $rsPep =~ s/\.\d+$//;
+	    if ($rsPep =~ /^XP/) {
+		say $XPOUT $rsPep;
+	    } elsif ($rsPep =~ /^NP/) {
+		say $NPOUT $rsPep;
+	    } else {
+		die "can't parse $f -> $name -> $rsPep";
+	    }
+	}
+    }
+    close $XPOUT;  
+    close $NPOUT;  
+    say "$xp $np";
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+
+    my %defaults = (
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my $usage = "usage: $0 -in input -out out.table\n";
+
+    my %opts = ();
+    GetOptions(\%opts, "in=s", "out=s");
+    die $usage unless exists $opts{in} && exists $opts{out};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+
+    checkExist('f', $opts{in});
+
+    return %opts;
+}
+
+#  hsap = useMart(biomart = "ENSEMBL_MART_ENSEMBL",
+#        dataset="hsapiens_gene_ensembl", host = "jul2015.archive.ensembl.org")
+# getBM(attributes=c("refseq_peptide", "entrezgene", "external_gene_name"), filters= "refseq_peptide", values=c("XP_005244824"), mart=hsap)

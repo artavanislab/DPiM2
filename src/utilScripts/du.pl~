@@ -1,0 +1,17 @@
+#!/usr/bin/env perl
+
+use feature qw(say);
+
+opendir(my $dh, '.') || die;
+while (readdir $dh) {
+    next unless -d;
+    next if /^\./;    
+    my $du = `du -h $_`;
+    say $du;
+    my $last = ( split /\n/, $du ) [-2];
+    say $last;
+}
+
+
+#my $result = `du -h`;
+#my @results = split(/\n/, $results);

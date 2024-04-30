@@ -1,0 +1,71 @@
+/* 
+ * File:   Network.hpp
+ * Author: glocke
+ * Description: 
+ *   read in json files for many permutations
+ *   aggregate statistics to get mean and stddev for every protein pair
+ */
+
+#ifndef _NETWORK_HPP
+#define	_NETWORK_HPP 1
+
+#include "RunningStat.hpp"
+#include "rapidjson/document.h"
+#include <vector>
+#include <string>
+#include <set>
+#include <boost/bimap.hpp>
+
+#ifndef STRING_I_BIMAP
+#define STRING_I_BIMAP 1
+typedef boost::bimap< std::string, size_t > stringIBimap;
+#endif
+#ifndef STRING_VECTOR
+#define STRING_VECTOR 1
+typedef std::vector< std::string > stringVector;
+#endif
+#ifndef STRING_SET
+#define STRING_SET 1
+typedef std::set< std::string > stringSet;
+#endif
+#ifndef STRING_RS_MAP
+#define STRING2RSMAP 1
+typedef std::map< std::string, RunningStat > stringRSMap;
+#endif
+#ifndef PROT_PROT_MAP
+#define PROT_PROT_MAP 1
+typedef std::map< std::string, stringRSMap > protProtMap;
+#endif
+
+class Network {
+public:
+  stringSet allProteins;
+
+  Network();
+  ~Network();
+  Network(const stringVector &jsonFiles);
+
+  void addJson(const std::string& jsonFile);
+  
+  double mean (std::string fbgn1, std::string fbgn2) const; 
+  double sd (std::string fbgn1, std::string fbgn2) const; 
+  double var (std::string fbgn1, std::string fbgn2) const; 
+  
+  // return all scores for this pair of proteins
+  //doubleVector* pairScores(const std::string prot1, const std::string prot2);
+  
+private:
+  protProtMap stats;
+  unsigned nRun;
+
+  stringIBimap fillFbgnMap(rapidjson::Value::ConstMemberIterator begin,
+			   rapidjson::Value::ConstMemberIterator end);
+  void updateStats(rapidjson::Value::ConstMemberIterator begin,
+		   rapidjson::Value::ConstMemberIterator end,
+		   const stringIBimap& indexMap );
+
+  std::string slurp(const std::string& inFile);
+  
+};
+
+#endif	/* _NETWORK_HPP */

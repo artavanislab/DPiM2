@@ -1,0 +1,42 @@
+#include <boost/numeric/ublas/matrix_sparse.hpp>
+#include <boost/numeric/ublas/io.hpp>
+//#include <cmath> // for sqrt
+
+// adapted from http://www.johndcook.com/blog/standard_deviation/
+// "[it] goes back to a 1962 paper by B. P. Welford and is presented in Donald Knuth’s Art of Computer Programming, Vol 2, page 232, 3rd edition."
+
+#ifndef SYM_MAT
+#define SYM_MAT 1
+typedef boost::numeric::ublas::mapped_matrix<float> symMat;
+#endif
+
+class MatrixRunningStat {
+public:
+  symMat prevMean, newMean, prevSqr, newSqr, var;
+
+  void calcVariance();
+
+  MatrixRunningStat();
+  MatrixRunningStat(size_t setSize);
+  void init(size_t setSize);
+  void resize(size_t newSize);  
+  void clear();
+
+  void push(symMat x);
+
+  unsigned getCnt() const;
+  size_t size() const;
+
+  symMat mean() const;
+  double mean(size_t row, size_t col) const;
+  symMat variance();
+  double variance(size_t row, size_t col);
+  // no standard deviation because taking sqrt is not trivial
+
+  void dump();
+  
+private:
+  bool varFresh;
+  unsigned cnt;
+  size_t size_;
+};

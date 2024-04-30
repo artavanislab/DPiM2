@@ -1,0 +1,60 @@
+#!/usr/bin/env perl
+
+use feature ':5.10'; 
+use strict;
+use warnings;
+use Getopt::Long;
+use Data::Dumper;
+
+use lib '/home/glocke/utilScripts/HomeBrew/lib';
+use HomeBrew::IO qw(checkExist writeCols);
+
+use lib '/home/glocke/DPiM/scripts/lib';
+use DpimLib qw(degreeDistribution);
+
+# find and print the degree distributinon
+
+my %opts = getCommandLineOptions();
+
+{
+    my $in = $opts{in};
+    my $out = $opts{out};
+
+    my %dist = degreeDistribution($in);
+    my @k = sort {$dist{$b} <=> $dist{$a}} keys %dist;
+    my @d = map {$dist{$_}} @k;
+
+    my $header = join "\t", qw(rank protein degree);
+    my $format = join "\t", qw(%d %s %d);
+    my $preComments = "# found degree distribution from $in\n";
+    my @data = (\@k, \@d);
+    writeCols($out, \@data, $header, $format, $preComments, 1)
+}
+
+exit;
+
+   ####### +  +  +  +  + ### 
+  #####  Subroutines  #####  
+ ### +  +  +  +  + #######   
+
+sub getCommandLineOptions {
+
+    my %defaults = (
+	);
+    my $defaultString = 
+	join " ", map { "-$_ $defaults{$_}" } sort keys %defaults;
+
+    my $usage = "usage: $0 -in input -out output\n";
+
+    my %opts = ();
+    GetOptions(\%opts, "in=s", "out=s");
+    die $usage unless exists $opts{in} && exists $opts{out};
+
+    for my $k (keys %defaults) {
+	$opts{$k} //= $defaults{$k};
+    }
+
+    checkExist('f', $opts{in});
+
+    return %opts;
+}

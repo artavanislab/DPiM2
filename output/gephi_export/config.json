@@ -1,0 +1,53 @@
+{
+  "type": "network",
+  "version": "1.0",
+  "data": "data.json",
+  "logo": {
+    "file": "https://artavanis-tsakonas.hms.harvard.edu/sites/artavanis-tsakonas.hms.harvard.edu/files/hms-shield-1.png",
+    "link": "https://artavanis-tsakonas.hms.harvard.edu",
+    "text": "ARTAVANIS-TSAKONAS LABORATORY"
+  },
+  "text": {
+    "more": "The next-generation Drosophila Protein Interaction Map – “DPIM2” – established from affinity purification-mass spectrometry of 5,805 baits covering the largest fraction yet of the Drosophila proteome. This network contains 32,668 interactions among 3,644 proteins, organized into 632 clusters representing putative functional modules. It significantly expands the pool of known protein interactions in Drosophila, provides a wealth of annotation for poorly studied genes and, importantly, postulates previously undescribed protein-protein interaction relationships. DPIM2 defines a valuable resource for predicting protein co-complex memberships and functional associations as well as for generating functional hypotheses regarding specific protein interactions.",
+    "intro": "DPIM2 - established from affinity purification-mass spectrometry of 5,805 baits covering the largest fraction yet of the Drosophila proteome. It contains 32,668 interactions among 3,644 proteins, organized into 632 clusters representing putative functional modules",
+    "title": "DPIM2 - The next-generation Drosophila Protein Interaction Map"
+  },
+  "legend": {
+    "edgeLabel": "protein protein interaction (PPI)",
+    "colorLabel": "Cluster",
+    "nodeLabel": "Protein"
+  },
+  "features": {
+    "search": true,
+    "groupSelectorAttribute": "clustername",
+    "hoverBehavior": "dim"
+  },
+  "informationPanel": {
+    "groupByEdgeDirection": false,
+    "imageAttribute": false
+  },
+  "sigma": {
+    "drawingProperties": {
+      "defaultEdgeType": "curve",
+      "defaultHoverLabelBGColor": "#002147",
+      "defaultLabelBGColor": "#ddd",
+      "activeFontStyle": "bold",
+      "defaultLabelColor": "#000",
+      "labelThreshold": 10,
+      "defaultLabelHoverColor": "#fff",
+      "fontStyle": "bold",
+      "hoverFontStyle": "bold",
+      "defaultLabelSize": 14
+    },
+    "graphProperties": {
+      "maxEdgeSize": 0.5,
+      "minEdgeSize": 0.2,
+      "minNodeSize": 1,
+      "maxNodeSize": 7
+    },
+    "mouseProperties": {
+      "maxRatio": 80,
+      "minRatio": 0.5
+    }
+  }
+}

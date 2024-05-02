@@ -369,7 +369,7 @@ function Search(a) {
         this.searching = !0;
         this.lastSearch = a;
         this.results.empty();
-        if (2 >= a.length) this.results.html("<i>You must search for a name with a minimum of 3 letters.</i>");
+        if (2 > a.length) this.results.html("<i>You must search for a name with a minimum of 2 letters.</i>");
         else {
             sigInst.iterNodes(function (a) {
                 g.test(a.label.toLowerCase()) && c.push({
